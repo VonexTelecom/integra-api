@@ -4,10 +4,10 @@ ENV TZ='GMT-3'
 
 VOLUME /tmp
 
-EXPOSE 8080
+EXPOSE 8086
 
 ARG JAR_FILE=target/*.jar
 
-ADD ${JAR_FILE} api-usuario.jar
+ADD ${JAR_FILE} api-integra-api.jar
 
-ENTRYPOINT ["java","-Xmx2g","-jar","/api-usuario.jar"]
+ENTRYPOINT ["java","-Xmx2g","-jar","/api-integra-api.jar"]
