@@ -74,7 +74,7 @@ public class SwaggerConfig implements WebMvcConfigurer {
 	
 	private SecurityScheme securityScheme() {
 		return new OAuthBuilder()
-				.name("Vonex")
+				.name("Integra")
 				.grantTypes(grantTypes())
 				.scopes(scopes())
 				.build();
@@ -82,7 +82,7 @@ public class SwaggerConfig implements WebMvcConfigurer {
 	
 	private SecurityContext securityContext() {
 		SecurityReference securityReference = SecurityReference.builder()
-				.reference("Vonex")
+				.reference("Integra")
 				.scopes(scopes().toArray(new AuthorizationScope[0]))
 				.build();
 		
@@ -156,8 +156,8 @@ public class SwaggerConfig implements WebMvcConfigurer {
 	
 	private ApiInfo apiInfo() {
 		return new ApiInfoBuilder()
-				.title("Vonex - Referência API")
-				.description("API de ReferÊncia para a Vonex")
+				.title("Integra - API ")
+				.description("API para consumo do FrontEnd")
 				.version("2.0")
 				.contact(new Contact("Vonex", "https://www.vonex.com.br", "contato@vonex.com.br"))
 				.build();
