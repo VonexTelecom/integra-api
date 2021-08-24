@@ -7,7 +7,7 @@ import lombok.Getter;
 public enum PeriodoEstatisticaEnum {
 	CINCO_MINUTOS(5L, "5 Minutos"),
 	DEZ_MINUTOS(10L, "10 Minutos"),
-	MEIA_HORA(30L, "30 Minutos");
+	TRINTA_MINUTOS(30L, "30 Minutos");
 	
 	Long index;
 	
