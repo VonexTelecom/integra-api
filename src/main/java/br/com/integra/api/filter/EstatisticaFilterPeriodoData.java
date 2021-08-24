@@ -15,11 +15,11 @@ import lombok.NoArgsConstructor;
 public class EstatisticaFilterPeriodoData {
 
 	 
-	@ApiModelProperty(name = "dtInicio", value = "A Data Início", required = false, position = 3, dataType = "Date", example = "01/01/2020")
+	@ApiModelProperty(name = "dataInicial", value = "A Data Início", required = false, position = 3, dataType = "Date", example = "01/01/2020")
     @DateTimeFormat(pattern = "dd/MM/yyyy")
     private LocalDate dataInicial;
 	
-	@ApiModelProperty(name = "dtInicio", value = "A Data Início", required = false, position = 3, dataType = "Date", example = "01/01/2020")
+	@ApiModelProperty(name = "dataFinal", value = "A Data Final", required = false, position = 3, dataType = "Date", example = "01/01/2020")
     @DateTimeFormat(pattern = "dd/MM/yyyy")
     private LocalDate dataFinal;
 }
