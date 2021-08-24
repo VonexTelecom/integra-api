@@ -1,20 +1,23 @@
 package br.com.integra.api.enums;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 
+@AllArgsConstructor
 @Getter
 public enum PeriodoEstatisticaEnum {
-	CINCO_MINUTOS(5L, "5 Minutos"),
-	DEZ_MINUTOS(10L, "10 Minutos"),
-	TRINTA_MINUTOS(30L, "30 Minutos");
+	CincoMinutos(0L, "5 Minutos"),
+	DezMinutos(1L, "10 Minutos"),
+	TrintaMinutos(2L, "30 Minutos");
 	
-	Long index;
-	
-	String descricao;
-	
-	private PeriodoEstatisticaEnum(Long i, String valor) {
-		this.index = i;
-		this.descricao = valor;
+	public static PeriodoEstatisticaEnum getById(Long id) {
+		for (PeriodoEstatisticaEnum e : values()) {
+			if (e.id.equals(id)) return e;
+		}
+		return null;
 	}
+
+	Long id;
+	String descricao;
 }

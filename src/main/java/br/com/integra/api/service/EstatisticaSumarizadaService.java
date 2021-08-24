@@ -1,21 +1,19 @@
 package br.com.integra.api.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import br.com.integra.api.dto.output.EstatisticaSumarizadaOutputDto;
-import br.com.integra.api.dto.output.EstatisticaSumarizadaPeriodoOutputDto;
+import br.com.integra.api.enums.PeriodoEstatisticaEnum;
 import br.com.integra.api.filter.EstatisticaFilterPeriodoData;
 import br.com.integra.api.filter.EstatisticaFilterPeriodoMinuto;
 import br.com.integra.api.mapper.EstatisticaSumarizadaMapper;
-import br.com.integra.api.model.EstatisticaSumarizadas;
+import br.com.integra.api.model.EstatisticaSumarizada;
 import br.com.integra.api.repository.EstatisticaSumarizadaRepository;
-import br.com.integra.api.repository.specification.EstatisticaSumarizadaSpecification;
 
 @Service
 public class EstatisticaSumarizadaService {
@@ -27,75 +25,112 @@ public class EstatisticaSumarizadaService {
 	private EstatisticaSumarizadaMapper mapper;
 	
 	
-	public Page<EstatisticaSumarizadaOutputDto> findAll(EstatisticaSumarizadaSpecification spec, Pageable pageable) {	
-		Page<EstatisticaSumarizadas> page =  repository.findAll(spec, pageable);	
-		return page.map(user -> mapper.modelToOutputDto(user));
-	}
-	
-
-	public EstatisticaSumarizadaPeriodoOutputDto FindAllPeriodo(EstatisticaSumarizadaSpecification spec, EstatisticaFilterPeriodoMinuto filter){
+	public EstatisticaSumarizadaOutputDto findPorPeriodo(EstatisticaFilterPeriodoMinuto filter, Long clienteId){
 		
-		List<EstatisticaSumarizadas> estatisticas = repository.findAll(spec);
+		LocalDateTime dataInicial = LocalDateTime.now();
+		LocalDateTime dataFinal = converterEnumEmDataFinal(filter.getPeriodoEnum());
 		
-		EstatisticaSumarizadas estatisticasPeriodo = new EstatisticaSumarizadas().builder()
-				.chamadasComplementadas10Segundos(BigDecimal.ZERO)
-				.chamadasComplementadas30Segundos(BigDecimal.ZERO)
-				.chamadasComplementadas3Segundos(BigDecimal.ZERO)
-				.chamadasComplementadasMais30Segundos(BigDecimal.ZERO)
-				.chamadasCompletadas(BigDecimal.ZERO)
-				.chamadasDiscadas(BigDecimal.ZERO)
-				.clienteId(filter.getCliente())
+		List<EstatisticaSumarizada> estatisticas = 
+				repository.findByDatasPeriodo(dataInicial, dataFinal, clienteId);
+		
+		EstatisticaSumarizada estatisticasPeriodo = EstatisticaSumarizada.builder()
+				.chamadasCompletadas10Segundos(completadas10Segundos(estatisticas))
+				.chamadasCompletadas30Segundos(completadas30Segundos(estatisticas))
+				.chamadasCompletadas3Segundos(completadas3Segundos(estatisticas))
+				.chamadasCompletadasMais30Segundos(completadasMais30Segundos(estatisticas))
+				.chamadasCompletadas(completadas(estatisticas))
+				.chamadasDiscadas(discadas(estatisticas))
+				.clienteId(clienteId)
 				.build();
 
-		Long valor = filter.getPeriodoEnum().getIndex();
-		
-		for (EstatisticaSumarizadas estatisticaSumarizada : estatisticas) {
-			if (valor > 0) {
-				 
-				estatisticasPeriodo.setChamadasDiscadas(estatisticasPeriodo.getChamadasDiscadas().add(estatisticaSumarizada.getChamadasDiscadas()));
-				estatisticasPeriodo.setChamadasCompletadas(estatisticasPeriodo.getChamadasCompletadas().add(estatisticaSumarizada.getChamadasCompletadas()));
-				estatisticasPeriodo.setChamadasComplementadas10Segundos(estatisticasPeriodo.getChamadasComplementadas10Segundos().add(estatisticaSumarizada.getChamadasComplementadas10Segundos()));
-				estatisticasPeriodo.setChamadasComplementadas30Segundos(estatisticasPeriodo.getChamadasComplementadas30Segundos().add(estatisticaSumarizada.getChamadasComplementadas30Segundos()));
-				estatisticasPeriodo.setChamadasComplementadas3Segundos(estatisticasPeriodo.getChamadasComplementadas3Segundos().add(estatisticaSumarizada.getChamadasComplementadas3Segundos()));
-				estatisticasPeriodo.setChamadasComplementadasMais30Segundos(estatisticasPeriodo.getChamadasComplementadasMais30Segundos().add(estatisticaSumarizada.getChamadasComplementadasMais30Segundos()));
-				
-				valor--;
-			}
-		}
-		
-		return mapper.periodoModelToOutputDto(estatisticasPeriodo);
+		return mapper.modelToOutputDto(estatisticasPeriodo);
 		
 	}
 	
-	public EstatisticaSumarizadaPeriodoOutputDto FindAllPeridoData(EstatisticaSumarizadaSpecification spec, EstatisticaFilterPeriodoData filter){
+	private LocalDateTime converterEnumEmDataFinal(PeriodoEstatisticaEnum periodoEnum) {
+		
+		LocalDateTime data = LocalDateTime.now();
+		
+		switch (periodoEnum) {
+		case CincoMinutos:
+			data.plusMinutes(5);
+			break;
+		case DezMinutos:
+			data.plusMinutes(10);
+			break;
+		case TrintaMinutos:
+			data.plusMinutes(30);
+			break;
+		default:
+		}
+
+		return data;
+	}
+	
+
+	public EstatisticaSumarizadaOutputDto findPorDatas(EstatisticaFilterPeriodoData filter, Long clienteId){
 		
 		
-		List<EstatisticaSumarizadas> estatisticas = repository.findByDatesPeriodos(filter.getDataInicial(), filter.getDataFinal(), filter.getCliente());
-		
-		
-		
-		EstatisticaSumarizadas estatisticasPeriodo = new EstatisticaSumarizadas().builder()
-				.chamadasComplementadas10Segundos(BigDecimal.ZERO)
-				.chamadasComplementadas30Segundos(BigDecimal.ZERO)
-				.chamadasComplementadas3Segundos(BigDecimal.ZERO)
-				.chamadasComplementadasMais30Segundos(BigDecimal.ZERO)
-				.chamadasCompletadas(BigDecimal.ZERO)
-				.chamadasDiscadas(BigDecimal.ZERO)
-				.clienteId(filter.getCliente())
+		List<EstatisticaSumarizada> estatisticas = 
+				repository.findByDatasPeriodo(filter.getDataInicial().atStartOfDay(), filter.getDataFinal().atTime(23,59,59), clienteId);
+	
+		EstatisticaSumarizada estatisticasPeriodo = EstatisticaSumarizada.builder()
+				.chamadasCompletadas10Segundos(completadas10Segundos(estatisticas))
+				.chamadasCompletadas30Segundos(completadas30Segundos(estatisticas))
+				.chamadasCompletadas3Segundos(completadas3Segundos(estatisticas))
+				.chamadasCompletadasMais30Segundos(completadasMais30Segundos(estatisticas))
+				.chamadasCompletadas(completadas(estatisticas))
+				.chamadasDiscadas(discadas(estatisticas))
+				.clienteId(clienteId)
 				.build();
 
+		return mapper.modelToOutputDto(estatisticasPeriodo);
 		
-		for (EstatisticaSumarizadas estatisticaSumarizada : estatisticas) { 
-				estatisticasPeriodo.setChamadasDiscadas(estatisticasPeriodo.getChamadasDiscadas().add(estatisticaSumarizada.getChamadasDiscadas()));
-				estatisticasPeriodo.setChamadasCompletadas(estatisticasPeriodo.getChamadasCompletadas().add(estatisticaSumarizada.getChamadasCompletadas()));
-				estatisticasPeriodo.setChamadasComplementadas10Segundos(estatisticasPeriodo.getChamadasComplementadas10Segundos().add(estatisticaSumarizada.getChamadasComplementadas10Segundos()));
-				estatisticasPeriodo.setChamadasComplementadas30Segundos(estatisticasPeriodo.getChamadasComplementadas30Segundos().add(estatisticaSumarizada.getChamadasComplementadas30Segundos()));
-				estatisticasPeriodo.setChamadasComplementadas3Segundos(estatisticasPeriodo.getChamadasComplementadas3Segundos().add(estatisticaSumarizada.getChamadasComplementadas3Segundos()));
-				estatisticasPeriodo.setChamadasComplementadasMais30Segundos(estatisticasPeriodo.getChamadasComplementadasMais30Segundos().add(estatisticaSumarizada.getChamadasComplementadasMais30Segundos()));
-		}
+	}
+
+	private BigDecimal completadas10Segundos(List<EstatisticaSumarizada> estatisticas) {
+		return estatisticas
+				.stream()
+				.map(estatistica -> estatistica.getChamadasCompletadas10Segundos())
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+	}
+
+	private BigDecimal completadas30Segundos(List<EstatisticaSumarizada> estatisticas) {
+		return estatisticas
+				.stream()
+				.map(estatistica -> estatistica.getChamadasCompletadas30Segundos())
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+	}
+
+	private BigDecimal completadas3Segundos(List<EstatisticaSumarizada> estatisticas) {
+		return estatisticas
+				.stream()
+				.map(estatistica -> estatistica.getChamadasCompletadas3Segundos())
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+	}
+
+	private BigDecimal completadasMais30Segundos(List<EstatisticaSumarizada> estatisticas) {
+
+		return estatisticas
+				.stream()
+				.map(estatistica -> estatistica.getChamadasCompletadasMais30Segundos())
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+	}
+
+	private BigDecimal completadas(List<EstatisticaSumarizada> estatisticas) {
+
+		return estatisticas
+				.stream()
+				.map(estatistica -> estatistica.getChamadasCompletadas())
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+	}
+
+	private BigDecimal discadas(List<EstatisticaSumarizada> estatisticas) {
 		
-		return mapper.periodoModelToOutputDto(estatisticasPeriodo);
-		
+		return estatisticas
+				.stream()
+				.map(estatistica -> estatistica.getChamadasDiscadas())
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 	
 		

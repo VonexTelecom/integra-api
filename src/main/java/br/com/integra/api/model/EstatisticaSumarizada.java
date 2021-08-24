@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable
-public class EstatisticaSumarizadas {
+public class EstatisticaSumarizada {
 	
 	@Id
 	@Column(name = "data")
@@ -37,15 +37,15 @@ public class EstatisticaSumarizadas {
 	private BigDecimal chamadasCompletadas;
 	
 	@Column(name = "chamadas_completadas_ate_3_segundos")
-	private BigDecimal chamadasComplementadas3Segundos;
+	private BigDecimal chamadasCompletadas3Segundos;
 	
 	@Column(name = "chamadas_completadas_ate_10_segundos")
-	private BigDecimal chamadasComplementadas10Segundos;
+	private BigDecimal chamadasCompletadas10Segundos;
 	
 	@Column(name = "chamadas_completadas_ate_30_segundos")
-	private BigDecimal chamadasComplementadas30Segundos;
+	private BigDecimal chamadasCompletadas30Segundos;
 	
 	@Column(name = "chamadas_completadas_com_mais_de_30_segundos")
-	private BigDecimal chamadasComplementadasMais30Segundos;
+	private BigDecimal chamadasCompletadasMais30Segundos;
 	
 }

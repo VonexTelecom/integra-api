@@ -1,7 +1,8 @@
 package br.com.integra.api.filter;
 
-import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDate;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -14,10 +15,11 @@ import lombok.NoArgsConstructor;
 public class EstatisticaFilterPeriodoData {
 
 	 
-	@ApiModelProperty(value = "Id do Cliente", dataType = "Long", example = "1234", required = true)
-	private Long cliente;
-	@ApiModelProperty(value = "Data Inicial", dataType = "Date", example = "AAAA/MM/DD")
-	private Date dataInicial;
-	@ApiModelProperty(value = "Data Final", dataType = "Date", example = "AAAA/MM/DD")
-	private Date dataFinal ;
+	@ApiModelProperty(name = "dtInicio", value = "A Data Início", required = false, position = 3, dataType = "Date", example = "01/01/2020")
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    private LocalDate dataInicial;
+	
+	@ApiModelProperty(name = "dtInicio", value = "A Data Início", required = false, position = 3, dataType = "Date", example = "01/01/2020")
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    private LocalDate dataFinal;
 }
