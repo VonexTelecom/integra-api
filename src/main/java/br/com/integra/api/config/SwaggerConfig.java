@@ -1,9 +1,14 @@
 package br.com.integra.api.config;
 
-import com.fasterxml.classmate.TypeResolver;
+import java.io.File;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLStreamHandler;
+import java.util.Arrays;
+import java.util.List;
 
-import br.com.integra.api.controller.swagger.PageableSwagger;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -14,6 +19,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import com.fasterxml.classmate.TypeResolver;
+
+import br.com.integra.api.controller.swagger.PageableSwagger;
+import br.com.integra.api.exception.handler.Problem;
 import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.OAuthBuilder;
@@ -34,18 +44,13 @@ import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import java.io.File;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLStreamHandler;
-import java.util.Arrays;
-import java.util.List;
-
 @Configuration
 @EnableSwagger2
 @Import(BeanValidatorPluginsConfiguration.class)
 public class SwaggerConfig implements WebMvcConfigurer {
+
+	@Value("${api.project.authorization}")
+	private String url;
 
 	@Bean
 	public Docket apiDocket() {
@@ -61,7 +66,7 @@ public class SwaggerConfig implements WebMvcConfigurer {
 				.globalResponseMessage(RequestMethod.POST, globalPostPutResponseMessages())
 				.globalResponseMessage(RequestMethod.PUT, globalPostPutResponseMessages())
 				.globalResponseMessage(RequestMethod.DELETE, globalDeleteResponseMessages())
-				.additionalModels(typeResolver.resolve(br.com.integra.api.exception.handler.Problem.class))
+				.additionalModels(typeResolver.resolve(Problem.class))
 				.ignoredParameterTypes(ServletWebRequest.class,
 						URL.class, URI.class, URLStreamHandler.class, Resource.class,
 						File.class, InputStream.class)
@@ -93,7 +98,7 @@ public class SwaggerConfig implements WebMvcConfigurer {
 	}
 	
 	private List<GrantType> grantTypes() {
-		return Arrays.asList(new ResourceOwnerPasswordCredentialsGrant("/oauth/token"));
+		return Arrays.asList(new ResourceOwnerPasswordCredentialsGrant(url+"/oauth/token"));
 	}
 	
 	private List<AuthorizationScope> scopes() {
@@ -156,10 +161,10 @@ public class SwaggerConfig implements WebMvcConfigurer {
 	
 	private ApiInfo apiInfo() {
 		return new ApiInfoBuilder()
-				.title("Integra - API ")
-				.description("API para consumo do FrontEnd")
-				.version("2.0")
-				.contact(new Contact("Vonex", "https://www.vonex.com.br", "contato@vonex.com.br"))
+				.title("Integra - Dados Sumarizados API")
+				.description("API para o Sistema Integra")
+				.version("1.0")
+				.contact(new Contact("Integra", "https://www.integra.com.br", "contato@integra.com.br"))
 				.build();
 	}
 	
@@ -171,5 +176,4 @@ public class SwaggerConfig implements WebMvcConfigurer {
 		registry.addResourceHandler("/webjars/**")
 			.addResourceLocations("classpath:/META-INF/resources/webjars/");
 	}
-	
 }
