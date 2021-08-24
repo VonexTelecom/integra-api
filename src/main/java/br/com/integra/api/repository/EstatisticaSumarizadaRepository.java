@@ -14,11 +14,6 @@ public interface EstatisticaSumarizadaRepository extends JpaRepository<Estatisti
 	@Query("from EstatisticaSumarizada d "
 			+ "where d.data <= :dataInicial and "
 			+ "d.data >= :dataFinal and d.clienteId = :clienteId")
-	List<EstatisticaSumarizada> findByDatasPeriodo(LocalDateTime dataInicial, LocalDateTime dataFinal, Long clienteId);
-	
-	@Query("from EstatisticaSumarizada d "
-			+ "where d.data >= :dataInicial and "
-			+ "d.data <= :dataFinal and d.clienteId = :clienteId")
-	List<EstatisticaSumarizada> findByDatas(LocalDateTime dataInicial, LocalDateTime dataFinal, Long clienteId);
+	List<EstatisticaSumarizada> findByDatasPeriodo(LocalDateTime dataInicial, LocalDateTime dataFinal, Long clienteId); 
 }
  

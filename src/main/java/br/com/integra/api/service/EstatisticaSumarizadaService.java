@@ -71,7 +71,7 @@ public class EstatisticaSumarizadaService {
 		
 		
 		List<EstatisticaSumarizada> estatisticas = 
-				repository.findByDatas(filter.getDataInicial().atStartOfDay(), filter.getDataFinal().atTime(23,59,59), clienteId);
+				repository.findByDatasPeriodo(filter.getDataFinal().atTime(23,59,59),filter.getDataInicial().atStartOfDay(), clienteId);
 	
 		EstatisticaSumarizada estatisticasPeriodo = EstatisticaSumarizada.builder()
 				.chamadasCompletadas10Segundos(completadas10Segundos(estatisticas))
