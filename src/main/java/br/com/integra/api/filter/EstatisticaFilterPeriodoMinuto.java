@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EstatisticaFilterPeriodoMinuto {
 	
-	@ApiModelProperty(value = "Periodo da Estatística", dataType = "Enum", example = "CincoMinutos")
+	@ApiModelProperty(name = "periodoEnum", value = "Periodo da Estatística", dataType = "Enum", example = "CincoMinutos")
 	private PeriodoEstatisticaEnum periodoEnum;	
 	
 }

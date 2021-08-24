@@ -29,10 +29,8 @@ public class EstatisticaSumarizadaService {
 		
 		LocalDateTime dataInicial = LocalDateTime.now();
 		LocalDateTime dataFinal = converterEnumEmDataFinal(filter.getPeriodoEnum());
-		
 		List<EstatisticaSumarizada> estatisticas = 
 				repository.findByDatasPeriodo(dataInicial, dataFinal, clienteId);
-		
 		EstatisticaSumarizada estatisticasPeriodo = EstatisticaSumarizada.builder()
 				.chamadasCompletadas10Segundos(completadas10Segundos(estatisticas))
 				.chamadasCompletadas30Segundos(completadas30Segundos(estatisticas))
@@ -49,22 +47,23 @@ public class EstatisticaSumarizadaService {
 	
 	private LocalDateTime converterEnumEmDataFinal(PeriodoEstatisticaEnum periodoEnum) {
 		
-		LocalDateTime data = LocalDateTime.now();
+		LocalDateTime dataAtual = LocalDateTime.now();
+		LocalDateTime dataProcessada = LocalDateTime.from(dataAtual);
 		
 		switch (periodoEnum) {
 		case CincoMinutos:
-			data.plusMinutes(5);
+			dataProcessada = dataAtual.minusMinutes(5L);
 			break;
 		case DezMinutos:
-			data.plusMinutes(10);
+			dataProcessada = dataAtual.minusMinutes(10L);
 			break;
 		case TrintaMinutos:
-			data.plusMinutes(30);
+			dataProcessada = dataAtual.minusMinutes(30L);
 			break;
 		default:
 		}
 
-		return data;
+		return dataProcessada;
 	}
 	
 
@@ -72,7 +71,7 @@ public class EstatisticaSumarizadaService {
 		
 		
 		List<EstatisticaSumarizada> estatisticas = 
-				repository.findByDatasPeriodo(filter.getDataInicial().atStartOfDay(), filter.getDataFinal().atTime(23,59,59), clienteId);
+				repository.findByDatas(filter.getDataInicial().atStartOfDay(), filter.getDataFinal().atTime(23,59,59), clienteId);
 	
 		EstatisticaSumarizada estatisticasPeriodo = EstatisticaSumarizada.builder()
 				.chamadasCompletadas10Segundos(completadas10Segundos(estatisticas))
