@@ -5,8 +5,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class IntegraSecurity {
 	
@@ -18,13 +16,6 @@ public class IntegraSecurity {
 		Jwt jwt = (Jwt) getAuthentication().getPrincipal();
 		
 		return jwt.getClaim("cliente_id");
-	}
+	}	
 	
-	public boolean verificarPerfil(String perfil) {
-		Jwt jwt = (Jwt) getAuthentication().getPrincipal();
-		
-		List<String> grupos = jwt.getClaim("grupos");
-
-		return grupos.contains(perfil);
-	}
 }

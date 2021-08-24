@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.integra.api.config.security.CheckSecurity;
 import br.com.integra.api.config.security.IntegraSecurity;
 import br.com.integra.api.controller.swagger.DadosControllerSwagger;
 import br.com.integra.api.filter.EstatisticaFilterPeriodoData;
@@ -23,15 +24,15 @@ public class DadosSumarizadosController implements DadosControllerSwagger {
 	private IntegraSecurity integraSecurity;
 
 	@Override
+	@CheckSecurity.DadosSumarizados.PodeAcessar
 	@GetMapping("/periodo-por-minuto")
 	public ResponseEntity<?> findAllPeriodoMinuto(EstatisticaFilterPeriodoMinuto filter) {
-
 		
 		return ResponseEntity.ok(service.findPorPeriodo(filter, integraSecurity.getClienteId()));
-
 	}
 
 	@Override
+	@CheckSecurity.DadosSumarizados.PodeAcessar
 	@GetMapping("/periodo-por-data")
 	public ResponseEntity<?> findAllPeriodoData(EstatisticaFilterPeriodoData filter) {
 

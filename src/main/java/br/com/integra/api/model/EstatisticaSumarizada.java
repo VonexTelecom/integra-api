@@ -1,7 +1,7 @@
 package br.com.integra.api.model;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -25,7 +25,7 @@ public class EstatisticaSumarizada {
 	
 	@Id
 	@Column(name = "data")
-	private Date data;
+	private LocalDateTime data;
 	
 	@Column(name = "cliente_id")
 	private Long clienteId;
