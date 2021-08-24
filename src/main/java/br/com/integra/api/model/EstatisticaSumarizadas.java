@@ -1,9 +1,10 @@
 package br.com.integra.api.model;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -19,13 +20,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Embeddable
 public class EstatisticaSumarizadas {
 	
+	@Id
 	@Column(name = "data")
 	private Date data;
 	
-	@Id
-	@Column(name = "clienteId")
+	@Column(name = "cliente_id")
 	private Long clienteId;
 	
 	@Column(name = "chamadas_discadas")
