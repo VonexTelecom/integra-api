@@ -10,4 +10,4 @@ ARG JAR_FILE=target/*.jar
 
 ADD ${JAR_FILE} api-integra-api.jar
 
-ENTRYPOINT ["java","-Xmx2g","-jar","/api-integra-api.jar"]
+ENTRYPOINT ["java","-Xmx512M","-jar","/api-integra-api.jar"]
