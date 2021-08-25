@@ -7,9 +7,11 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum PeriodoEstatisticaEnum {
-	CincoMinutos(0L, "5 Minutos"),
-	DezMinutos(1L, "10 Minutos"),
-	TrintaMinutos(2L, "30 Minutos");
+	Hoje(0L, "Hoje"),
+	Ontem(1L, "Ontem"),
+	QuinzeDias(2L, "15 Dias"),
+	TrintaDias(3L, "30 Dias"),
+	OitoAsDezoito(4L, "08:00 as 18:00");
 	
 	public static PeriodoEstatisticaEnum getById(Long id) {
 		for (PeriodoEstatisticaEnum e : values()) {
