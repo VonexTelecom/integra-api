@@ -35,7 +35,7 @@ public class EstatisticaSumarizadaService {
 			dataInicial = converterEnumEmDataInicial(filter.getPeriodoEnum());
 			dataFinal = converterEnumEmDataFinal(filter.getPeriodoEnum());			
 		}else {
-			if(dataInicial == null || dataFinal == null) {
+			if(filter.getDataInicial() == null || filter.getDataInicial() == null) {
 				throw new EntidadeNaoEncontradaException("Data de Início e Data Final devem ser informadas!") {
 					private static final long serialVersionUID = -5461664571083553002L;
 				};

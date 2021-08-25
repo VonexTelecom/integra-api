@@ -12,8 +12,8 @@ import br.com.integra.api.model.EstatisticaSumarizada;
 public interface EstatisticaSumarizadaRepository extends JpaRepository<EstatisticaSumarizada, Date>{
 
 	@Query("from EstatisticaSumarizada d "
-			+ "where d.data <= :dataInicial and "
-			+ "d.data >= :dataFinal and d.clienteId = :clienteId")
+			+ "where d.data >= :dataInicial and "
+			+ "d.data <= :dataFinal and d.clienteId = :clienteId")
 	List<EstatisticaSumarizada> findByDatasPeriodo(LocalDateTime dataInicial, LocalDateTime dataFinal, Long clienteId); 
 }
  
