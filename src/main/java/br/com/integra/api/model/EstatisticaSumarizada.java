@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Entity
-@Table(name = "EstatisticaSumarizadaMinuto")
+@Table(name = "EstatisticaSumarizadaMinuto", schema = "IntegraBI")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
