@@ -50,7 +50,6 @@ public class EstatisticaSumarizadaService {
 			}			
 		}
 		
-		System.out.println(dataInicial+" ");
 		List<EstatisticaSumarizada> estatisticas = 
 				repository.findByDatasPeriodo(dataInicial, dataFinal, clienteId);
 		

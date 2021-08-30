@@ -13,12 +13,26 @@ import io.swagger.annotations.ApiResponses;
 @Api(tags = "Controller da Estatistica")
 public interface DadosControllerSwagger {
 
-	@ApiOperation(value = "Busca as Estatísticas Sumarizadas pelos minutos", httpMethod = "GET")
+	@ApiOperation(value = "Busca as Estatísticas Sumarizadas por periodo", httpMethod = "GET")
 	@ApiResponses({
 		@ApiResponse(code = 200, response = EstatisticaSumarizada.class, message = "Requisição com sucesso"),
 		@ApiResponse(code = 404, response = Problem.class, message = "O recurso não foi encontrado")
 	})
-	ResponseEntity<?>findAllPeriodoMinuto(EstatisticaFilter filter);
+	ResponseEntity<?>findAllPeriodo(EstatisticaFilter filter);
+	
+	@ApiOperation(value = "Busca os gráficos das Estátisticas Sumarizadas por dia", httpMethod = "GET")
+	@ApiResponses({
+		@ApiResponse(code = 200, response = EstatisticaSumarizada.class, message = "Requisição com sucesso"),
+		@ApiResponse(code = 204, response = Problem.class, message = "O recurso não foi encontrado")
+	})
+	ResponseEntity<?>discadorTotalizador(EstatisticaFilter filter);
+	
+	@ApiOperation(value = "Busca os gráficos da duração da chamada por dia", httpMethod = "GET")
+	@ApiResponses({
+		@ApiResponse(code = 200, response = EstatisticaSumarizada.class, message = "Requisição com sucesso"),
+		@ApiResponse(code = 204, response = Problem.class, message = "O recurso não foi encontrado")
+	})
+	ResponseEntity<?>discadorTotalizadorQuantidadeSegundos(EstatisticaFilter filter);
 	
 } 
 

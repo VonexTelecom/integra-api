@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import br.com.integra.api.enums.ModalidadeEnum;
 import br.com.integra.api.enums.PeriodoEstatisticaEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -25,4 +26,8 @@ public class EstatisticaFilter {
 	@ApiModelProperty(name = "dataFinal", value = "A Data Final", required = false, position = 3, dataType = "Date", example = "2021-01-31")
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 	private Date dataFinal;
+	
+	@ApiModelProperty(name = "modalidade", value = "A Modalilade", dataType = "Enum", example = "fixo")
+	private ModalidadeEnum modalidade;
+	
 }
