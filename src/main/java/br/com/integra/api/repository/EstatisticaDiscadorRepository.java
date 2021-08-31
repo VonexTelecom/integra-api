@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-
 import br.com.integra.api.exception.EntidadeNaoEncontradaException;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.mapper.EstatisticaDiscadorRowMapper;
