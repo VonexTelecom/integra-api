@@ -28,9 +28,8 @@ public class EstatisticaTempoChamadaService {
 	@Autowired
 	private EstatisticaDiscadorMapper mapper;
 	
-	
-	
 	public List<EstatisticaDiscadorOutputDto> discadorTotalizadorTempoChamadas(EstatisticaFilter filter, Long clienteId){
+
 		LocalDate dataAtual;
 		LocalDate dataFinalFormatada;
 		LocalDate dataInicial = filter.getDataInicial().toInstant().atZone( ZoneId.systemDefault() ).toLocalDate();
@@ -47,12 +46,13 @@ public class EstatisticaTempoChamadaService {
 		List<EstatisticaDiscadorOutputDto> chamadaProcessada = new ArrayList<>();
 		List<EstatisticaDiscadorOutputDto> chamadaTabelaProcessada = new ArrayList<>();
 		dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
-	
+
 		dataAtual = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
 		while(dataAtual.compareTo(dataFinalFormatada) <= 0) {
 			String tipoEstatisticaOrigem = String.format("chamada_com_segundo_desc_origem");
 			String tipoEstatisticaDestino = String.format("chamada_com_segundo_desc_destino");
 			String tipoEstatisticaTotal = String.format("chamada_com_segundo_desc_total");
+
 				
 				
 			List<EstatisticaDiscador> chamadasOrigemBruto =

@@ -5,49 +5,51 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+
 import br.com.integra.api.exception.EntidadeNaoEncontradaException;
 import br.com.integra.api.filter.EstatisticaFilter;
-import br.com.integra.api.mapper.estatisticaDiscadorRowMapper;
+import br.com.integra.api.mapper.EstatisticaDiscadorRowMapper;
 import br.com.integra.api.model.EstatisticaDiscador;
+
 @Repository
-public class EstatisticaDiscadorRepository  {
-	
-	@Autowired
-	private JdbcTemplate jdbcTemplate;
-	
+public class EstatisticaDiscadorRepository {
+
 	@Autowired
 	private NamedParameterJdbcTemplate namedJdbcTemplate;
-	
+
 	@Autowired
 	private CountRepository countRepository;
 	
 	public List<EstatisticaDiscador> findtipoEstatisticaTotalizadorDia(LocalDate date, String tipoEstatistica, EstatisticaFilter filter, Long clienteId) {
+
 		String dataFormatada = formatarData(date);
-		
+
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
-		if(countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
-			throw new EntidadeNaoEncontradaException("Data não registrada") {};
+		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
+			throw new EntidadeNaoEncontradaException("Data não registrada") {
+			};
 		}
-	      
+		
 		String sql = String.format("SELECT * FROM %s where tipoEstatistica = '%s' and modalidade = '%s' and clienteId = %d",
 	    		nomeDaTabelaData, tipoEstatistica, filter.getModalidade(), clienteId);
 		
 	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
-	    (new estatisticaDiscadorRowMapper()));
+	    (new EstatisticaDiscadorRowMapper()));
 	    return estatisticaBruta;
 
 	    }
 	
 	public List<EstatisticaDiscador> findtipoEstatisticaTotalizadorDia(LocalDate date, String tipoEstatistica, EstatisticaFilter filter, Long clienteId,
 			Integer valorInicial, Integer valorFinal) {
+
 		String dataFormatada = formatarData(date);
-		
+
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
+
 		if(countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
 			throw new EntidadeNaoEncontradaException("Data não Encontrada") {};
 		}
@@ -63,42 +65,42 @@ public class EstatisticaDiscadorRepository  {
 				&& valorInicial!=null && valorFinal!=null) {
 			sql = sql + String.format(" and CAST(tipoEstatiscaValor AS unsigned integer) BETWEEN %d and %d",valorInicial, valorFinal);
 		}
-	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
-	    (new estatisticaDiscadorRowMapper()));
-	    return estatisticaBruta;
 
-	    }
-	
+		List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql,
+				new RowMapperResultSetExtractor<EstatisticaDiscador>(new EstatisticaDiscadorRowMapper()));
+		return estatisticaBruta;
+
+	}
 
 	public String formatarData(LocalDate date) {
-		String mes = ""+date.getMonthValue();
-		if(date.getMonthValue() <= 9) {
-			mes = 0+""+date.getMonthValue();
+		String mes = "" + date.getMonthValue();
+		if (date.getMonthValue() <= 9) {
+			mes = 0 + "" + date.getMonthValue();
 		}
-		String dataFormatada = date.getYear()+""+mes+""+date.getDayOfMonth();
+		String dataFormatada = date.getYear() + "" + mes + "" + date.getDayOfMonth();
 		return dataFormatada;
 	}
-	
+
 	public String formatarDataTime(LocalDateTime date) {
 		String mes = String.valueOf(date.getMonthValue());
 		String minuto = String.valueOf(date.getMinute());
 		String hora = String.valueOf(date.getHour());
 		String segundo = String.valueOf(date.getSecond());
-		if(date.getMonthValue() <= 9) {
-			mes = +0+""+date.getMonthValue();
+		if (date.getMonthValue() <= 9) {
+			mes = +0 + "" + date.getMonthValue();
 		}
-		if(date.getMinute() <= 9) {
-			minuto = +0+""+date.getMinute();
+		if (date.getMinute() <= 9) {
+			minuto = +0 + "" + date.getMinute();
 		}
-		if(date.getHour() <= 9) {
-			hora = +0+""+date.getHour();
+		if (date.getHour() <= 9) {
+			hora = +0 + "" + date.getHour();
 		}
-		if(date.getSecond() <= 9) {
-			segundo = +0+""+date.getSecond();
+		if (date.getSecond() <= 9) {
+			segundo = +0 + "" + date.getSecond();
 		}
-		String dataFormatada = date.getYear()+"-"+mes+"-"+date.getDayOfMonth()+" "+hora+":"+minuto+":"+segundo;
+		String dataFormatada = date.getYear() + "-" + mes + "-" + date.getDayOfMonth() + " " + hora + ":" + minuto + ":"
+				+ segundo;
 		return dataFormatada;
 	}
-	  
-	  
+
 }

@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import br.com.integra.api.model.CountEstatisticaDiscador;
 
-public class countRowMapper implements RowMapper<CountEstatisticaDiscador>{
+public class CountRowMapper implements RowMapper<CountEstatisticaDiscador>{
 
 	@Override
 	public CountEstatisticaDiscador mapRow(ResultSet rs, int rowNum) throws SQLException {
