@@ -11,6 +11,7 @@ import br.com.integra.api.config.security.IntegraSecurity;
 import br.com.integra.api.controller.swagger.DadosControllerSwagger;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.service.EstatisticaDiscadorChamadasService;
+import br.com.integra.api.service.EstatisticaDiscadorDdd;
 import br.com.integra.api.service.EstatisticaSumarizadaService;
 import br.com.integra.api.service.EstatisticaTempoChamadaService;
 
@@ -30,6 +31,9 @@ public class DadosSumarizadosController implements DadosControllerSwagger {
 	@Autowired
 	private IntegraSecurity integraSecurity;
 
+	@Autowired
+	private EstatisticaDiscadorDdd dddService;
+	
 	@Override
 	@CheckSecurity.DadosSumarizados.PodeAcessar
 	@GetMapping("/periodo")
@@ -40,8 +44,8 @@ public class DadosSumarizadosController implements DadosControllerSwagger {
 
 	@Override
 	@CheckSecurity.DadosSumarizados.PodeAcessar
-	@GetMapping("/discador-totalizador-dia")
-	public ResponseEntity<?> discadorTotalizador(EstatisticaFilter filter) {
+	@GetMapping("/chamadas-totalizador-dia")
+	public ResponseEntity<?> discadorTotalizadorChamadas(EstatisticaFilter filter) {
 		
 		return ResponseEntity.ok(totalizadorService.discadorTotalizadorChamadas(filter, integraSecurity.getClienteId()));
 	}
@@ -49,9 +53,16 @@ public class DadosSumarizadosController implements DadosControllerSwagger {
 	@Override
 	@CheckSecurity.DadosSumarizados.PodeAcessar
 	@GetMapping("/discador-duracao-chamadas-dia")
-	public ResponseEntity<?> discadorTotalizadorQuantidadeSegundos(EstatisticaFilter filter) {
+	public ResponseEntity<?> chamadasTotalizadorSegundos(EstatisticaFilter filter) {
 		
 		return ResponseEntity.ok(chamadaService.discadorTotalizadorTempoChamadas(filter, integraSecurity.getClienteId()));
+	}
+
+	@Override
+	@CheckSecurity.DadosSumarizados.PodeAcessar
+	@GetMapping("/discador-totalizador-ddd")
+	public ResponseEntity<?> discadorTotalizadorDdd(EstatisticaFilter filter) {
+		return ResponseEntity.ok(dddService.discadorTotalizadorDdd(filter, integraSecurity.getClienteId()));
 	}
 	
 	

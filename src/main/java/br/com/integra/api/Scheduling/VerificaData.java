@@ -18,7 +18,7 @@ public class VerificaData {
 	
 	private static final String TIME_ZONE = "America/Sao_Paulo";
 
-	@Scheduled(cron = "5 * * * * *", zone = TIME_ZONE)
+	@Scheduled(cron = "* 57 23 * * *", zone = TIME_ZONE)
 	public void verificadorData() {
 		LocalDate data = LocalDate.now();
 		repository.gerarTabelaEstatisticaDiscador(data.plusDays(1L));

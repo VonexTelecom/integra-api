@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import br.com.integra.api.countRowMapper;
+import br.com.integra.api.mapper.countRowMapper;
 import br.com.integra.api.model.CountEstatisticaDiscador;
 
 @Repository

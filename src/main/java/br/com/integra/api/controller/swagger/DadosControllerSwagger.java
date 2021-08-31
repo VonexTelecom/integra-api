@@ -20,19 +20,28 @@ public interface DadosControllerSwagger {
 	})
 	ResponseEntity<?>findAllPeriodo(EstatisticaFilter filter);
 	
-	@ApiOperation(value = "Busca os gráficos das Estátisticas Sumarizadas por dia", httpMethod = "GET")
+	@ApiOperation(value = "Busca os gráficos das chamadas por dia", httpMethod = "GET")
 	@ApiResponses({
 		@ApiResponse(code = 200, response = EstatisticaSumarizada.class, message = "Requisição com sucesso"),
 		@ApiResponse(code = 204, response = Problem.class, message = "O recurso não foi encontrado")
 	})
-	ResponseEntity<?>discadorTotalizador(EstatisticaFilter filter);
+	ResponseEntity<?>discadorTotalizadorChamadas(EstatisticaFilter filter);
 	
 	@ApiOperation(value = "Busca os gráficos da duração da chamada por dia", httpMethod = "GET")
 	@ApiResponses({
 		@ApiResponse(code = 200, response = EstatisticaSumarizada.class, message = "Requisição com sucesso"),
 		@ApiResponse(code = 204, response = Problem.class, message = "O recurso não foi encontrado")
 	})
-	ResponseEntity<?>discadorTotalizadorQuantidadeSegundos(EstatisticaFilter filter);
+	ResponseEntity<?>chamadasTotalizadorSegundos(EstatisticaFilter filter);
+	
+	
+	
+	@ApiOperation(value = "Busca os gráficos do total de ddd por dia", httpMethod = "GET")
+	@ApiResponses({
+		@ApiResponse(code = 200, response = EstatisticaSumarizada.class, message = "Requisição com sucesso"),
+		@ApiResponse(code = 204, response = Problem.class, message = "O recurso não foi encontrado")
+	})
+	ResponseEntity<?>discadorTotalizadorDdd(EstatisticaFilter filter);
 	
 } 
 

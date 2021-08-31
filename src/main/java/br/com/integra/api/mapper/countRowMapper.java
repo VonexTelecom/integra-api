@@ -1,4 +1,4 @@
-package br.com.integra.api;
+package br.com.integra.api.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

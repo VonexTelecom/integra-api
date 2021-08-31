@@ -10,9 +10,9 @@ import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import br.com.integra.api.estatisticaDiscadorRowMapper;
 import br.com.integra.api.exception.EntidadeNaoEncontradaException;
 import br.com.integra.api.filter.EstatisticaFilter;
+import br.com.integra.api.mapper.estatisticaDiscadorRowMapper;
 import br.com.integra.api.model.EstatisticaDiscador;
 @Repository
 public class EstatisticaDiscadorRepository  {
@@ -26,7 +26,7 @@ public class EstatisticaDiscadorRepository  {
 	@Autowired
 	private CountRepository countRepository;
 	
-	public List<EstatisticaDiscador> findtipoEstatisticaTotalizadorDia(LocalDate date, String tipoEstatistica, EstatisticaFilter filter) {
+	public List<EstatisticaDiscador> findtipoEstatisticaTotalizadorDia(LocalDate date, String tipoEstatistica, EstatisticaFilter filter, Long clienteId) {
 		String dataFormatada = formatarData(date);
 		
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
@@ -34,31 +34,35 @@ public class EstatisticaDiscadorRepository  {
 			throw new EntidadeNaoEncontradaException("Data não registrada") {};
 		}
 	      
-		String sql = String.format("SELECT * FROM %s where tipoEstatistica = '%s' and modalidade = '%s'",
-	    		nomeDaTabelaData, tipoEstatistica, filter.getModalidade());
+		String sql = String.format("SELECT * FROM %s where tipoEstatistica = '%s' and modalidade = '%s' and clienteId = %d",
+	    		nomeDaTabelaData, tipoEstatistica, filter.getModalidade(), clienteId);
 		
 	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
 	    (new estatisticaDiscadorRowMapper()));
 	    return estatisticaBruta;
 
 	    }
-	public List<EstatisticaDiscador> findtipoEstatisticaTotalizadorDia(LocalDate date, String tipoEstatistica, EstatisticaFilter filter,
-			Integer segundoInicial, Integer segundoFinal) {
+	
+	public List<EstatisticaDiscador> findtipoEstatisticaTotalizadorDia(LocalDate date, String tipoEstatistica, EstatisticaFilter filter, Long clienteId,
+			Integer valorInicial, Integer valorFinal) {
 		String dataFormatada = formatarData(date);
 		
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 		if(countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
-			throw new EntidadeNaoEncontradaException("Data não registrada") {};
+			throw new EntidadeNaoEncontradaException("Data não Encontrada") {};
 		}
 	      
-		String sql = String.format("SELECT * FROM %s where tipoEstatistica = '%s' and modalidade = '%s'",
-	    		nomeDaTabelaData, tipoEstatistica, filter.getModalidade());
+		String sql = String.format("SELECT * FROM %s where tipoEstatistica = '%s' and modalidade = '%s' and clienteId = %d",
+	    		nomeDaTabelaData, tipoEstatistica, filter.getModalidade(), clienteId);
 		
 		if((tipoEstatistica.equals("chamada_com_segundo_desc_origem") || tipoEstatistica.equals("chamada_com_segundo_desc_destino")) 
-				&& segundoInicial!=null && segundoFinal!=null) {
-			sql = sql + String.format(" and CAST(tipoEstatiscaValor AS unsigned integer) BETWEEN %d and %d",segundoInicial, segundoFinal);
+				&& valorInicial!=null && valorFinal!=null) {
+			sql = sql + String.format(" and CAST(tipoEstatiscaValor AS unsigned integer) BETWEEN %d and %d",valorInicial, valorFinal);
 		}
-		
+		if((tipoEstatistica.equals("chamadas_ddd")) 
+				&& valorInicial!=null && valorFinal!=null) {
+			sql = sql + String.format(" and CAST(tipoEstatiscaValor AS unsigned integer) BETWEEN %d and %d",valorInicial, valorFinal);
+		}
 	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
 	    (new estatisticaDiscadorRowMapper()));
 	    return estatisticaBruta;

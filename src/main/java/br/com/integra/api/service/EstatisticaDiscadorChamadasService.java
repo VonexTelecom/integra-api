@@ -28,6 +28,8 @@ public class EstatisticaDiscadorChamadasService {
 	private EstatisticaDiscadorMapper mapper;
 	
 	public List<EstatisticaDiscadorOutputDto> discadorTotalizadorChamadas(EstatisticaFilter filter, Long clienteId) {
+		
+		Long startTime = System.currentTimeMillis();
 		LocalDate dataAtual;
 		LocalDate dataFinalFormatada;
 		LocalDate dataInicial = filter.getDataInicial().toInstant().atZone( ZoneId.systemDefault() ).toLocalDate();
@@ -45,18 +47,16 @@ public class EstatisticaDiscadorChamadasService {
 
 		List<EstatisticaDiscadorOutputDto> totalizadorSumarizadoTotal = new ArrayList<>();
 		
+		
 		for (TipoEstatisticaEnum tipoEstatisticaEnum : list) {
 			EstatisticaDiscadorOutputDto totalizadorBrutoSumarizado = new EstatisticaDiscadorOutputDto();
-			
-			dataAtual = dataInicial.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
-			
-			
-			dataFinalFormatada = dataFinal.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
+			dataAtual = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
+			dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
 			
 			while(dataAtual.compareTo(dataFinalFormatada) <= 0){
 				
 					List<EstatisticaDiscadorOutputDto> totalizadorBruto = (mapper.modelToCollectionOutputDto(repository.
-							findtipoEstatisticaTotalizadorDia(dataAtual, tipoEstatisticaEnum.getValor(),filter)));
+							findtipoEstatisticaTotalizadorDia(dataAtual, tipoEstatisticaEnum.getValor(),filter, clienteId)));
 					
 					
 					totalizadorBrutoSumarizado = EstatisticaDiscadorOutputDto.builder()
@@ -67,16 +67,18 @@ public class EstatisticaDiscadorChamadasService {
 					
 					dataAtual = dataAtual.plusDays(1L);
 				}
+		
 		totalizadorSumarizadoTotal.add(estatisticaProcessada(totalizadorSumarizadoTabela));
 		totalizadorSumarizadoTabela.clear();
 			
 		}
+		Long endTime = System.currentTimeMillis();
+	//	System.out.printf("\nduração: %f",(float)(endTime-startTime)/1000);
 		
 		return totalizadorSumarizadoTotal;
 	}
 	
 	public EstatisticaDiscadorOutputDto estatisticaProcessada(List<EstatisticaDiscadorOutputDto> listaBruta){
-		List<TipoEstatisticaEnum> list = Arrays.asList(TipoEstatisticaEnum.values());
 		
 		String tipoEstatistica = "";
 		

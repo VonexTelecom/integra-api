@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.hibernate.internal.build.AllowSysOut;
-import org.modelmapper.internal.bytebuddy.dynamic.scaffold.FieldLocator.ForExactType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +30,7 @@ public class EstatisticaTempoChamadaService {
 	
 	
 	
-	public List<EstatisticaDiscadorOutputDto> discadorTotalizadorTempoChamadas(EstatisticaFilter filter, Long cliente){
+	public List<EstatisticaDiscadorOutputDto> discadorTotalizadorTempoChamadas(EstatisticaFilter filter, Long clienteId){
 		LocalDate dataAtual;
 		LocalDate dataFinalFormatada;
 		LocalDate dataInicial = filter.getDataInicial().toInstant().atZone( ZoneId.systemDefault() ).toLocalDate();
@@ -48,94 +46,69 @@ public class EstatisticaTempoChamadaService {
 		List<EstatisticaDiscadorOutputDto> chamadaBrutoTabela = new ArrayList<>();
 		List<EstatisticaDiscadorOutputDto> chamadaProcessada = new ArrayList<>();
 		List<EstatisticaDiscadorOutputDto> chamadaTabelaProcessada = new ArrayList<>();
-		dataFinalFormatada = dataFinal.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
-		
-			System.out.println(dataFinalFormatada);
+		dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
 	
-			dataAtual = dataInicial.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
-			System.out.println(dataAtual);
-			while(dataAtual.compareTo(dataFinalFormatada) <= 0) {
-				String tipoEstatisticaOrigem = String.format("chamada_com_segundo_desc_origem");
-				String tipoEstatisticaDestino = String.format("chamada_com_segundo_desc_destino");
-				String tipoEstatisticaTotal = String.format("chamada_com_segundo_desc_total");
+		dataAtual = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
+		while(dataAtual.compareTo(dataFinalFormatada) <= 0) {
+			String tipoEstatisticaOrigem = String.format("chamada_com_segundo_desc_origem");
+			String tipoEstatisticaDestino = String.format("chamada_com_segundo_desc_destino");
+			String tipoEstatisticaTotal = String.format("chamada_com_segundo_desc_total");
 				
 				
-				List<EstatisticaDiscador> chamadasOrigemBruto =
-						repository.findtipoEstatisticaTotalizadorDia(dataAtual, tipoEstatisticaOrigem, filter,0,120);
+			List<EstatisticaDiscador> chamadasOrigemBruto =
+					repository.findtipoEstatisticaTotalizadorDia(dataAtual, tipoEstatisticaOrigem, filter, clienteId,0,120);
 				
-				
-				List<EstatisticaDiscador> chamadasDestinoBruto = 
-						repository.findtipoEstatisticaTotalizadorDia(dataAtual, tipoEstatisticaDestino, filter,0,120);
-				
-					int i;
-					for (i = 0; i<=120; i++) {
-						String nome = String.format("chamada_com_%d_segundo_desc_origem", i);
-						int a = i;
+			
+			List<EstatisticaDiscador> chamadasDestinoBruto = 
+					repository.findtipoEstatisticaTotalizadorDia(dataAtual, tipoEstatisticaDestino, filter, clienteId,0,120);
+
+			for (int i = 0; i<=120; i++) {
+				int a = i;
 						
-						Optional<EstatisticaDiscador> estatisticaOrigem =  chamadasOrigemBruto.stream().filter(chamada ->
-							chamada.getTipoEstisticaValor().equals(String.valueOf(a))  )
-							.findFirst().or(() -> Optional.of(
-									EstatisticaDiscador.builder()
-										.tipoEstatistica(tipoEstatisticaOrigem)
-										.quantidade(BigDecimal.ZERO)
-										.tipoEstisticaValor(String.valueOf(a))
-										.build()));
-						
-						System.out.println(chamadasOrigemBruto.size());
-						chamadaProcessada.add(mapper.modelToOutputDtoSegundo(estatisticaOrigem.get()));
-						
-						Optional<EstatisticaDiscador> estatisticaDestino =  chamadasDestinoBruto.stream().filter(chamada ->
-						Long.valueOf(chamada.getTipoEstisticaValor()) == a &&  chamada.getTipoEstatistica().equals(tipoEstatisticaDestino))
+					EstatisticaDiscador estatisticaOrigem =  chamadasOrigemBruto.stream().filter(chamada ->
+						chamada.getTipoEstisticaValor().equals(String.valueOf(a)) && chamada.getTipoEstatistica().equals(tipoEstatisticaOrigem) )
 						.findFirst().or(() -> Optional.of(
 								EstatisticaDiscador.builder()
-									.tipoEstatistica(tipoEstatisticaDestino)
+									.tipoEstatistica(tipoEstatisticaOrigem)
 									.quantidade(BigDecimal.ZERO)
 									.tipoEstisticaValor(String.valueOf(a))
-									.build()));
+									.build())).get();
+						
+						
+					EstatisticaDiscador estatisticaDestino =  chamadasDestinoBruto.stream().filter(chamada ->
+					chamada.getTipoEstisticaValor().equals(String.valueOf(a))  &&  chamada.getTipoEstatistica().equals(tipoEstatisticaDestino))
+					.findFirst().or(() -> Optional.of(
+							EstatisticaDiscador.builder()
+								.tipoEstatistica(tipoEstatisticaDestino)
+								.quantidade(BigDecimal.ZERO)
+								.tipoEstisticaValor(String.valueOf(a))
+								.build())).get();
+				
 					
-						chamadaProcessada.add(mapper.modelToOutputDtoSegundo(estatisticaDestino.get()));
-							
-						}
 					
+					EstatisticaDiscador estatisticaTotal = EstatisticaDiscador.builder()
+							.quantidade(estatisticaDestino.getQuantidade().add(estatisticaOrigem.getQuantidade()))
+							.tipoEstatistica(tipoEstatisticaTotal)
+							.tipoEstisticaValor(String.valueOf(a)).build();
 					
-				
-				
-				
-				//chamadaProcessada.addAll(chamadasOrigemBruto);
-				//chamadaProcessada.addAll(chamadasDestinoBruto);
-				//chamadaBrutoTabela.add(chamadaTotal);	
-				
-				dataAtual = dataAtual.plusDays(1L);
-				
-			}
-			//chamadaProcessada.addAll(estatisticaProcessada(chamadaBrutoTabela)); 
-			//chamadaBrutoTabela.clear();
+					chamadaBrutoTabela.add(mapper.modelToOutputDtoSegundo(estatisticaOrigem));
+					chamadaBrutoTabela.add(mapper.modelToOutputDtoSegundo(estatisticaDestino));
+					chamadaBrutoTabela.add(mapper.modelToOutputDtoSegundo(estatisticaTotal));
+					 
+				}
+			
+			
+			chamadaTabelaProcessada.addAll(somaTabela(chamadaBrutoTabela));
+			chamadaBrutoTabela.clear();
+			
+			dataAtual = dataAtual.plusDays(1L);	
+		}
 		
-		
+		chamadaProcessada.addAll(somaTabela(chamadaTabelaProcessada));
 		return chamadaProcessada;
 		
 	}
 
-	
-	public List<EstatisticaDiscadorOutputDto> estatisticaProcessada(List<EstatisticaDiscadorOutputDto> listaBruta){
-		
-		String tipoEstatistica = "";
-		
-		List<EstatisticaDiscadorOutputDto> estatisticas = new ArrayList<>();
-		
-		
-		for (EstatisticaDiscadorOutputDto estatistica : listaBruta) {
-			tipoEstatistica = estatistica.getTipoEstatistica();
-			EstatisticaDiscadorOutputDto estatisticaSumarizada = new EstatisticaDiscadorOutputDto().builder()
-				.tipoEstatistica(tipoEstatistica)
-				.quantidade(quantidadeTotal(listaBruta))
-				.build();
-			estatisticas.add(estatisticaSumarizada);
-		}
-		
-	
-	return estatisticas;
-	}
 	
 	
 	public LocalDate converterEnumToData(PeriodoEstatisticaEnum periodoEnum) {
@@ -166,12 +139,54 @@ public class EstatisticaTempoChamadaService {
 		
 	}
 	
+	public List<EstatisticaDiscadorOutputDto> somaTabela(List<EstatisticaDiscadorOutputDto> list){
+		List<EstatisticaDiscadorOutputDto> estatisticaProcesada = new ArrayList<>();
+		
+		for(int i = 0; i<=120; i++) {
+			String tipoEstatisticaOrigem = String.format("chamada_com_%d_segundo_desc_origem", i);
+			String tipoEstatisticaDestino = String.format("chamada_com_%d_segundo_desc_destino", i);
+			String tipoEstatisticaTotal = String.format("chamada_com_%d_segundo_desc_total", i);
+			
+			List<EstatisticaDiscadorOutputDto> estatisticasDestino =  list.stream().filter(chamada ->
+			chamada.getTipoEstatistica().equals(tipoEstatisticaDestino)).collect(Collectors.toList());
+			
+			List<EstatisticaDiscadorOutputDto> estatisticasOrigem =  list.stream().filter(chamada ->
+			chamada.getTipoEstatistica().equals(tipoEstatisticaOrigem)).collect(Collectors.toList());
+			
+			List<EstatisticaDiscadorOutputDto> estatisticasTotal =  list.stream().filter(chamada ->
+			chamada.getTipoEstatistica().equals(tipoEstatisticaTotal)).collect(Collectors.toList());
+			
+			EstatisticaDiscadorOutputDto estatisticaDestinoSumarizador = EstatisticaDiscadorOutputDto.builder()
+					.tipoEstatistica(tipoEstatisticaDestino)
+					.quantidade(quantidadeTotal(estatisticasDestino)).build();
+			
+			EstatisticaDiscadorOutputDto estatisticaOrigemSumarizador = EstatisticaDiscadorOutputDto.builder()
+					.tipoEstatistica(tipoEstatisticaOrigem)
+					.quantidade(quantidadeTotal(estatisticasOrigem)).build();
+			
+			EstatisticaDiscadorOutputDto estatisticaTotalSumarizador = EstatisticaDiscadorOutputDto.builder()
+					.tipoEstatistica(tipoEstatisticaTotal)
+					.quantidade(quantidadeTotal(estatisticasTotal)).build();
+			
+			estatisticaProcesada.add(estatisticaOrigemSumarizador);
+			estatisticaProcesada.add(estatisticaDestinoSumarizador);
+			estatisticaProcesada.add(estatisticaTotalSumarizador);
+			
+			estatisticasDestino.clear();
+			estatisticasOrigem.clear();
+			estatisticasTotal.clear();
+		}
+		
+		return estatisticaProcesada;
+	}
+	
+	
 	private BigDecimal quantidadeTotal(List<EstatisticaDiscadorOutputDto> estatisticas) {
 		return estatisticas
 				.stream()
 				.map(estatistica -> estatistica.getQuantidade())
 				.reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
-		
+	
 	
 }
