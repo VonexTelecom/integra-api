@@ -67,22 +67,22 @@ public class EstatisticaTempoChamadaService {
 						
 					EstatisticaDiscador estatisticaOrigem =  chamadasOrigemBruto.stream().filter(chamada ->
 						chamada.getTipoEstisticaValor().equals(String.valueOf(a)) && chamada.getTipoEstatistica().equals(tipoEstatisticaOrigem) )
-						.findFirst().or(() -> Optional.of(
+						.findFirst().orElseGet(() -> Optional.of(
 								EstatisticaDiscador.builder()
 									.tipoEstatistica(tipoEstatisticaOrigem)
 									.quantidade(BigDecimal.ZERO)
 									.tipoEstisticaValor(String.valueOf(a))
-									.build())).get();
+									.build()).get());
 						
 						
 					EstatisticaDiscador estatisticaDestino =  chamadasDestinoBruto.stream().filter(chamada ->
 					chamada.getTipoEstisticaValor().equals(String.valueOf(a))  &&  chamada.getTipoEstatistica().equals(tipoEstatisticaDestino))
-					.findFirst().or(() -> Optional.of(
+					.findFirst().orElseGet(() -> Optional.of(
 							EstatisticaDiscador.builder()
 								.tipoEstatistica(tipoEstatisticaDestino)
 								.quantidade(BigDecimal.ZERO)
 								.tipoEstisticaValor(String.valueOf(a))
-								.build())).get();
+								.build()).get());
 				
 					
 					

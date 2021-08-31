@@ -66,12 +66,12 @@ public class EstatisticaDiscadorDdd {
 					
 			EstatisticaDiscador estatistica =  chamadasDddBruto.stream().filter(chamada ->
 				chamada.getTipoEstisticaValor().equals(String.valueOf(a)) && chamada.getTipoEstatistica().equals(tipoEstatistica) )
-				.findFirst().or(() -> Optional.of(
+				.findFirst().orElseGet(() -> Optional.of(
 						EstatisticaDiscador.builder()
 							.tipoEstatistica(tipoEstatistica)
 							.quantidade(BigDecimal.ZERO)
 							.tipoEstisticaValor(String.valueOf(a))
-							.build())).get();
+							.build()).get());
 			chamadaBrutoTabela.add(mapper.modelToOutputDtoSegundoDDD(estatistica));
 			
 			}
