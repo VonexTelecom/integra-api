@@ -3,8 +3,6 @@ package br.com.integra.api.model;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import javax.persistence.Entity;
-
 import lombok.Builder;
 import lombok.Data;
 

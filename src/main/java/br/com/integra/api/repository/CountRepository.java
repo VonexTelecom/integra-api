@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import br.com.integra.api.countRowMapper;
+import br.com.integra.api.CountRowMapper;
 import br.com.integra.api.model.CountEstatisticaDiscador;
 
 @Repository
@@ -38,7 +38,7 @@ public class CountRepository {
 				+"FROM information_schema.tables "
 				+"WHERE table_schema = 'IntegraBI' " 
 				+"AND table_name = '%s'", nomeDaTabela);
-		CountEstatisticaDiscador count = jdbcTemplate.queryForObject(sql, new countRowMapper());
+		CountEstatisticaDiscador count = jdbcTemplate.queryForObject(sql, new CountRowMapper());
 		if (count.getCount() > 0) {
 			return true;
 		}

@@ -48,10 +48,10 @@ public class EstatisticaDiscadorChamadasService {
 		for (TipoEstatisticaEnum tipoEstatisticaEnum : list) {
 			EstatisticaDiscadorOutputDto totalizadorBrutoSumarizado = new EstatisticaDiscadorOutputDto();
 			
-			dataAtual = dataInicial.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
+			dataAtual = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
 			
 			
-			dataFinalFormatada = dataFinal.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
+			dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
 			
 			while(dataAtual.compareTo(dataFinalFormatada) <= 0){
 				
@@ -76,8 +76,7 @@ public class EstatisticaDiscadorChamadasService {
 	}
 	
 	public EstatisticaDiscadorOutputDto estatisticaProcessada(List<EstatisticaDiscadorOutputDto> listaBruta){
-		List<TipoEstatisticaEnum> list = Arrays.asList(TipoEstatisticaEnum.values());
-		
+			
 		String tipoEstatistica = "";
 		
 		for (EstatisticaDiscadorOutputDto estatistica : listaBruta) {

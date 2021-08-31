@@ -30,8 +30,6 @@ public class EstatisticaTempoChamadaService {
 	@Autowired
 	private EstatisticaDiscadorMapper mapper;
 	
-	
-	
 	public List<EstatisticaDiscadorOutputDto> discadorTotalizadorTempoChamadas(EstatisticaFilter filter, Long cliente){
 		LocalDate dataAtual;
 		LocalDate dataFinalFormatada;
@@ -48,11 +46,11 @@ public class EstatisticaTempoChamadaService {
 		List<EstatisticaDiscadorOutputDto> chamadaBrutoTabela = new ArrayList<>();
 		List<EstatisticaDiscadorOutputDto> chamadaProcessada = new ArrayList<>();
 		List<EstatisticaDiscadorOutputDto> chamadaTabelaProcessada = new ArrayList<>();
-		dataFinalFormatada = dataFinal.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
+		dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
 		
 			System.out.println(dataFinalFormatada);
 	
-			dataAtual = dataInicial.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
+			dataAtual = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
 			System.out.println(dataAtual);
 			while(dataAtual.compareTo(dataFinalFormatada) <= 0) {
 				String tipoEstatisticaOrigem = String.format("chamada_com_segundo_desc_origem");
@@ -126,7 +124,8 @@ public class EstatisticaTempoChamadaService {
 		
 		for (EstatisticaDiscadorOutputDto estatistica : listaBruta) {
 			tipoEstatistica = estatistica.getTipoEstatistica();
-			EstatisticaDiscadorOutputDto estatisticaSumarizada = new EstatisticaDiscadorOutputDto().builder()
+			new EstatisticaDiscadorOutputDto();
+			EstatisticaDiscadorOutputDto estatisticaSumarizada = EstatisticaDiscadorOutputDto.builder()
 				.tipoEstatistica(tipoEstatistica)
 				.quantidade(quantidadeTotal(listaBruta))
 				.build();

@@ -1,4 +1,4 @@
-package br.com.integra.api.Scheduling;
+package br.com.integra.api.scheduling;
 
 import java.time.LocalDate;
 
