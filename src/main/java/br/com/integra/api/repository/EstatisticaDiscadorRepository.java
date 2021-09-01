@@ -2,6 +2,7 @@ package br.com.integra.api.repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,10 +43,34 @@ public class EstatisticaDiscadorRepository {
 
 	    }
 	
+	public List<EstatisticaDiscador> findtipoEstatisticaTotalizadorDiaAtual(LocalDate date, String tipoEstatistica, EstatisticaFilter filter, Long clienteId) {
+
+		String dataFormatada = formatarData(date);
+		
+		String dataInicialFormatada = formatarData(filter.getDataFinal());
+
+		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
+		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
+			throw new EntidadeNaoEncontradaException("Data não registrada") {
+			};
+		}
+		
+		String sql = String.format("SELECT * FROM %s where tipoEstatistica = '%s' and modalidade = '%s' and clienteId = %d and between ",
+	    		nomeDaTabelaData, tipoEstatistica, filter.getModalidade(), clienteId);
+		
+	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
+	    (new EstatisticaDiscadorRowMapper()));
+	    return estatisticaBruta;
+
+	    }
+	
+	
+	
 	public List<EstatisticaDiscador> findtipoEstatisticaTotalizadorDia(LocalDate date, String tipoEstatistica, EstatisticaFilter filter, Long clienteId,
 			Integer valorInicial, Integer valorFinal) {
 
 		String dataFormatada = formatarData(date);
+		
 
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 
@@ -79,27 +104,11 @@ public class EstatisticaDiscadorRepository {
 		String dataFormatada = date.getYear() + "" + mes + "" + date.getDayOfMonth();
 		return dataFormatada;
 	}
+	
+	public String formatarData(LocalDateTime date) {	
+		return date.toLocalDate().format(DateTimeFormatter.ISO_DATE).toString();
 
-	public String formatarDataTime(LocalDateTime date) {
-		String mes = String.valueOf(date.getMonthValue());
-		String minuto = String.valueOf(date.getMinute());
-		String hora = String.valueOf(date.getHour());
-		String segundo = String.valueOf(date.getSecond());
-		if (date.getMonthValue() <= 9) {
-			mes = +0 + "" + date.getMonthValue();
-		}
-		if (date.getMinute() <= 9) {
-			minuto = +0 + "" + date.getMinute();
-		}
-		if (date.getHour() <= 9) {
-			hora = +0 + "" + date.getHour();
-		}
-		if (date.getSecond() <= 9) {
-			segundo = +0 + "" + date.getSecond();
-		}
-		String dataFormatada = date.getYear() + "-" + mes + "-" + date.getDayOfMonth() + " " + hora + ":" + minuto + ":"
-				+ segundo;
-		return dataFormatada;
 	}
+
 
 }

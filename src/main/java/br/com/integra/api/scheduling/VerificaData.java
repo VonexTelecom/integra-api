@@ -16,7 +16,7 @@ public class VerificaData {
 	@Autowired
 	private CountRepository repository;
 	
-	private static final String TIME_ZONE = "America/Sao_Paulo";
+//	private static final String TIME_ZONE = "America/Sao_Paulo";
 
 //	@Scheduled(cron = "* 57 23 * * *", zone = TIME_ZONE)
 //	public void verificadorData() {
