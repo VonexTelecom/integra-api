@@ -1,13 +1,14 @@
 package br.com.integra.api.service;
 
 import java.math.BigDecimal;
+import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,6 @@ import br.com.integra.api.mapper.EstatisticaCapsMapper;
 import br.com.integra.api.mapper.EstatisticaDiscadorMapper;
 import br.com.integra.api.model.EstatisticaDiscador;
 import br.com.integra.api.repository.EstatisticaCapsRepository;
-import ch.qos.logback.core.net.SyslogOutputStream;
 
 @Service
 public class EstatisticaCapsService {
@@ -73,11 +73,10 @@ public class EstatisticaCapsService {
 							.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
 							.modalidade(filter.getModalidade())
 							.build();
-					
 					capsBruto.addAll(repository.findtipoEstatisticaTotalizadorInicial(dataAtual, filtro,clienteId));
 					
 				}else  if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) != 0) {
-					System.out.println(dataAtual);
+					
 					filtro = EstatisticaFilter.builder()
 							.modalidade(filter.getModalidade())
 							.build();
@@ -94,9 +93,9 @@ public class EstatisticaCapsService {
 					capsBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, filtro,clienteId));
 	
 				}
-				System.out.print(capsBruto);
+				System.out.println(capsBruto);
+				
 				capsProcessado.addAll(separadorCaps(capsBruto, dataInicial, dataFinal));
-				capsBruto.clear();
 				dataAtual = dataAtual.plusDays(1L);
 			}
 			
@@ -109,21 +108,19 @@ public class EstatisticaCapsService {
 	public List<EstatisticaCapsOutputDto> separadorCaps(List<EstatisticaDiscador> lista, LocalDateTime dataInicial, LocalDateTime dataFinal){
 		
 		List<EstatisticaCapsOutputDto> capsProcessado = new ArrayList<>();
-		LocalDateTime dataInicialModificado = dataInicial;
-		while (dataInicialModificado.compareTo(dataFinal) <=0) {
-			LocalDateTime dataIni = dataInicialModificado;
-			LocalDateTime dataFim = dataIni.plusMinutes(1L);
-			
+		
+		
+		//dataInicial = dataInicial.minusHours(3L);
+		//dataFinal = dataFinal.minusHours(3L);
+		while (dataInicial.compareTo(dataFinal) <= 0) {
+			LocalDateTime dataFim = dataInicial.plusMinutes(1L);
+			LocalDateTime dataIni = dataInicial;
 			
 			List<EstatisticaDiscadorOutputDto> caps = estatisticaMapper.modelToCollectionOutputDto(lista.stream().filter
-					(c -> c.getData().compareTo(Date.from(dataIni.atZone(ZoneId.systemDefault()).toInstant())) == 0 && 
-					c.getData().compareTo(Date.from(dataFim.atZone(ZoneId.systemDefault()).toInstant())) <= 0
-					).collect(Collectors.toList()));
-			
+					(c -> c.getData().compareTo (dataIni.toLocalTime()) == 0 && c.getData().compareTo(dataFim.toLocalTime()) <= 0).collect(Collectors.toList()));
+			System.out.println(caps + " "+dataIni.toLocalTime());
 			capsProcessado.add(mapper.modelToOutputDto(caps,dataInicial));
-			dataInicialModificado = dataInicial.plusMinutes(1L);
-			//System.out.println(caps.get(0) +"\n"+ caps.get(1));
-			
+			dataInicial = dataInicial.plusMinutes(1L);
 		}
 		return capsProcessado;
 	}

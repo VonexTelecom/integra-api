@@ -11,8 +11,6 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 public class ApplicationContext {
 
 	public static void main(String[] args) {
-		
-		
 		SpringApplication.run(ApplicationContext.class, args);
 		 TimeZone.setDefault(TimeZone.getTimeZone("GMT-3"));
 	}

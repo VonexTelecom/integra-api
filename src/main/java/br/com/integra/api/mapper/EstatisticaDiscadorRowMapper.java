@@ -2,7 +2,6 @@ package br.com.integra.api.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Calendar;
 
 import org.springframework.jdbc.core.RowMapper;
 
@@ -16,7 +15,7 @@ public class EstatisticaDiscadorRowMapper implements RowMapper<EstatisticaDiscad
 			return EstatisticaDiscador.builder()
 				.clienteId(rs.getInt("clienteId"))
 				.conta(rs.getString("conta"))
-				.data(rs.getTimestamp("data"))
+				.data(rs.getTime("data").toLocalTime())
 				.equipamento(rs.getString("equipamento"))
 				.modalidade(rs.getString("modalidade"))
 				.numeroOrigem(rs.getString("numeroOrigem"))
