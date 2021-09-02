@@ -27,7 +27,7 @@ public interface DadosControllerSwagger {
 	})
 	ResponseEntity<?>discadorTotalizadorChamadas(EstatisticaFilter filter);
 	
-	@ApiOperation(value = "Busca os gráficos da duração da chamada por dia", httpMethod = "GET")
+	@ApiOperation(value = "Busca os gráficos da duração da chamadas", httpMethod = "GET")
 	@ApiResponses({
 		@ApiResponse(code = 200, response = EstatisticaSumarizada.class, message = "Requisição com sucesso"),
 		@ApiResponse(code = 204, response = Problem.class, message = "O recurso não foi encontrado")
@@ -36,12 +36,19 @@ public interface DadosControllerSwagger {
 	
 	
 	
-	@ApiOperation(value = "Busca os gráficos do total de ddd por dia", httpMethod = "GET")
+	@ApiOperation(value = "Busca os gráficos do total de ddds", httpMethod = "GET")
 	@ApiResponses({
 		@ApiResponse(code = 200, response = EstatisticaSumarizada.class, message = "Requisição com sucesso"),
 		@ApiResponse(code = 204, response = Problem.class, message = "O recurso não foi encontrado")
 	})
 	ResponseEntity<?>discadorTotalizadorDdd(EstatisticaFilter filter);
+	
+	@ApiOperation(value = "Busca os gráficos do total de Chamadas Por Segundo", httpMethod = "GET")
+	@ApiResponses({
+		@ApiResponse(code = 200, response = EstatisticaSumarizada.class, message = "Requisição com sucesso"),
+		@ApiResponse(code = 204, response = Problem.class, message = "O recurso não foi encontrado")
+	})
+	ResponseEntity<?>discadorTotalizadorCaps(EstatisticaFilter filter);
 	
 } 
 

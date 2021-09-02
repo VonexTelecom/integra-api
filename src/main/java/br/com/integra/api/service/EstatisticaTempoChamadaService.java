@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,51 +18,90 @@ import br.com.integra.api.enums.PeriodoEstatisticaEnum;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.mapper.EstatisticaDiscadorMapper;
 import br.com.integra.api.model.EstatisticaDiscador;
-import br.com.integra.api.repository.EstatisticaDiscadorRepository;
+import br.com.integra.api.repository.EstatisticaTotalizadorTempoRepository;
 
 @Service
 public class EstatisticaTempoChamadaService {
 	
 	@Autowired
-	private EstatisticaDiscadorRepository repository;
+	private EstatisticaTotalizadorTempoRepository repository;
 	
 	@Autowired
 	private EstatisticaDiscadorMapper mapper;
 	
 	public List<EstatisticaDiscadorOutputDto> discadorTotalizadorTempoChamadas(EstatisticaFilter filter, Long clienteId){
 
-		LocalDate dataAtual;
-		LocalDate dataFinalFormatada;
-		LocalDate dataInicial = filter.getDataInicial().toInstant().atZone( ZoneId.systemDefault() ).toLocalDate();
-		LocalDate dataFinal = filter.getDataFinal().toInstant().atZone( ZoneId.systemDefault() ).toLocalDate();
+		LocalDateTime dataInicial = filter.getDataInicial().toInstant().atZone( ZoneId.systemDefault() ).toLocalDateTime();
+		LocalDateTime dataFinal = filter.getDataFinal().toInstant().atZone( ZoneId.systemDefault() ).toLocalDateTime();
 		
 		
 		
 		if(filter.getPeriodoEnum() != null) {
-			dataInicial = converterEnumToData(filter.getPeriodoEnum());
-			dataFinal = dataInicial;
+			LocalDateTime dataInicialEnum = null; 
+			LocalDateTime dataFinalEnum = null;
+			List<LocalDateTime> datas = converterEnumToData(filter.getPeriodoEnum());
+			for (LocalDateTime localDateTime : datas) {
+				if(dataInicialEnum == null) {
+					dataInicialEnum = localDateTime;
+				}else{
+					dataFinalEnum = localDateTime;
+				}
+				
+				dataInicial = dataInicialEnum;
+				dataFinal = dataFinalEnum;
+			}
+			
 		}
 		
 		List<EstatisticaDiscadorOutputDto> chamadaBrutoTabela = new ArrayList<>();
 		List<EstatisticaDiscadorOutputDto> chamadaProcessada = new ArrayList<>();
 		List<EstatisticaDiscadorOutputDto> chamadaTabelaProcessada = new ArrayList<>();
-		dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
-
-		dataAtual = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
+			
+				
+			
+		LocalDate dataAtual = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
+		LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
 		while(dataAtual.compareTo(dataFinalFormatada) <= 0) {
+			List<EstatisticaDiscador> chamadasOrigemBruto = new ArrayList<>();
+			List<EstatisticaDiscador> chamadasDestinoBruto = new ArrayList<>();
 			String tipoEstatisticaOrigem = String.format("chamada_com_segundo_desc_origem");
 			String tipoEstatisticaDestino = String.format("chamada_com_segundo_desc_destino");
 			String tipoEstatisticaTotal = String.format("chamada_com_segundo_desc_total");
-
-				
-				
-			List<EstatisticaDiscador> chamadasOrigemBruto =
-					repository.findtipoEstatisticaTotalizadorDia(dataAtual, tipoEstatisticaOrigem, filter, clienteId,0,120);
-				
 			
-			List<EstatisticaDiscador> chamadasDestinoBruto = 
-					repository.findtipoEstatisticaTotalizadorDia(dataAtual, tipoEstatisticaDestino, filter, clienteId,0,120);
+		
+			
+			if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) == 0) {
+				EstatisticaFilter filtro = EstatisticaFilter.builder()
+						.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
+						.modalidade(filter.getModalidade())
+						.build();
+				
+				chamadasOrigemBruto.addAll(repository.findtipoEstatisticaTotalizadorInicial(dataAtual, tipoEstatisticaOrigem, filtro, clienteId,0,120));
+					
+				
+				chamadasDestinoBruto.addAll(repository.findtipoEstatisticaTotalizadorInicial(dataAtual, tipoEstatisticaDestino, filtro, clienteId,0,120));
 
+			}else if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) != 0) {
+				
+				EstatisticaFilter filtro = EstatisticaFilter.builder()
+						.modalidade(filter.getModalidade())
+						.build();
+				chamadasOrigemBruto.addAll(repository.findtipoEstatisticaTotalizador(dataAtual, tipoEstatisticaOrigem, filtro, clienteId,0,120));
+					
+				
+				chamadasDestinoBruto.addAll(repository.findtipoEstatisticaTotalizador(dataAtual, tipoEstatisticaDestino, filtro, clienteId,0,120));
+				
+			}else {
+				EstatisticaFilter filtro = EstatisticaFilter.builder()
+						.modalidade(filter.getModalidade())
+						.dataFinal(Date.from(dataFinal.atZone(ZoneId.systemDefault()).toInstant()))
+						.build();
+				chamadasOrigemBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, tipoEstatisticaOrigem, filtro, clienteId,0,120));
+					
+				
+				chamadasDestinoBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, tipoEstatisticaDestino, filtro, clienteId,0,120));
+			}
+			
 			for (int i = 0; i<=120; i++) {
 				int a = i;
 						
@@ -99,6 +139,7 @@ public class EstatisticaTempoChamadaService {
 			
 			
 			chamadaTabelaProcessada.addAll(somaTabela(chamadaBrutoTabela));
+			
 			chamadaBrutoTabela.clear();
 			
 			dataAtual = dataAtual.plusDays(1L);	
@@ -111,31 +152,42 @@ public class EstatisticaTempoChamadaService {
 
 	
 	
-	public LocalDate converterEnumToData(PeriodoEstatisticaEnum periodoEnum) {
+	public List<LocalDateTime> converterEnumToData(PeriodoEstatisticaEnum periodoEnum) {
 		
 		LocalDateTime dataAtual = LocalDateTime.now();
 		LocalDateTime dataProcessada = LocalDateTime.from(dataAtual);
+		LocalDateTime dataFinalProcessada = LocalDateTime.from(dataProcessada);
+		
+		List<LocalDateTime> datas = new ArrayList<>();
+		
 		
 		switch (periodoEnum) {
 		case Hoje:
 			dataProcessada = dataAtual.toLocalDate().atStartOfDay();
+			dataFinalProcessada = dataAtual.toLocalDate().atTime(23, 59);
 			break;
 		case Ontem:
-			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusDays(1);
+			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusDays(1L);
+			dataFinalProcessada =  dataProcessada.toLocalDate().atTime(23, 59);
 			break;
 		case QuinzeDias:
-			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusWeeks(2);
+			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusWeeks(2).minusDays(1L);
+			dataFinalProcessada =LocalDateTime.now().toLocalDate().atTime(23,59);
 			break;
 		case TrintaDias:
 			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusMonths(1);
+			dataFinalProcessada = LocalDateTime.now().toLocalDate().atTime(23,59);
 			break;
 		case OitoAsDezoito:
 			dataProcessada = dataAtual.toLocalDate().atTime(8, 0, 0);
+			dataFinalProcessada = dataAtual.toLocalDate().atTime(18, 0, 0);
 			break;
 		default:
 		}
-
-		return dataProcessada.toLocalDate();
+		datas.add(dataProcessada);
+		datas.add(dataFinalProcessada);
+		
+		return datas;
 		
 	}
 	
