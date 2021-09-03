@@ -73,7 +73,6 @@ public class EstatisticaDiscadorChamadasService {
 
 			
 			while(dataAtual.compareTo(dataFinalFormatada) <= 0){
-				System.out.println(dataAtual);
 				if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) == 0) {
 					
 					EstatisticaFilter filtro = EstatisticaFilter.builder()
@@ -114,7 +113,6 @@ public class EstatisticaDiscadorChamadasService {
 					
 					totalizadorSumarizadoTabela.add(totalizadorBrutoSumarizado);
 					
-					System.out.println(totalizadorSumarizadoTabela);
 					dataAtual = dataAtual.plusDays(1L);
 				}
 			
@@ -124,7 +122,7 @@ public class EstatisticaDiscadorChamadasService {
 			
 		}
 		Long endTime = System.currentTimeMillis();
-	//	System.out.printf("\nduração: %f",(float)(endTime-startTime)/1000);
+		System.out.printf("\nduração: %f",(float)(endTime-startTime)/1000);
 		
 		return totalizadorSumarizadoTotal;
 	}

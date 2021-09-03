@@ -18,7 +18,6 @@ public class EstatisticaCapsMapper {
 	public EstatisticaCapsOutputDto modelToOutputDto(List<EstatisticaDiscadorOutputDto> caps, LocalDateTime dataAtual) {
 		EstatisticaCapsOutputDto capsDto = new EstatisticaCapsOutputDto();
 		
-		System.out.println(caps.size());
 		List<EstatisticaDiscadorOutputDto> capsModificado = new ArrayList<>();
 		capsModificado.addAll(caps);
 		EstatisticaDiscadorOutputDto capsVazioMax = EstatisticaDiscadorOutputDto.builder()
@@ -42,8 +41,6 @@ public class EstatisticaCapsMapper {
 				}
 			}
 		} 
-		
-		
 			
 		capsDto = EstatisticaCapsOutputDto.builder()
 			.data(dataAtual)

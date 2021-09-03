@@ -118,7 +118,6 @@ public class EstatisticaCapsService {
 			
 			List<EstatisticaDiscadorOutputDto> caps = estatisticaMapper.modelToCollectionOutputDto(lista.stream().filter
 					(c -> c.getData().compareTo (dataIni.toLocalTime()) == 0 && c.getData().compareTo(dataFim.toLocalTime()) <= 0).collect(Collectors.toList()));
-			System.out.println(caps + " "+dataIni.toLocalTime());
 			capsProcessado.add(mapper.modelToOutputDto(caps,dataInicial));
 			dataInicial = dataInicial.plusMinutes(1L);
 		}

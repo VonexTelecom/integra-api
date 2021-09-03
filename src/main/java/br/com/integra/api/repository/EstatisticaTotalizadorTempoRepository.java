@@ -2,6 +2,7 @@ package br.com.integra.api.repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -31,8 +32,8 @@ public class EstatisticaTotalizadorTempoRepository {
 		LocalDateTime dataFinal = filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 		dataFinal = dataFinal.toLocalDate().atTime(23, 59);
 		
-		String dataInicialFormatada = formatarData(filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-		String dataFinalFormatada = formatarData(dataFinal);
+		String dataInicialFormatada = formatarData(filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalTime());
+		String dataFinalFormatada = formatarData(dataFinal.toLocalTime());
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 
 		if(countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
@@ -60,8 +61,8 @@ public class EstatisticaTotalizadorTempoRepository {
 		LocalDateTime dataInicial = filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 		dataInicial = dataInicial.toLocalDate().atStartOfDay();
 		
-		String dataInicialFormatada = formatarData(dataInicial);
-		String dataFinalFormatada = formatarData(filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+		String dataInicialFormatada = formatarData(dataInicial.toLocalTime());
+		String dataFinalFormatada = formatarData(filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalTime());
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 
 		if(countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
@@ -109,16 +110,12 @@ public class EstatisticaTotalizadorTempoRepository {
 	
 	
 	public String formatarData(LocalDate date) {
-		String mes = "" + date.getMonthValue();
-		if (date.getMonthValue() <= 9) {
-			mes = 0 + "" + date.getMonthValue();
-		}
-		String dataFormatada = date.getYear() + "" + mes + "" + date.getDayOfMonth();
-		return dataFormatada;
+	
+		return date.format(DateTimeFormatter.BASIC_ISO_DATE).toString();
 	}
 	
-	public String formatarData(LocalDateTime date) {	
-		return date.format(DateTimeFormatter.ISO_DATE_TIME).toString();
+	public String formatarData(LocalTime date) {	
+		return date.format(DateTimeFormatter.ISO_TIME).toString();
 	}
 	
 }
