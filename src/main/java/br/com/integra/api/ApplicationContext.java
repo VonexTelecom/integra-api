@@ -5,7 +5,7 @@ import java.util.TimeZone;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-//@EnableEurekaClient
+@EnableEurekaClient
 @SpringBootApplication
 public class ApplicationContext {
 
