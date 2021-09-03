@@ -1,10 +1,8 @@
 package br.com.integra.api.service;
 
 import java.math.BigDecimal;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,6 +15,7 @@ import org.springframework.stereotype.Service;
 import br.com.integra.api.dto.output.EstatisticaCapsOutputDto;
 import br.com.integra.api.dto.output.EstatisticaDiscadorOutputDto;
 import br.com.integra.api.enums.PeriodoEstatisticaEnum;
+import br.com.integra.api.exception.BusinessException;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.mapper.EstatisticaCapsMapper;
 import br.com.integra.api.mapper.EstatisticaDiscadorMapper;
@@ -36,30 +35,18 @@ public class EstatisticaCapsService {
 	private EstatisticaDiscadorMapper estatisticaMapper;
 	
 	public List<EstatisticaCapsOutputDto> discadorTotalizadorCaps(EstatisticaFilter filter, Long clienteId) {
+		
 		Long startTime = System.currentTimeMillis();
 		LocalDateTime dataInicial = filter.getDataInicial().toInstant().atZone( ZoneId.systemDefault() ).toLocalDateTime();
 		LocalDateTime dataFinal = filter.getDataFinal().toInstant().atZone( ZoneId.systemDefault() ).toLocalDateTime();
-		
-		
-		
+
 		if(filter.getPeriodoEnum() != null) {
-			LocalDateTime dataInicialEnum = null; 
-			LocalDateTime dataFinalEnum = null;
 			List<LocalDateTime> datas = converterEnumToData(filter.getPeriodoEnum());
-			for (LocalDateTime localDateTime : datas) {
-				if(dataInicialEnum == null) {
-					dataInicialEnum = localDateTime;
-				}else{
-					dataFinalEnum = localDateTime;
-				}
-				
-				dataInicial = dataInicialEnum;
-				dataFinal = dataFinalEnum;
-			}
+			dataInicial = datas.get(0);
+			dataFinal = datas.get(1);
 		}
 		
 			List<EstatisticaCapsOutputDto> capsProcessado = new ArrayList<>();
-			
 			
 			LocalDate dataAtual = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
 			LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
@@ -68,6 +55,7 @@ public class EstatisticaCapsService {
 			while(dataAtual.compareTo(dataFinalFormatada) <= 0) {
 				
 				List<EstatisticaDiscador> capsBruto = new ArrayList<>();
+				
 				if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) == 0) {
 					filtro = EstatisticaFilter.builder()
 							.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
@@ -98,26 +86,20 @@ public class EstatisticaCapsService {
 				capsProcessado.addAll(separadorCaps(capsBruto, dataInicial, dataFinal));
 				dataAtual = dataAtual.plusDays(1L);
 			}
-			
-			
-			
-		
+
 		return capsProcessado;
 	}
-	
 	public List<EstatisticaCapsOutputDto> separadorCaps(List<EstatisticaDiscador> lista, LocalDateTime dataInicial, LocalDateTime dataFinal){
 		
 		List<EstatisticaCapsOutputDto> capsProcessado = new ArrayList<>();
-		
-		
-		//dataInicial = dataInicial.minusHours(3L);
-		//dataFinal = dataFinal.minusHours(3L);
 		while (dataInicial.compareTo(dataFinal) <= 0) {
 			LocalDateTime dataFim = dataInicial.plusMinutes(1L);
 			LocalDateTime dataIni = dataInicial;
 			
 			List<EstatisticaDiscadorOutputDto> caps = estatisticaMapper.modelToCollectionOutputDto(lista.stream().filter
-					(c -> c.getData().compareTo (dataIni.toLocalTime()) == 0 && c.getData().compareTo(dataFim.toLocalTime()) <= 0).collect(Collectors.toList()));
+					(c -> c.getData().compareTo (dataIni.toLocalTime()) == 0 &&
+					c.getData().compareTo(dataFim.toLocalTime()) <= 0).collect(Collectors.toList()));
+			
 			System.out.println(caps + " "+dataIni.toLocalTime());
 			capsProcessado.add(mapper.modelToOutputDto(caps,dataInicial));
 			dataInicial = dataInicial.plusMinutes(1L);
@@ -157,6 +139,7 @@ public class EstatisticaCapsService {
 			dataFinalProcessada = dataAtual.toLocalDate().atTime(18, 0, 0);
 			break;
 		default:
+			throw new BusinessException("Opção de data Invalida") {};
 		}
 		datas.add(dataProcessada);
 		datas.add(dataFinalProcessada);

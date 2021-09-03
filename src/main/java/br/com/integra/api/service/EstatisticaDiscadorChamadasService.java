@@ -8,20 +8,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.nimbusds.oauth2.sdk.util.date.DateWithTimeZoneOffset;
 
 import br.com.integra.api.dto.output.EstatisticaDiscadorOutputDto;
 import br.com.integra.api.enums.PeriodoEstatisticaEnum;
 import br.com.integra.api.enums.TipoEstatisticaEnum;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.mapper.EstatisticaDiscadorMapper;
-import br.com.integra.api.model.EstatisticaDiscador;
 import br.com.integra.api.repository.EstatisticaTotalizadorChamadasRepository;
 
 @Service
@@ -41,19 +36,9 @@ public class EstatisticaDiscadorChamadasService {
 		LocalDateTime dataFinal = filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 	
 		if(filter.getPeriodoEnum() != null) {
-			LocalDateTime dataInicialEnum = null; 
-			LocalDateTime dataFinalEnum = null;
 			List<LocalDateTime> datas = converterEnumToData(filter.getPeriodoEnum());
-			for (LocalDateTime localDateTime : datas) {
-				if(dataInicialEnum == null) {
-					dataInicialEnum = localDateTime;
-				}else{
-					dataFinalEnum = localDateTime;
-				}
-				
-				dataInicial = dataInicialEnum;
-				dataFinal = dataFinalEnum;
-			}
+			dataInicial = datas.get(0);
+			dataFinal = datas.get(1);
 			
 		}
 		System.out.println("DataInicial:"+dataInicial+" DataFinal:"+dataFinal);
