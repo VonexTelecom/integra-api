@@ -31,26 +31,17 @@ public class EstatisticaTempoChamadaService {
 	
 	public List<EstatisticaDiscadorOutputDto> discadorTotalizadorTempoChamadas(EstatisticaFilter filter, Long clienteId){
 
-		LocalDateTime dataInicial = filter.getDataInicial().toInstant().atZone( ZoneId.systemDefault() ).toLocalDateTime();
-		LocalDateTime dataFinal = filter.getDataFinal().toInstant().atZone( ZoneId.systemDefault() ).toLocalDateTime();
-		
-		
-		
+		LocalDateTime dataInicial;
+		LocalDateTime dataFinal;
+	
 		if(filter.getPeriodoEnum() != null) {
-			LocalDateTime dataInicialEnum = null; 
-			LocalDateTime dataFinalEnum = null;
 			List<LocalDateTime> datas = converterEnumToData(filter.getPeriodoEnum());
-			for (LocalDateTime localDateTime : datas) {
-				if(dataInicialEnum == null) {
-					dataInicialEnum = localDateTime;
-				}else{
-					dataFinalEnum = localDateTime;
-				}
-				
-				dataInicial = dataInicialEnum;
-				dataFinal = dataFinalEnum;
-			}
+			dataInicial = datas.get(0);
+			dataFinal = datas.get(1);
 			
+		}else {
+			 dataInicial = filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+			 dataFinal = filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 		}
 		
 		List<EstatisticaDiscadorOutputDto> chamadaBrutoTabela = new ArrayList<>();

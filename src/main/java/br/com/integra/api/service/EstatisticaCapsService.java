@@ -37,13 +37,18 @@ public class EstatisticaCapsService {
 	public List<EstatisticaCapsOutputDto> discadorTotalizadorCaps(EstatisticaFilter filter, Long clienteId) {
 		
 		Long startTime = System.currentTimeMillis();
-		LocalDateTime dataInicial = filter.getDataInicial().toInstant().atZone( ZoneId.systemDefault() ).toLocalDateTime();
-		LocalDateTime dataFinal = filter.getDataFinal().toInstant().atZone( ZoneId.systemDefault() ).toLocalDateTime();
-
+		
+		LocalDateTime dataInicial;
+		LocalDateTime dataFinal;
+	
 		if(filter.getPeriodoEnum() != null) {
 			List<LocalDateTime> datas = converterEnumToData(filter.getPeriodoEnum());
 			dataInicial = datas.get(0);
 			dataFinal = datas.get(1);
+			
+		}else {
+			 dataInicial = filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+			 dataFinal = filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 		}
 		
 			List<EstatisticaCapsOutputDto> capsProcessado = new ArrayList<>();
