@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class EstatisticaTotalizadorChamadasRepository {
 		
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
-			throw new EntidadeNaoEncontradaException("Data não registrada") {};
+			return new ArrayList<>();
 		}
 		
 		String sql = String.format("SELECT * FROM %s where tipoEstatistica = '%s' and modalidade = '%s' and clienteId = %d and data between '%s' and '%s'",
@@ -81,7 +82,7 @@ public class EstatisticaTotalizadorChamadasRepository {
 
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
-			throw new EntidadeNaoEncontradaException("Data não registrada") {};
+			return new ArrayList<>();
 		}
 		
 		String sql = String.format("SELECT * FROM %s where tipoEstatistica = '%s' and modalidade = '%s' and clienteId = %d",

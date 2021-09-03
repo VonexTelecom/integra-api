@@ -4,10 +4,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 import br.com.integra.api.dto.output.EstatisticaDiscadorOutputDto;
 import br.com.integra.api.enums.PeriodoEstatisticaEnum;
 import br.com.integra.api.enums.TipoEstatisticaEnum;
+import br.com.integra.api.exception.BusinessException;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.mapper.EstatisticaDiscadorMapper;
 import br.com.integra.api.repository.EstatisticaTotalizadorChamadasRepository;
@@ -34,7 +38,12 @@ public class EstatisticaDiscadorChamadasService {
 		
 		LocalDateTime dataInicial;
 		LocalDateTime dataFinal;
-	
+		
+		
+		if(filter.getDataInicial().after(filter.getDataFinal())) {
+			throw new BusinessException("A data Inicial não pode ser maior que a final");
+		}	
+		
 		if(filter.getPeriodoEnum() != null) {
 			List<LocalDateTime> datas = converterEnumToData(filter.getPeriodoEnum());
 			dataInicial = datas.get(0);
@@ -43,7 +52,9 @@ public class EstatisticaDiscadorChamadasService {
 		}else {
 			 dataInicial = filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 			 dataFinal = filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+			 
 		}
+		
 		System.out.println("DataInicial:"+dataInicial+" DataFinal:"+dataFinal);
 		
 		List<TipoEstatisticaEnum> list = Arrays.asList(TipoEstatisticaEnum.values());
@@ -109,6 +120,7 @@ public class EstatisticaDiscadorChamadasService {
 		totalizadorSumarizadoTabela.clear();
 			
 		}
+
 		Long endTime = System.currentTimeMillis();
 		System.out.printf("\nduração: %f",(float)(endTime-startTime)/1000);
 		
@@ -176,5 +188,15 @@ public class EstatisticaDiscadorChamadasService {
 				.stream()
 				.map(estatistica -> estatistica.getQuantidade())
 				.reduce(BigDecimal.ZERO, BigDecimal::add);
+	}
+	
+	public List<LocalDate> verificaIntervaloData(
+			LocalDate startDate, LocalDate endDate) { 
+		
+		long dias = ChronoUnit.DAYS.between(startDate, endDate); 
+		return IntStream.iterate(0, i -> i + 1)
+				.limit(dias)
+				.mapToObj(i -> startDate.plusDays(i))
+				.collect(Collectors.toList()); 
 	}
 }
