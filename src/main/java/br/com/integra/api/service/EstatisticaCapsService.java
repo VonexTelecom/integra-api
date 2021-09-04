@@ -14,13 +14,13 @@ import org.springframework.stereotype.Service;
 
 import br.com.integra.api.dto.output.EstatisticaCapsOutputDto;
 import br.com.integra.api.dto.output.EstatisticaDiscadorOutputDto;
-import br.com.integra.api.enums.PeriodoEstatisticaEnum;
 import br.com.integra.api.exception.BusinessException;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.mapper.EstatisticaCapsMapper;
 import br.com.integra.api.mapper.EstatisticaDiscadorMapper;
 import br.com.integra.api.model.EstatisticaDiscador;
 import br.com.integra.api.repository.EstatisticaCapsRepository;
+import br.com.integra.api.utils.DateUtils;
 
 @Service
 public class EstatisticaCapsService {
@@ -41,14 +41,21 @@ public class EstatisticaCapsService {
 		LocalDateTime dataInicial;
 		LocalDateTime dataFinal;
 	
-		if(filter.getPeriodoEnum() != null) {
-			List<LocalDateTime> datas = converterEnumToData(filter.getPeriodoEnum());
+		if((filter.getDataInicial()!=null && filter.getDataFinal()!=null) && filter.getDataInicial().after(filter.getDataFinal())) {
+			throw new BusinessException("A data Inicial não pode ser maior que a final");
+		}	
+		
+		else if(filter.getPeriodoEnum() != null) {
+			List<LocalDateTime> datas = DateUtils.converterEnumToData(filter.getPeriodoEnum());
 			dataInicial = datas.get(0);
 			dataFinal = datas.get(1);
 			
-		}else {
+		}else if(filter.getDataInicial()!=null && filter.getDataFinal()!=null) {
 			 dataInicial = filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 			 dataFinal = filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+			 
+		}else {
+			throw new BusinessException("Selecione um periodo ou uma data incial e final.");
 		}
 		
 			List<EstatisticaCapsOutputDto> capsProcessado = new ArrayList<>();
@@ -91,7 +98,7 @@ public class EstatisticaCapsService {
 				capsProcessado.addAll(separadorCaps(capsBruto, dataInicial, dataFinal));
 				dataAtual = dataAtual.plusDays(1L);
 			}
-			if(capsProcessado.stream().filter(t -> t.getValores().stream().filter(v -> v.getQuantidade().longValue() > 0).findAny().isPresent()).findAny().isEmpty()) {
+			if(capsProcessado.stream().filter(t -> t.getValores().stream().filter(v -> v.getQuantidade().longValue() > 0).findAny().isPresent()).findAny().get()== null) {
 				return new ArrayList<>();
 			}
 		return capsProcessado;
@@ -113,47 +120,6 @@ public class EstatisticaCapsService {
 			dataInicial = dataInicial.plusMinutes(1L);
 		}
 		return capsProcessado;
-	}
-	
-	
-	public List<LocalDateTime> converterEnumToData(PeriodoEstatisticaEnum periodoEnum) {
-		
-		LocalDateTime dataAtual = LocalDateTime.now();
-		LocalDateTime dataProcessada = LocalDateTime.from(dataAtual);
-		LocalDateTime dataFinalProcessada = LocalDateTime.from(dataProcessada);
-		
-		List<LocalDateTime> datas = new ArrayList<>();
-		
-		
-		switch (periodoEnum) {
-		case Hoje:
-			dataProcessada = dataAtual.toLocalDate().atStartOfDay();
-			dataFinalProcessada = dataAtual.toLocalDate().atTime(23, 59);
-			break;
-		case Ontem:
-			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusDays(1L);
-			dataFinalProcessada =  dataProcessada.toLocalDate().atTime(23, 59);
-			break;
-		case QuinzeDias:
-			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusWeeks(2).minusDays(1L);
-			dataFinalProcessada =LocalDateTime.now().toLocalDate().atTime(23,59);
-			break;
-		case TrintaDias:
-			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusMonths(1);
-			dataFinalProcessada = LocalDateTime.now().toLocalDate().atTime(23,59);
-			break;
-		case OitoAsDezoito:
-			dataProcessada = dataAtual.toLocalDate().atTime(8, 0, 0);
-			dataFinalProcessada = dataAtual.toLocalDate().atTime(18, 0, 0);
-			break;
-		default:
-			throw new BusinessException("Opção de data Invalida") {};
-		}
-		datas.add(dataProcessada);
-		datas.add(dataFinalProcessada);
-		
-		return datas;
-		
 	}
 	
 	private BigDecimal quantidadeTotal(List<EstatisticaDiscadorOutputDto> estatisticas) {

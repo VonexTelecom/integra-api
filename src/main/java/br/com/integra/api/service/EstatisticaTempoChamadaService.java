@@ -14,11 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.integra.api.dto.output.EstatisticaDiscadorOutputDto;
-import br.com.integra.api.enums.PeriodoEstatisticaEnum;
+import br.com.integra.api.exception.BusinessException;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.mapper.EstatisticaDiscadorMapper;
 import br.com.integra.api.model.EstatisticaDiscador;
 import br.com.integra.api.repository.EstatisticaTotalizadorTempoRepository;
+import br.com.integra.api.utils.DateUtils;
 
 @Service
 public class EstatisticaTempoChamadaService {
@@ -34,14 +35,21 @@ public class EstatisticaTempoChamadaService {
 		LocalDateTime dataInicial;
 		LocalDateTime dataFinal;
 	
-		if(filter.getPeriodoEnum() != null) {
-			List<LocalDateTime> datas = converterEnumToData(filter.getPeriodoEnum());
+		if((filter.getDataInicial()!=null && filter.getDataFinal()!=null) && filter.getDataInicial().after(filter.getDataFinal())) {
+			throw new BusinessException("A data Inicial não pode ser maior que a final");
+		}	
+		
+		else if(filter.getPeriodoEnum() != null) {
+			List<LocalDateTime> datas = DateUtils.converterEnumToData(filter.getPeriodoEnum());
 			dataInicial = datas.get(0);
 			dataFinal = datas.get(1);
 			
-		}else {
+		}else if(filter.getDataInicial()!=null && filter.getDataFinal()!=null) {
 			 dataInicial = filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 			 dataFinal = filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+			 
+		}else {
+			throw new BusinessException("Selecione um periodo ou uma data incial e final.");
 		}
 		
 		List<EstatisticaDiscadorOutputDto> chamadaBrutoTabela = new ArrayList<>();
@@ -92,7 +100,7 @@ public class EstatisticaTempoChamadaService {
 				
 				chamadasDestinoBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, tipoEstatisticaDestino, filtro, clienteId,0,120));
 			}
-			
+
 			for (int i = 0; i<=120; i++) {
 				int a = i;
 						
@@ -126,8 +134,8 @@ public class EstatisticaTempoChamadaService {
 					chamadaBrutoTabela.add(mapper.modelToOutputDtoSegundo(estatisticaDestino));
 					chamadaBrutoTabela.add(mapper.modelToOutputDtoSegundo(estatisticaTotal));
 					 
-				}
 			
+			}
 			
 			chamadaTabelaProcessada.addAll(somaTabela(chamadaBrutoTabela));
 			
@@ -137,51 +145,13 @@ public class EstatisticaTempoChamadaService {
 		}
 		
 		chamadaProcessada.addAll(somaTabela(chamadaTabelaProcessada));
+		if(!chamadaProcessada.stream().anyMatch(c -> c.getQuantidade().longValue() > 0)) {
+			return new ArrayList<>();
+		}
 		return chamadaProcessada;
 		
 	}
 
-	
-	
-	public List<LocalDateTime> converterEnumToData(PeriodoEstatisticaEnum periodoEnum) {
-		
-		LocalDateTime dataAtual = LocalDateTime.now();
-		LocalDateTime dataProcessada = LocalDateTime.from(dataAtual);
-		LocalDateTime dataFinalProcessada = LocalDateTime.from(dataProcessada);
-		
-		List<LocalDateTime> datas = new ArrayList<>();
-		
-		
-		switch (periodoEnum) {
-		case Hoje:
-			dataProcessada = dataAtual.toLocalDate().atStartOfDay();
-			dataFinalProcessada = dataAtual.toLocalDate().atTime(23, 59);
-			break;
-		case Ontem:
-			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusDays(1L);
-			dataFinalProcessada =  dataProcessada.toLocalDate().atTime(23, 59);
-			break;
-		case QuinzeDias:
-			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusWeeks(2).minusDays(1L);
-			dataFinalProcessada =LocalDateTime.now().toLocalDate().atTime(23,59);
-			break;
-		case TrintaDias:
-			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusMonths(1);
-			dataFinalProcessada = LocalDateTime.now().toLocalDate().atTime(23,59);
-			break;
-		case OitoAsDezoito:
-			dataProcessada = dataAtual.toLocalDate().atTime(8, 0, 0);
-			dataFinalProcessada = dataAtual.toLocalDate().atTime(18, 0, 0);
-			break;
-		default:
-		}
-		datas.add(dataProcessada);
-		datas.add(dataFinalProcessada);
-		
-		return datas;
-		
-	}
-	
 	public List<EstatisticaDiscadorOutputDto> somaTabela(List<EstatisticaDiscadorOutputDto> list){
 		List<EstatisticaDiscadorOutputDto> estatisticaProcesada = new ArrayList<>();
 		
@@ -222,7 +192,6 @@ public class EstatisticaTempoChamadaService {
 		
 		return estatisticaProcesada;
 	}
-	
 	
 	private BigDecimal quantidadeTotal(List<EstatisticaDiscadorOutputDto> estatisticas) {
 		return estatisticas

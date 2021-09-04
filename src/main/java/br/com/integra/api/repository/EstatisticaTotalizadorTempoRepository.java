@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,6 @@ import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import br.com.integra.api.exception.EntidadeNaoEncontradaException;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.mapper.EstatisticaDiscadorRowMapper;
 import br.com.integra.api.model.EstatisticaDiscador;
@@ -37,7 +37,7 @@ public class EstatisticaTotalizadorTempoRepository {
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 
 		if(countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
-			throw new EntidadeNaoEncontradaException("Data não Encontrada") {};
+			return new ArrayList<>();
 		}
 
 		String sql = String.format("SELECT * FROM %s where tipoEstatistica = '%s' and modalidade = '%s' and clienteId = %d and data between '%s' and '%s'",
@@ -66,7 +66,7 @@ public class EstatisticaTotalizadorTempoRepository {
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 
 		if(countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
-			throw new EntidadeNaoEncontradaException("Data não Encontrada") {};
+			return new ArrayList<>();
 		}
 
 		String sql = String.format("SELECT * FROM %s where tipoEstatistica = '%s' and modalidade = '%s' and clienteId = %d and data between '%s' and '%s'",
@@ -90,7 +90,7 @@ public class EstatisticaTotalizadorTempoRepository {
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 
 		if(countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
-			throw new EntidadeNaoEncontradaException("Data não Encontrada") {};
+			return new ArrayList<>();
 		}
 
 		String sql = String.format("SELECT * FROM %s where tipoEstatistica = '%s' and modalidade = '%s' and clienteId = %d",

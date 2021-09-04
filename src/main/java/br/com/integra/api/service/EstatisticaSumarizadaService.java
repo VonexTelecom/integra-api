@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.integra.api.dto.output.EstatisticaSumarizadaOutputDto;
-import br.com.integra.api.enums.PeriodoEstatisticaEnum;
 import br.com.integra.api.exception.EntidadeNaoEncontradaException;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.mapper.EstatisticaSumarizadaMapper;
 import br.com.integra.api.model.EstatisticaSumarizada;
 import br.com.integra.api.repository.EstatisticaSumarizadaRepository;
+import br.com.integra.api.utils.DateUtils;
 
 @Service
 public class EstatisticaSumarizadaService {
@@ -32,8 +32,8 @@ public class EstatisticaSumarizadaService {
 		LocalDateTime dataFinal = LocalDateTime.now();
 		
 		if(filter.getPeriodoEnum() != null) {
-			dataInicial = converterEnumEmDataInicial(filter.getPeriodoEnum());
-			dataFinal = converterEnumEmDataFinal(filter.getPeriodoEnum());			
+			dataInicial = DateUtils.converterEnumToData(filter.getPeriodoEnum()).get(0);
+			dataFinal = DateUtils.converterEnumToData(filter.getPeriodoEnum()).get(1);			
 		}else {
 			if(filter.getDataInicial() == null || filter.getDataInicial() == null) {
 				throw new EntidadeNaoEncontradaException("Data de Início e Data Final devem ser informadas!") {
@@ -66,61 +66,6 @@ public class EstatisticaSumarizadaService {
 		return mapper.modelToOutputDto(estatisticasPeriodo);
 		
 	}
-	
-	private LocalDateTime converterEnumEmDataInicial(PeriodoEstatisticaEnum periodoEnum) {
-		
-		LocalDateTime dataAtual = LocalDateTime.now();
-		LocalDateTime dataProcessada = LocalDateTime.from(dataAtual);
-		
-		switch (periodoEnum) {
-		case Hoje:
-			dataProcessada = dataAtual.toLocalDate().atStartOfDay();
-			break;
-		case Ontem:
-			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusDays(1);
-			break;
-		case QuinzeDias:
-			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusWeeks(2);
-			break;
-		case TrintaDias:
-			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusMonths(1);
-			break;
-		case OitoAsDezoito:
-			dataProcessada = dataAtual.toLocalDate().atTime(8, 0, 0);
-			break;
-		default:
-		}
-
-		return dataProcessada;
-	}
-
-	private LocalDateTime converterEnumEmDataFinal(PeriodoEstatisticaEnum periodoEnum) {
-		
-		LocalDateTime dataAtual = LocalDateTime.now();
-		LocalDateTime dataProcessada = LocalDateTime.from(dataAtual);
-		
-		switch (periodoEnum) {
-		case Hoje:
-			dataProcessada = dataAtual.toLocalDate().atTime(23, 59, 59);
-			break;
-		case Ontem:
-			dataProcessada = dataAtual.toLocalDate().atTime(23, 59, 59).minusDays(1);
-			break;
-		case QuinzeDias:
-			dataProcessada = dataAtual.toLocalDate().atTime(23, 59, 59);
-			break;
-		case TrintaDias:
-			dataProcessada = dataAtual.toLocalDate().atTime(23, 59, 59);
-			break;
-		case OitoAsDezoito:
-			dataProcessada = dataAtual.toLocalDate().atTime(18, 0, 0);
-			break;
-		default:
-		}
-
-		return dataProcessada;
-	}	
-
 	
 	private BigDecimal completadas10Segundos(List<EstatisticaSumarizada> estatisticas) {
 		return estatisticas

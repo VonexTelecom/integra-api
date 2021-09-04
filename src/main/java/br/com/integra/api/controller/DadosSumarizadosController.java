@@ -42,7 +42,6 @@ public class DadosSumarizadosController implements DadosControllerSwagger {
 	@CheckSecurity.DadosSumarizados.PodeAcessar
 	@GetMapping("/periodo")
 	public ResponseEntity<?> findAllPeriodo(EstatisticaFilter filter) {
-		
 		return ResponseEntity.ok(service.findPorPeriodo(filter, integraSecurity.getClienteId()));
 	}
 
@@ -50,7 +49,6 @@ public class DadosSumarizadosController implements DadosControllerSwagger {
 	@CheckSecurity.DadosSumarizados.PodeAcessar
 	@GetMapping("/chamadas-totalizador-dia")
 	public ResponseEntity<?> discadorTotalizadorChamadas(EstatisticaFilter filter) {
-		
 		return ResponseEntity.ok(totalizadorService.discadorTotalizadorChamadas(filter, integraSecurity.getClienteId()));
 	}
 
@@ -58,7 +56,6 @@ public class DadosSumarizadosController implements DadosControllerSwagger {
 	@CheckSecurity.DadosSumarizados.PodeAcessar
 	@GetMapping("/discador-duracao-chamadas-dia")
 	public ResponseEntity<?> chamadasTotalizadorSegundos(EstatisticaFilter filter) {
-		
 		return ResponseEntity.ok(chamadaService.discadorTotalizadorTempoChamadas(filter, integraSecurity.getClienteId()));
 	}
 
