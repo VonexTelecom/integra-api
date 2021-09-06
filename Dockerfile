@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk8:latest
+FROM openjdk:8-jdk-alpine
 
 ENV TZ='GMT-3'
 
