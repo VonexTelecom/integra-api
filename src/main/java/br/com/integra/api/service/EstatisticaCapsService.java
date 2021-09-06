@@ -98,7 +98,7 @@ public class EstatisticaCapsService {
 				capsProcessado.addAll(separadorCaps(capsBruto, dataInicial, dataFinal));
 				dataAtual = dataAtual.plusDays(1L);
 			}
-			if(capsProcessado.stream().filter(t -> t.getValores().stream().filter(v -> v.getQuantidade().longValue() > 0).findAny().isPresent()).findAny().isEmpty()) {
+			if(!capsProcessado.stream().filter(t -> t.getValores().stream().filter(v -> v.getQuantidade().longValue() > 0).findAny().isPresent()).findAny().isPresent()) {
 				return new ArrayList<>();
 			}
 		return capsProcessado;
