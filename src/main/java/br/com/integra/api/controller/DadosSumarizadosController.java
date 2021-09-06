@@ -47,14 +47,14 @@ public class DadosSumarizadosController implements DadosControllerSwagger {
 
 	@Override
 	@CheckSecurity.DadosSumarizados.PodeAcessar
-	@GetMapping("/chamadas-totalizador-dia")
+	@GetMapping("/chamadas-totalizador")
 	public ResponseEntity<?> discadorTotalizadorChamadas(EstatisticaFilter filter) {
 		return ResponseEntity.ok(totalizadorService.discadorTotalizadorChamadas(filter, integraSecurity.getClienteId()));
 	}
 
 	@Override
 	@CheckSecurity.DadosSumarizados.PodeAcessar
-	@GetMapping("/discador-duracao-chamadas-dia")
+	@GetMapping("/discador-duracao-chamadas")
 	public ResponseEntity<?> chamadasTotalizadorSegundos(EstatisticaFilter filter) {
 		return ResponseEntity.ok(chamadaService.discadorTotalizadorTempoChamadas(filter, integraSecurity.getClienteId()));
 	}

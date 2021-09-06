@@ -93,7 +93,7 @@ public class EstatisticaCapsService {
 					capsBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, filtro,clienteId));
 	
 				}
-				System.out.println(capsBruto);
+				
 				
 				capsProcessado.addAll(separadorCaps(capsBruto, dataInicial, dataFinal));
 				dataAtual = dataAtual.plusDays(1L);
@@ -114,7 +114,7 @@ public class EstatisticaCapsService {
 					(c -> c.getData().compareTo (dataIni.toLocalTime()) == 0 &&
 					c.getData().compareTo(dataFim.toLocalTime()) <= 0).collect(Collectors.toList()));
 			
-			System.out.println(caps + " "+dataIni.toLocalTime());
+
 
 			capsProcessado.add(mapper.modelToOutputDto(caps,dataInicial));
 			dataInicial = dataInicial.plusMinutes(1L);

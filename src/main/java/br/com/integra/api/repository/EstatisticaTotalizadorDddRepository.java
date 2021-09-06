@@ -38,7 +38,7 @@ public class EstatisticaTotalizadorDddRepository {
 		String dataFinalFormatada = formatarData(dataFinal.toLocalTime());
 
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
-		;
+		
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
 			return new ArrayList<>();
 

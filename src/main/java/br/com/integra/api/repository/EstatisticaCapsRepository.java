@@ -43,8 +43,6 @@ public class EstatisticaCapsRepository {
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
 			return new ArrayList<>();
 		}
-		
-		System.out.print("dataInicial: "+ dataInicialFormatada+ "\n dataFinal"+ dataFinalFormatada);
 
 		String sql = String.format("SELECT * FROM %s where modalidade = '%s' and clienteId = %d"
 				+ " and data between '%s' and '%s' and tipoEstatistica = 'max_caps_sainte' or "
@@ -59,11 +57,9 @@ public class EstatisticaCapsRepository {
 	public List<EstatisticaDiscador> findtipoEstatisticaTotalizador(LocalDate date, EstatisticaFilter filter, Long clienteId) {
 
 		String dataFormatada = formatarData(date);
-		
-		
 
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
-		System.out.println(nomeDaTabelaData);
+
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
 			return new ArrayList<>();
 		}
@@ -88,7 +84,7 @@ public class EstatisticaCapsRepository {
 		String dataFinalFormatada = formatarData(filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalTime());
 
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
-		System.out.println(nomeDaTabelaData);
+
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
 			return new ArrayList<>();
 		}

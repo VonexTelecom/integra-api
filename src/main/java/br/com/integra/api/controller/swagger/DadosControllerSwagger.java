@@ -22,14 +22,14 @@ public interface DadosControllerSwagger {
 	})
 	ResponseEntity<?>findAllPeriodo(EstatisticaFilter filter);
 	
-	@ApiOperation(value = "Busca os gráficos das chamadas por dia", httpMethod = "GET")
+	@ApiOperation(value = "Busca as estatísticas das chamadas por periodo", httpMethod = "GET")
 	@ApiResponses({
 		@ApiResponse(code = 200, response = EstatisticaDiscadorOutputDto.class, message = "Requisição com sucesso"),
 		@ApiResponse(code = 204, response = Problem.class, message = "O recurso não foi encontrado")
 	})
 	ResponseEntity<?>discadorTotalizadorChamadas(EstatisticaFilter filter);
 	
-	@ApiOperation(value = "Busca os gráficos da duração da chamadas", httpMethod = "GET")
+	@ApiOperation(value = "Busca as estatísticas da duração da chamadas por periodo", httpMethod = "GET")
 	@ApiResponses({
 		@ApiResponse(code = 200, response = EstatisticaDiscadorOutputDto.class, message = "Requisição com sucesso"),
 		@ApiResponse(code = 204, response = Problem.class, message = "O recurso não foi encontrado")
@@ -38,14 +38,14 @@ public interface DadosControllerSwagger {
 	
 	
 	
-	@ApiOperation(value = "Busca os gráficos do total de ddds", httpMethod = "GET")
+	@ApiOperation(value = "Busca da estatística do total de ddds periodo", httpMethod = "GET")
 	@ApiResponses({
 		@ApiResponse(code = 200, response = EstatisticaDiscadorOutputDto.class, message = "Requisição com sucesso"),
 		@ApiResponse(code = 204, response = Problem.class, message = "O recurso não foi encontrado")
 	})
 	ResponseEntity<?>discadorTotalizadorDdd(EstatisticaFilter filter);
 	
-	@ApiOperation(value = "Busca os gráficos do total de Chamadas Por Segundo", httpMethod = "GET")
+	@ApiOperation(value = "Busca da estatística do total de Chamadas Por Segundo", httpMethod = "GET")
 	@ApiResponses({
 		@ApiResponse(code = 200, response = EstatisticaCapsOutputDto.class, message = "Requisição com sucesso"),
 		@ApiResponse(code = 204, response = Problem.class, message = "O recurso não foi encontrado")
