@@ -73,6 +73,7 @@ public class EstatisticaTotalizadorDddRepository {
 				+ "between '%d' and '%d' and data between '%s' and '%s'",
 	    		nomeDaTabelaData, tipoEstatistica, filter.getModalidade(), clienteId, dddInicial, dddFinal, dataInicialFormatada, dataFinalFormatada);
 		
+		System.out.println(sql);
 	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
 	    (new EstatisticaDiscadorRowMapper()));
 	    return estatisticaBruta;

@@ -15,7 +15,6 @@ public class EstatisticaCapsMapper {
 
 	public EstatisticaCapsOutputDto modelToOutputDto(List<EstatisticaDiscadorOutputDto> caps, LocalDateTime dataAtual) {
 
-		System.out.println(caps.size());
 
 		EstatisticaDiscadorOutputDto capsSainte = caps.stream().filter(c -> c.getTipoEstatistica().equals("max_caps_sainte")).findFirst().orElseGet(
 				() -> EstatisticaDiscadorOutputDto.builder()

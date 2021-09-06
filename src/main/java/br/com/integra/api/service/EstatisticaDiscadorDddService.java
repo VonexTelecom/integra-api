@@ -6,20 +6,27 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.netflix.discovery.converters.Auto;
+
+import br.com.integra.api.dto.output.EstatisticaDddOutputDto;
 import br.com.integra.api.dto.output.EstatisticaDiscadorOutputDto;
 import br.com.integra.api.exception.BusinessException;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.mapper.EstatisticaDiscadorMapper;
 import br.com.integra.api.model.EstatisticaDiscador;
 import br.com.integra.api.repository.EstatisticaTotalizadorDddRepository;
+import br.com.integra.api.utils.Coordenadas;
 import br.com.integra.api.utils.DateUtils;
 
 @Service
@@ -31,7 +38,10 @@ public class EstatisticaDiscadorDddService {
 	@Autowired
 	private EstatisticaDiscadorMapper mapper;
 	
-	public List<EstatisticaDiscadorOutputDto>discadorTotalizadorDdd(EstatisticaFilter filter, Long clienteId){
+	@Autowired
+	private Coordenadas coordenadaService;
+	
+	public List<EstatisticaDddOutputDto>discadorTotalizadorDdd(EstatisticaFilter filter, Long clienteId){
 		Long startTime = System.currentTimeMillis();
 		
 		LocalDateTime dataInicial;
@@ -55,7 +65,7 @@ public class EstatisticaDiscadorDddService {
 		}
 		
 		List<EstatisticaDiscadorOutputDto> chamadaBrutoTabela = new ArrayList<>();
-		List<EstatisticaDiscadorOutputDto> chamadaProcessada = new ArrayList<>();
+		List<EstatisticaDddOutputDto> chamadaProcessada = new ArrayList<>();
 		
 		
 		LocalDate dataAtual = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
@@ -116,8 +126,10 @@ public class EstatisticaDiscadorDddService {
 	}
 	
 	
-	public List<EstatisticaDiscadorOutputDto> somaTabela(List<EstatisticaDiscadorOutputDto> lista){
-		List<EstatisticaDiscadorOutputDto> estatisticasProcessadas = new ArrayList<>();
+	public List<EstatisticaDddOutputDto> somaTabela(List<EstatisticaDiscadorOutputDto> lista){
+		List<EstatisticaDddOutputDto> estatisticasProcessadas = new ArrayList<>();
+		HashMap<Integer, EstatisticaDddOutputDto> coordenadas = new HashMap<Integer, EstatisticaDddOutputDto>();
+		coordenadaService.getCoordenada(coordenadas);
 		
 		for (int i = 11; i<=99; i++) {
 			if(dddInexistente(i) == true) {
@@ -125,14 +137,19 @@ public class EstatisticaDiscadorDddService {
 			}
 			String nome = String.format("chamadas_ddd_%d", i);
 			
+			
 			List<EstatisticaDiscadorOutputDto> estatisticaDdd =  lista.stream().filter(chamada ->
 			chamada.getTipoEstatistica().equals(nome)).collect(Collectors.toList());
 			
-			EstatisticaDiscadorOutputDto estatisticaSumarizador = EstatisticaDiscadorOutputDto.builder()
-					.tipoEstatistica(nome)
-					.quantidade(quantidadeTotal(estatisticaDdd)).build();
+			EstatisticaDddOutputDto estatistica = EstatisticaDddOutputDto.builder()
+					.ddd(i)
+					.local(coordenadas.get(i).getLocal())
+					.Latitude(coordenadas.get(i).getLatitude())
+					.Longetude(coordenadas.get(i).getLongetude())
+					.quantidade(quantidadeTotal(estatisticaDdd))
+					.build();
 			
-			estatisticasProcessadas.add(estatisticaSumarizador);
+			estatisticasProcessadas.add(estatistica);
 		}
 		return estatisticasProcessadas;
 		
@@ -152,4 +169,5 @@ public class EstatisticaDiscadorDddService {
 				.map(estatistica -> estatistica.getQuantidade())
 				.reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
+	
 }
