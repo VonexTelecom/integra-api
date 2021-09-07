@@ -9,6 +9,9 @@ import br.com.integra.api.model.EstatisticaDiscador;
 
 public class EstatisticaDiscadorRowMapper implements RowMapper<EstatisticaDiscador>{
 
+	/**
+	 *Classe para conversão de resultado de query para model
+	 */
 	@Override
 	public EstatisticaDiscador mapRow(ResultSet rs, int rowNum) throws SQLException {
 

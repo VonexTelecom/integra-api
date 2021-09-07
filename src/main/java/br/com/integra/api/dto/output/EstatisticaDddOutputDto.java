@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class EstatisticaDddOutputDto {
 	
 	private String Latitude;
-	private String Longetude;
+	private String Longitude;
 	
 	private Integer ddd;
 	

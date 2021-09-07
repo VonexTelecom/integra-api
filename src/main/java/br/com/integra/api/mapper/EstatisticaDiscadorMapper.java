@@ -10,6 +10,11 @@ import org.springframework.stereotype.Component;
 import br.com.integra.api.dto.output.EstatisticaDiscadorOutputDto;
 import br.com.integra.api.model.EstatisticaDiscador;
 
+/**
+ * @author Rafael Lopes 
+ *
+ *	Classe para conversão de model para dto
+ */
 @Component
 public class EstatisticaDiscadorMapper {
 

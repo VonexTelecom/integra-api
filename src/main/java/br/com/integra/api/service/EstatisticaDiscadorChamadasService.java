@@ -32,6 +32,11 @@ public class EstatisticaDiscadorChamadasService {
 	@Autowired
 	private EstatisticaDiscadorMapper mapper;
 	
+	/**
+	 * @param filter
+	 * @param clienteId
+	 * @return EstatisticaDiscadorOutputDto
+	 */
 	public List<EstatisticaDiscadorOutputDto> discadorTotalizadorChamadas(EstatisticaFilter filter, Long clienteId) {
 		
 		Long startTime = System.currentTimeMillis();
@@ -39,7 +44,7 @@ public class EstatisticaDiscadorChamadasService {
 		LocalDateTime dataInicial;
 		LocalDateTime dataFinal;
 		
-		
+		//Condição para validação  e conversão do enum em data caso seja marcado, e validação da data inicial e data final
 		if((filter.getDataInicial()!=null && filter.getDataFinal()!=null) && filter.getDataInicial().after(filter.getDataFinal())) {
 			throw new BusinessException("A data Inicial não pode ser maior que a final");
 		}	
@@ -57,23 +62,28 @@ public class EstatisticaDiscadorChamadasService {
 			throw new BusinessException("Selecione um periodo ou uma data incial e final.");
 		}
 		
-		System.out.println("DataInicial:"+dataInicial+" DataFinal:"+dataFinal);
-		
+		//lista de unums a serem percorridos por tabela
 		List<TipoEstatisticaEnum> list = Arrays.asList(TipoEstatisticaEnum.values());
 		
+		//Total dos resultados da tabela devidamente sumarizados
 		List<EstatisticaDiscadorOutputDto> totalizadorSumarizadoTabela = new ArrayList<>();
 
+		//Total dos resultados de todas as tabelas
 		List<EstatisticaDiscadorOutputDto> totalizadorSumarizadoTotal = new ArrayList<>();
 		
-		
+		//loop de tipos da estatistica a ser percorrido na query e processados por tabela
 		for (TipoEstatisticaEnum tipoEstatisticaEnum : list) {
 			EstatisticaDiscadorOutputDto totalizadorBrutoSumarizado = new EstatisticaDiscadorOutputDto();
 			LocalDate dataAtual = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
 			LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
+			
+			//lista de estatistica vindas direto do banco
 			List<EstatisticaDiscadorOutputDto> totalizadorBruto = new ArrayList<>();
 
-			
+			//Verificação da data que vai percorrer a tabela à data final descrita no filtro
 			while(dataAtual.compareTo(dataFinalFormatada) <= 0){
+				
+				//condição que verifica se a dataAtual(ano, mês e dia) é igual a data inicial(ano, mês e dia) caso não ele passa pro repositório apenas a data inicial(data e hora)
 				if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) == 0) {
 					
 					EstatisticaFilter filtro = EstatisticaFilter.builder()
@@ -84,7 +94,7 @@ public class EstatisticaDiscadorChamadasService {
 					totalizadorBruto.addAll(mapper.modelToCollectionOutputDto(repository.
 							findtipoEstatisticaTotalizadorInicial(dataAtual, tipoEstatisticaEnum.getValor(),filtro, clienteId)));
 					
-					
+				//caso a data atual for diferente da data inicial(ano, mês e dia) e data final(ano, mês e dia) o filtro é passado sem as datas
 				}else if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) != 0) {
 					
 					EstatisticaFilter filtro = EstatisticaFilter.builder()
@@ -93,11 +103,11 @@ public class EstatisticaDiscadorChamadasService {
 					
 					totalizadorBruto.addAll(mapper.modelToCollectionOutputDto(repository.
 							findtipoEstatisticaTotalizador(dataAtual, tipoEstatisticaEnum.getValor(),filtro, clienteId)));
-					
-					
-					
+				
+				//caso a data atual(ano, mês e dia) for igual a data final(ano, mês e dia) o filtro é passado com as datas(data e hora)
 				}else{
 					EstatisticaFilter filtro = EstatisticaFilter.builder()
+							.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
 							.dataFinal(Date.from(dataFinal.atZone(ZoneId.systemDefault()).toInstant()))
 							.modalidade(filter.getModalidade())
 							.build();
@@ -107,8 +117,8 @@ public class EstatisticaDiscadorChamadasService {
 					
 					
 				}
-					
-					totalizadorBrutoSumarizado = EstatisticaDiscadorOutputDto.builder()
+				//instancia para a sumarização de um tipo de estistica por tabela
+				totalizadorBrutoSumarizado = EstatisticaDiscadorOutputDto.builder()
 							.tipoEstatistica(tipoEstatisticaEnum.getValor())
 							.quantidade(quantidadeTotal(totalizadorBruto)).build();
 					
@@ -118,6 +128,7 @@ public class EstatisticaDiscadorChamadasService {
 				}
 			
 		totalizadorBruto.clear();
+		//sumarização dos resultados das tabelas
 		totalizadorSumarizadoTotal.add(estatisticaProcessada(totalizadorSumarizadoTabela));
 		totalizadorSumarizadoTabela.clear();
 			
@@ -129,6 +140,7 @@ public class EstatisticaDiscadorChamadasService {
 		return totalizadorSumarizadoTotal;
 	}
 	
+	//método para a sumarização da quantidade de uma lista de estatistica já sumarizadas
 	public EstatisticaDiscadorOutputDto estatisticaProcessada(List<EstatisticaDiscadorOutputDto> listaBruta){
 
 		String tipoEstatistica = "";
@@ -145,6 +157,7 @@ public class EstatisticaDiscadorChamadasService {
 	return estatisticaSumarizada;
 	}
 	
+	//método que soma a quantidade de cada tipo de estatistica por tabela
 	private BigDecimal quantidadeTotal(List<EstatisticaDiscadorOutputDto> estatisticas) {
 		return estatisticas
 				.stream()
@@ -152,6 +165,7 @@ public class EstatisticaDiscadorChamadasService {
 				.reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 	
+	//verificação do intervalo da data
 	public List<LocalDate> verificaIntervaloData(
 			LocalDate startDate, LocalDate endDate) { 
 		

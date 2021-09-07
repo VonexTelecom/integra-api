@@ -10,6 +10,10 @@ import org.springframework.stereotype.Component;
 import br.com.integra.api.dto.output.EstatisticaSumarizadaOutputDto;
 import br.com.integra.api.model.EstatisticaSumarizada;
 
+/**
+ * @author Rafael Lopes
+ * Classe de conversão de model para dto 
+ */
 @Component
 public class EstatisticaSumarizadaMapper {
 	

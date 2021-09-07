@@ -26,9 +26,13 @@ import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.mapper.EstatisticaDiscadorMapper;
 import br.com.integra.api.model.EstatisticaDiscador;
 import br.com.integra.api.repository.EstatisticaTotalizadorDddRepository;
-import br.com.integra.api.utils.Coordenadas;
+import br.com.integra.api.utils.CoordenadasUtils;
 import br.com.integra.api.utils.DateUtils;
 
+/**
+ * @author Rafael Lopes
+ *	service para o processamento da quantidade de chamadas por ddd
+ */
 @Service
 public class EstatisticaDiscadorDddService {
 	
@@ -39,18 +43,29 @@ public class EstatisticaDiscadorDddService {
 	private EstatisticaDiscadorMapper mapper;
 	
 	@Autowired
-	private Coordenadas coordenadaService;
+	private CoordenadasUtils coordenadaService;
 	
+	
+	
+	/**
+	 * @param filter
+	 * @param clienteId
+	 * @return EstatististicaDddOutputDto
+	 * 
+	 * O método recebe  o filtro contendo uma data inicial, data final(pode ser por enum ou não) e o id do cliente
+	 */
 	public List<EstatisticaDddOutputDto>discadorTotalizadorDdd(EstatisticaFilter filter, Long clienteId){
 		Long startTime = System.currentTimeMillis();
 		
 		LocalDateTime dataInicial;
 		LocalDateTime dataFinal;
 	
+		
+		
+		//Condição para validação  e conversão do enum em data caso seja marcado, e validação da data inicial e data final
 		if((filter.getDataInicial()!=null && filter.getDataFinal()!=null) && filter.getDataInicial().after(filter.getDataFinal())) {
 			throw new BusinessException("A data Inicial não pode ser maior que a final");
 		}	
-		
 		else if(filter.getPeriodoEnum() != null) {
 			List<LocalDateTime> datas = DateUtils.converterEnumToData(filter.getPeriodoEnum());
 			dataInicial = datas.get(0);
@@ -64,44 +79,58 @@ public class EstatisticaDiscadorDddService {
 			throw new BusinessException("Selecione um periodo ou uma data incial e final.");
 		}
 		
+		//lista que será preenchida com os valores brutos de cada tabela já validados
 		List<EstatisticaDiscadorOutputDto> chamadaBrutoTabela = new ArrayList<>();
+		
+		//lista com os valores já sumarizados e prontos para o retorno
 		List<EstatisticaDddOutputDto> chamadaProcessada = new ArrayList<>();
 		
 		
 		LocalDate dataAtual = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
 		LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
 		
+	
+		//Verificação da data que vai percorrer a tabela à data final descrita no filtro
 		while(dataAtual.compareTo(dataFinalFormatada) <= 0) {
 			String tipoEstatistica = String.format("chamadas_ddd");
 			List<EstatisticaDiscador> chamadasDddBruto = new ArrayList<>();
+			
+			//condição que verifica se a dataAtual(ano, mês e dia) é igual a data inicial(ano, mês e dia) caso não ele passa pro repositório apenas a data inicial(data e hora)
 			if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) == 0) {
 				EstatisticaFilter filtro = EstatisticaFilter.builder()
 						.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
 						.modalidade(filter.getModalidade())
 						.build();
-				
+
 				chamadasDddBruto.addAll(repository.findtipoEstatisticaTotalizadorInicial(dataAtual, tipoEstatistica, filtro,clienteId, 11,99));
+				//caso a data atual for diferente da data inicial(ano, mês e dia) e data final(ano, mês e dia) o filtro é passado sem as datas
 			}else if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) != 0) {
 				EstatisticaFilter filtro = EstatisticaFilter.builder()
 						.modalidade(filter.getModalidade())
 						.build();
 				
 				chamadasDddBruto.addAll(repository.findtipoEstatisticaTotalizador(dataAtual, tipoEstatistica, filtro,clienteId, 11,99));
+				//caso a data atual(ano, mês e dia) for igual a data final(ano, mês e dia) o filtro é passado com as datas(data e hora)
 			}else {
 				EstatisticaFilter filtro = EstatisticaFilter.builder()
+						.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
 						.dataFinal(Date.from(dataFinal.atZone(ZoneId.systemDefault()).toInstant()))
 						.modalidade(filter.getModalidade())
 						.build();
-				
+	
 				chamadasDddBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, tipoEstatistica, filtro,clienteId, 11,99));
 			
 			}
-
+			
+			//Loop que vai percorrer cada ddd da tabela e validalo como existente e não existente
 			for (int i = 11; i<=99; i++) {
 					int a = i;
 					if(dddInexistente(i) == true) {
 						continue;
 					}	
+					
+			//Instancia que verifica o numero do ddd e certifica que o mesmo está presente na tabela,
+			//Caso não, ele o atribui com o valor da quantidade em zero
 			EstatisticaDiscador estatistica =  chamadasDddBruto.stream().filter(chamada ->
 				chamada.getTipoEstisticaValor().equals(String.valueOf(a)) && chamada.getTipoEstatistica().equals(tipoEstatistica) )
 				.findFirst().orElseGet(() -> Optional.of(
@@ -115,8 +144,10 @@ public class EstatisticaDiscadorDddService {
 			}
 			dataAtual = dataAtual.plusDays(1L);
 		}
+		
 		chamadaProcessada.addAll(somaTabela(chamadaBrutoTabela));
 		
+		//Condição que certifica que exista algo na tabela, caso não, ele retorna uma lista vazia
 		if(!chamadaProcessada.stream().anyMatch(c -> c.getQuantidade().longValue() > 0)) {
 			return new ArrayList<>();
 		}
@@ -125,7 +156,7 @@ public class EstatisticaDiscadorDddService {
 		return chamadaProcessada;
 	}
 	
-	
+	//Método que soma a quantidade de cada ddd por tabela e converte o ddd em coordenada 
 	public List<EstatisticaDddOutputDto> somaTabela(List<EstatisticaDiscadorOutputDto> lista){
 		List<EstatisticaDddOutputDto> estatisticasProcessadas = new ArrayList<>();
 		HashMap<Integer, EstatisticaDddOutputDto> coordenadas = new HashMap<Integer, EstatisticaDddOutputDto>();
@@ -145,7 +176,7 @@ public class EstatisticaDiscadorDddService {
 					.ddd(i)
 					.local(coordenadas.get(i).getLocal())
 					.Latitude(coordenadas.get(i).getLatitude())
-					.Longetude(coordenadas.get(i).getLongetude())
+					.Longitude(coordenadas.get(i).getLongitude())
 					.quantidade(quantidadeTotal(estatisticaDdd))
 					.build();
 			
@@ -155,6 +186,7 @@ public class EstatisticaDiscadorDddService {
 		
 	}
 	
+	//método para reservar todos os ddds inválidos e verifica-los quando chamados pelo loop
 	public boolean dddInexistente(int ddd) {
 		List<Integer> dddInvalidos = Arrays.asList(20, 23, 25, 26, 29, 30, 36, 39
 				, 40, 50, 52, 56, 57, 58, 59, 60, 70, 72, 76, 78, 80, 90);
@@ -162,7 +194,7 @@ public class EstatisticaDiscadorDddService {
 		return dddInvalido;
 		
 	}
-	
+	//método que soma a quantidade de cada ddds por tabela
 	private BigDecimal quantidadeTotal(List<EstatisticaDiscadorOutputDto> estatisticas) {
 		return estatisticas
 				.stream()

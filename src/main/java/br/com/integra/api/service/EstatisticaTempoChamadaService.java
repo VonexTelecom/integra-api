@@ -29,12 +29,19 @@ public class EstatisticaTempoChamadaService {
 	
 	@Autowired
 	private EstatisticaDiscadorMapper mapper;
-	
+	/**
+	 * @param filter
+	 * @param clienteId
+	 * @return EstatististicaDistcadorOutputDto
+	 * 
+	 * O método recebe  o filtro contendo uma data inicial, data final(pode ser por enum ou não) e o id do cliente
+	 */
 	public List<EstatisticaDiscadorOutputDto> discadorTotalizadorTempoChamadas(EstatisticaFilter filter, Long clienteId){
 
 		LocalDateTime dataInicial;
 		LocalDateTime dataFinal;
 	
+		//Condição para validação  e conversão do enum em data caso seja marcado, e validação da data inicial e data final
 		if((filter.getDataInicial()!=null && filter.getDataFinal()!=null) && filter.getDataInicial().after(filter.getDataFinal())) {
 			throw new BusinessException("A data Inicial não pode ser maior que a final");
 		}	
@@ -52,23 +59,32 @@ public class EstatisticaTempoChamadaService {
 			throw new BusinessException("Selecione um periodo ou uma data incial e final.");
 		}
 		
+		//lista de resultados direto da tabela ja válidados
 		List<EstatisticaDiscadorOutputDto> chamadaBrutoTabela = new ArrayList<>();
+		
+		//lista de resultados de todas as tabelas ja processados
 		List<EstatisticaDiscadorOutputDto> chamadaProcessada = new ArrayList<>();
+		
+		//lista de resultados da tabela processados
 		List<EstatisticaDiscadorOutputDto> chamadaTabelaProcessada = new ArrayList<>();
 			
 				
 			
 		LocalDate dataAtual = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
 		LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
+		
+		//Verificação da data que vai percorrer a tabela à data final descrita no filtro
 		while(dataAtual.compareTo(dataFinalFormatada) <= 0) {
+			//lista de resultados direto da tabela não validados
 			List<EstatisticaDiscador> chamadasOrigemBruto = new ArrayList<>();
+			//lista de resultados direto da tabela não validados
 			List<EstatisticaDiscador> chamadasDestinoBruto = new ArrayList<>();
 			String tipoEstatisticaOrigem = String.format("chamada_com_segundo_desc_origem");
 			String tipoEstatisticaDestino = String.format("chamada_com_segundo_desc_destino");
 			String tipoEstatisticaTotal = String.format("chamada_com_segundo_desc_total");
 			
 		
-			
+			//condição que verifica se a dataAtual(ano, mês e dia) é igual a data inicial(ano, mês e dia) caso não ele passa pro repositório apenas a data inicial(data e hora)
 			if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) == 0) {
 				EstatisticaFilter filtro = EstatisticaFilter.builder()
 						.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
@@ -80,6 +96,7 @@ public class EstatisticaTempoChamadaService {
 				
 				chamadasDestinoBruto.addAll(repository.findtipoEstatisticaTotalizadorInicial(dataAtual, tipoEstatisticaDestino, filtro, clienteId,0,120));
 
+			//caso a data atual for diferente da data inicial(ano, mês e dia) e data final(ano, mês e dia) o filtro é passado sem as datas
 			}else if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) != 0) {
 				
 				EstatisticaFilter filtro = EstatisticaFilter.builder()
@@ -90,9 +107,11 @@ public class EstatisticaTempoChamadaService {
 				
 				chamadasDestinoBruto.addAll(repository.findtipoEstatisticaTotalizador(dataAtual, tipoEstatisticaDestino, filtro, clienteId,0,120));
 				
+			//caso a data atual(ano, mês e dia) for igual a data final(ano, mês e dia) o filtro é passado com as datas(data e hora)
 			}else {
 				EstatisticaFilter filtro = EstatisticaFilter.builder()
 						.modalidade(filter.getModalidade())
+						.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
 						.dataFinal(Date.from(dataFinal.atZone(ZoneId.systemDefault()).toInstant()))
 						.build();
 				chamadasOrigemBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, tipoEstatisticaOrigem, filtro, clienteId,0,120));
@@ -101,9 +120,10 @@ public class EstatisticaTempoChamadaService {
 				chamadasDestinoBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, tipoEstatisticaDestino, filtro, clienteId,0,120));
 			}
 
+			//loop para validação de resultados inexistentes na tabela
 			for (int i = 0; i<=120; i++) {
 				int a = i;
-						
+					//a instancia verifica se o valor esxiste, caso não, ela o atribui com o valor de quantidade em zero
 					EstatisticaDiscador estatisticaOrigem =  chamadasOrigemBruto.stream().filter(chamada ->
 						chamada.getTipoEstisticaValor().equals(String.valueOf(a)) && chamada.getTipoEstatistica().equals(tipoEstatisticaOrigem) )
 						.findFirst().orElseGet(() -> Optional.of(
@@ -113,7 +133,7 @@ public class EstatisticaTempoChamadaService {
 									.tipoEstisticaValor(String.valueOf(a))
 									.build()).get());
 						
-						
+					//a instancia verifica se o valor existe, caso não, ela o atribui com o valor de quantidade em zero
 					EstatisticaDiscador estatisticaDestino =  chamadasDestinoBruto.stream().filter(chamada ->
 					chamada.getTipoEstisticaValor().equals(String.valueOf(a))  &&  chamada.getTipoEstatistica().equals(tipoEstatisticaDestino))
 					.findFirst().orElseGet(() -> Optional.of(
@@ -124,7 +144,7 @@ public class EstatisticaTempoChamadaService {
 								.build()).get());
 				
 					
-					
+					//Instancia que armazena a soma dos dois tipos de estatistica
 					EstatisticaDiscador estatisticaTotal = EstatisticaDiscador.builder()
 							.quantidade(estatisticaDestino.getQuantidade().add(estatisticaOrigem.getQuantidade()))
 							.tipoEstatistica(tipoEstatisticaTotal)
@@ -137,6 +157,7 @@ public class EstatisticaTempoChamadaService {
 			
 			}
 			
+			//processamento de cada item da tabela
 			chamadaTabelaProcessada.addAll(somaTabela(chamadaBrutoTabela));
 			
 			chamadaBrutoTabela.clear();
@@ -145,13 +166,14 @@ public class EstatisticaTempoChamadaService {
 		}
 		
 		chamadaProcessada.addAll(somaTabela(chamadaTabelaProcessada));
+		//Condição que certifica que exista algo na tabela, caso não, ele retorna uma lista vazia
 		if(!chamadaProcessada.stream().anyMatch(c -> c.getQuantidade().longValue() > 0)) {
 			return new ArrayList<>();
 		}
 		return chamadaProcessada;
 		
 	}
-
+	//Método que soma a quantidade de cada chamada por tabela 
 	public List<EstatisticaDiscadorOutputDto> somaTabela(List<EstatisticaDiscadorOutputDto> list){
 		List<EstatisticaDiscadorOutputDto> estatisticaProcesada = new ArrayList<>();
 		
@@ -192,7 +214,7 @@ public class EstatisticaTempoChamadaService {
 		
 		return estatisticaProcesada;
 	}
-	
+	//método que soma a quantidade de cada ddds por tabela
 	private BigDecimal quantidadeTotal(List<EstatisticaDiscadorOutputDto> estatisticas) {
 		return estatisticas
 				.stream()
