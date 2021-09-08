@@ -22,9 +22,10 @@ pipeline {
         }
         stage ('Run docker') {
             steps {
-                sh ' docker stop integra-api' 
-                sh ' docker rm integra-api'
-                sh ' docker container run --network intranet -h integra-api -d --name integra-api -p 8086:8086 vonex/api_integra-api:${BUILD_NUMBER}'
+                //sh ' docker stop integra-api' 
+                //sh ' docker rm integra-api'
+                sh ' docker container run -h integra-api -d --name integra-api -p 8086:8086 vonex/api_integra-api:${BUILD_NUMBER}'
+                /*sh ' docker container run --network intranet -h integra-api -d --name integra-api -p 8086:8086 vonex/api_integra-api:${BUILD_NUMBER}'*/                
             }
         }        
     }
