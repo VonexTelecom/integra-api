@@ -45,7 +45,7 @@ public class EstatisticaCapsService {
 	 * @param clienteId
 	 * @return EstatisticaCapsOutputDto
 	 * 
-	 * O método recebe  o filtro contendo uma data inicial, data final(pode ser por enum ou não) e o id do cliente
+	 * O método recebe o filtro contendo uma data inicial, data final(pode ser por enum ou não) e o id do cliente
 	 */
 	public List<EstatisticaCapsOutputDto> discadorTotalizadorCaps(EstatisticaFilter filter, Long clienteId) {
 		
@@ -54,7 +54,7 @@ public class EstatisticaCapsService {
 		LocalDateTime dataInicial;
 		LocalDateTime dataFinal;
 	
-		//Condição para validação  e conversão do enum em data caso seja marcado, e validação da data inicial e data final
+		//condição para conversão do enum em data caso seja marcado e validação da data inicial e data final
 		if((filter.getDataInicial()!=null && filter.getDataFinal()!=null) && filter.getDataInicial().after(filter.getDataFinal())) {
 			throw new BusinessException("A data Inicial não pode ser maior que a final");
 		}	
@@ -79,12 +79,12 @@ public class EstatisticaCapsService {
 			LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
 			EstatisticaFilter filtro = new EstatisticaFilter();
 			
-			//Verificação da data que vai percorrer a tabela até a data final descrita no filtro
+			//verificação da data que vai percorrer a tabela até a data final descrita no filtro
 			while(dataAtual.compareTo(dataFinalFormatada) <= 0) {
 				
 				List<EstatisticaDiscador> capsBruto = new ArrayList<>();
 				
-				//condição que verifica se a dataAtual(ano, mês e dia) é igual a data inicial(ano, mês e dia) caso não ele passa pro repositório apenas a data inicial(data e hora)
+				//condição que verifica se a dataAtual(ano, mês e dia) é igual a data inicial(ano, mês e dia), caso sim ele passa pro repositório apenas a data inicial(data e hora)
 				if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) == 0) {
 					filtro = EstatisticaFilter.builder()
 							.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))

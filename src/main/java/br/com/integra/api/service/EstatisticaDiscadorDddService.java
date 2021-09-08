@@ -6,18 +6,14 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.netflix.discovery.converters.Auto;
 
 import br.com.integra.api.dto.output.EstatisticaDddOutputDto;
 import br.com.integra.api.dto.output.EstatisticaDiscadorOutputDto;
@@ -62,7 +58,7 @@ public class EstatisticaDiscadorDddService {
 	
 		
 		
-		//Condição para validação  e conversão do enum em data caso seja marcado, e validação da data inicial e data final
+		//condição conversão do enum em data caso seja marcado, e validação da data inicial e data final
 		if((filter.getDataInicial()!=null && filter.getDataFinal()!=null) && filter.getDataInicial().after(filter.getDataFinal())) {
 			throw new BusinessException("A data Inicial não pode ser maior que a final");
 		}	
@@ -122,15 +118,15 @@ public class EstatisticaDiscadorDddService {
 			
 			}
 			
-			//Loop que vai percorrer cada ddd da tabela e validalo como existente e não existente
+			//Loop que vai percorrer cada ddd da tabela e validá-lo como existente e não existente
 			for (int i = 11; i<=99; i++) {
 					int a = i;
 					if(dddInexistente(i) == true) {
 						continue;
 					}	
 					
-			//Instancia que verifica o numero do ddd e certifica que o mesmo está presente na tabela,
-			//Caso não, ele o atribui com o valor da quantidade em zero
+			//Instancia que verifica o numero do ddd e certifica que o mesmo está presente na tabela
+			//caso não, ele o atribui com o valor da quantidade em zero
 			EstatisticaDiscador estatistica =  chamadasDddBruto.stream().filter(chamada ->
 				chamada.getTipoEstisticaValor().equals(String.valueOf(a)) && chamada.getTipoEstatistica().equals(tipoEstatistica) )
 				.findFirst().orElseGet(() -> Optional.of(

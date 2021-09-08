@@ -29,14 +29,14 @@ public class EstatisticaCapsRepository {
 	
 	/**
 	 * @param date(data da tabela)
-	 * @param tipoEstatistica(tipo de estatística(chamadas_ddd) a ser feita na query)
-	 * @param filter(Tempoinicial e final passado pelo front)
+	 * @param tipoEstatistica(tipo de estatística(max_caps_sainte e/ou chamadas_discadas) a ser feita na query)
+	 * @param filter(Tempo inicial e final passado pelo front)
 	 * @param clienteId
 	 * @return EstatisticaDiscador
 	 */
 	
-	//caso o tempo inicial seja customizado(diferente de 00:00:00) e o tempo final seja não seja informado (esse método recolhe o todos
-	// os dados a partir da data inicial passada pelo front até a 23:59
+	//caso o tempo inicial seja customizado(diferente de 00:00:00) e o tempo final não seja informado esse método recolhe todos
+	//os dados a partir da data inicial passada pelo front até a 23:59
 	public List<EstatisticaDiscador> findtipoEstatisticaTotalizadorInicial(LocalDate date, EstatisticaFilter filter,Long clienteId){
 		
 		String dataFormatada = formatarData(date);
@@ -49,7 +49,7 @@ public class EstatisticaCapsRepository {
 
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 		
-		//Condição para a verificação de tabela existente
+		//condição para a verificação de tabela existente
 		//caso não, ela retorna uma lista vazia
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
 			return new ArrayList<>();
@@ -66,7 +66,7 @@ public class EstatisticaCapsRepository {
 		return estatisticaBruta;
 	}
 	
-	//Método para query sem data inicial e data final (busca todos os ddds da tabela inteira)
+	//Método para query sem data inicial e data final (busca todos os dados da tabela inteira)
 	public List<EstatisticaDiscador> findtipoEstatisticaTotalizador(LocalDate date, EstatisticaFilter filter, Long clienteId) {
 	
 		//conversão da data Atual(data da tabela a ser percorrida na query(yyyy-mm-dd)) em string formatada(yyyyMMdd)
@@ -109,7 +109,7 @@ public class EstatisticaCapsRepository {
 		String dataFinalFormatada = formatarData(filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalTime());
 
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
-		//Condição para a verificação de tabela existente
+		//condição para a verificação de tabela existente
 		//caso não, ela retorna uma lista vazia
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
 			return new ArrayList<>();

@@ -41,7 +41,7 @@ public class EstatisticaTempoChamadaService {
 		LocalDateTime dataInicial;
 		LocalDateTime dataFinal;
 	
-		//Condição para validação  e conversão do enum em data caso seja marcado, e validação da data inicial e data final
+		//Condição para conversão do enum em data caso seja marcado, e validação da data inicial e data final
 		if((filter.getDataInicial()!=null && filter.getDataFinal()!=null) && filter.getDataInicial().after(filter.getDataFinal())) {
 			throw new BusinessException("A data Inicial não pode ser maior que a final");
 		}	
@@ -75,6 +75,7 @@ public class EstatisticaTempoChamadaService {
 		
 		//Verificação da data que vai percorrer a tabela à data final descrita no filtro
 		while(dataAtual.compareTo(dataFinalFormatada) <= 0) {
+			
 			//lista de resultados direto da tabela não validados
 			List<EstatisticaDiscador> chamadasOrigemBruto = new ArrayList<>();
 			//lista de resultados direto da tabela não validados
@@ -84,7 +85,7 @@ public class EstatisticaTempoChamadaService {
 			String tipoEstatisticaTotal = String.format("chamada_com_segundo_desc_total");
 			
 		
-			//condição que verifica se a dataAtual(ano, mês e dia) é igual a data inicial(ano, mês e dia) caso não ele passa pro repositório apenas a data inicial(data e hora)
+			//condição que verifica se a dataAtual(ano, mês e dia) é igual a data inicial(ano, mês e dia), caso sim ele passa pro repositório apenas a data inicial(data e hora)
 			if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) == 0) {
 				EstatisticaFilter filtro = EstatisticaFilter.builder()
 						.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
@@ -96,7 +97,7 @@ public class EstatisticaTempoChamadaService {
 				
 				chamadasDestinoBruto.addAll(repository.findtipoEstatisticaTotalizadorInicial(dataAtual, tipoEstatisticaDestino, filtro, clienteId,0,120));
 
-			//caso a data atual for diferente da data inicial(ano, mês e dia) e data final(ano, mês e dia) o filtro é passado sem as datas
+			//caso a data atual for diferente da data inicial(ano, mês e dia) e menor que a data final(ano, mês e dia) o filtro é passado sem as datas
 			}else if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) != 0) {
 				
 				EstatisticaFilter filtro = EstatisticaFilter.builder()

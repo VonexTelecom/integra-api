@@ -71,7 +71,7 @@ public class EstatisticaTotalizadorChamadasRepository {
 	//query feita apartir das 00:00:00 até a data final passada pelo front
 	public List<EstatisticaDiscador> findtipoEstatisticaTotalizadorFinal(LocalDate date, String tipoEstatistica, EstatisticaFilter filter, Long clienteId) {
 		
-		//conversão da data Atual(data da tabela a ser percorrida na query(yyyy-mm-dd)) em string formatada(yyyyMMdd)
+		
 		String dataFormatada = formatarData(date);
 		LocalDateTime dataInicial =filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 		dataInicial = dataInicial.toLocalDate().atStartOfDay();
@@ -107,13 +107,13 @@ public class EstatisticaTotalizadorChamadasRepository {
 	//Método para query sem data inicial e data final (busca os dados da tabela inteira)
 	public List<EstatisticaDiscador> findtipoEstatisticaTotalizador(LocalDate date, String tipoEstatistica, EstatisticaFilter filter, Long clienteId) {
 
-		//conversão da data Atual(data da tabela a ser percorrida na query(yyyy-mm-dd)) em string formatada(yyyyMMdd)
+		
 		String dataFormatada = formatarData(date);
 		
 		//montagem do nome da tabela a ser percorrida na query
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 		
-		//Condição para a verificação de tabela existente
+		//condição para a verificação de tabela existente
 		//caso não, ela retorna uma lista vazia
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
 			return new ArrayList<>();

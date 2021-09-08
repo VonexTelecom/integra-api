@@ -28,11 +28,11 @@ public class EstatisticaTotalizadorTempoRepository {
 	
 	/**
 	 * @param date(data da tabela)
-	 * @param tipoEstatistica(tipo de estatística(chamadas_ddd) a ser feita na query)
+	 * @param tipoEstatistica(tipo de estatística(chamada_com_segundo_desc_origem ou chamada_com_segundo_desc_destino) a ser feita na query)
 	 * @param filter(Tempoinicial e final passado pelo front)
 	 * @param clienteId
-	 * @param dddInicial(ddd inicial(11) a ser buscado no between da query)
-	 * @param dddFinal(ddd final(99) a ser buscado no between da query)
+	 * @param valorInicial(segundo inicial(0) a ser buscado no between da query)
+	 * @param valorFinal(segundo final(120) a ser buscado no between da query)
 	 * @return EstatisticaDiscador
 	 */
 	
@@ -50,7 +50,7 @@ public class EstatisticaTotalizadorTempoRepository {
 		//montagem do nome da tabela a ser percorrida na query
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 
-		//Condição para a verificação de tabela existente
+		//condição para a verificação de tabela existente
 		//caso não, ela retorna uma lista vazia
 		if(countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
 			return new ArrayList<>();
@@ -89,7 +89,7 @@ public class EstatisticaTotalizadorTempoRepository {
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 
 
-		//Condição para a verificação de tabela existente
+		//condição para a verificação de tabela existente
 		//caso não, ela retorna uma lista vazia
 		if(countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
 			return new ArrayList<>();
@@ -123,7 +123,7 @@ public class EstatisticaTotalizadorTempoRepository {
 			return new ArrayList<>();
 		}
 	
-		//query feita apartir da modalidade e tipo da estatistica
+		//query feita apartir do segundo(1 até 120), modalidade e tipo da estatistica
 		String sql = String.format("SELECT * FROM %s where tipoEstatistica = '%s' and modalidade = '%s' and clienteId = %d",
 				nomeDaTabelaData, tipoEstatistica, filter.getModalidade(), clienteId);
 
