@@ -1,5 +1,7 @@
 package br.com.integra.api.utils;
 
+import org.apache.commons.lang.StringUtils;
+
 import br.com.integra.api.filter.EstatisticaFilter;
 
 public class FiltroEstatisticaUtils {
@@ -34,7 +36,7 @@ public class FiltroEstatisticaUtils {
 		if(dataInicial != null && dataFinal != null) {
 			sql.append(String.format(" AND data between '%s' and '%s'", dataInicial, dataFinal));
 		}
-		if(filter.getUnidadeAtendimento() != null && filter.getUnidadeAtendimento().isBlank() == false) {
+		if(filter.getUnidadeAtendimento() != null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == false){
 			sql.append((String)(" AND unidadeAtendimento LIKE '%"+filter.getUnidadeAtendimento()+"%'"));
 		}
 		
