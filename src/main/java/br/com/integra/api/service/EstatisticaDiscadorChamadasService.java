@@ -89,6 +89,9 @@ public class EstatisticaDiscadorChamadasService {
 					EstatisticaFilter filtro = EstatisticaFilter.builder()
 							.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
 							.modalidade(filter.getModalidade())
+							.discador(filter.getDiscador())
+							.operadora(filter.getOperadora())
+							.unidadeAtendimento(filter.getUnidadeAtendimento())
 							.build();
 					
 					totalizadorBruto.addAll(mapper.modelToCollectionOutputDto(repository.
@@ -99,6 +102,9 @@ public class EstatisticaDiscadorChamadasService {
 					
 					EstatisticaFilter filtro = EstatisticaFilter.builder()
 							.modalidade(filter.getModalidade())
+							.discador(filter.getDiscador())
+							.operadora(filter.getOperadora())
+							.unidadeAtendimento(filter.getUnidadeAtendimento())
 							.build();
 					
 					totalizadorBruto.addAll(mapper.modelToCollectionOutputDto(repository.
@@ -110,6 +116,9 @@ public class EstatisticaDiscadorChamadasService {
 							.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
 							.dataFinal(Date.from(dataFinal.atZone(ZoneId.systemDefault()).toInstant()))
 							.modalidade(filter.getModalidade())
+							.discador(filter.getDiscador())
+							.operadora(filter.getOperadora())
+							.unidadeAtendimento(filter.getUnidadeAtendimento())
 							.build();
 					
 					totalizadorBruto.addAll(mapper.modelToCollectionOutputDto(repository.

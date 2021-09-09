@@ -5,6 +5,9 @@ import java.sql.Time;
 import java.time.LocalTime;
 import java.util.Date;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -21,5 +24,8 @@ public class EstatisticaDiscador {
 	private Integer clienteId;
 	private String modalidade;
 	private String tipoEstisticaValor;
+	private String operadora;
+	private String unidadeAtendimento;
+	private String discador;
 }
 	

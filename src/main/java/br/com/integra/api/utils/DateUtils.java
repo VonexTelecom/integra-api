@@ -24,9 +24,10 @@ public class DateUtils {
 			break;
 		case Ontem:
 			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusDays(1L);
-			dataFinalProcessada =  dataProcessada.toLocalDate().atTime(23, 59);
+			dataFinalProcessada =  LocalDateTime.now().toLocalDate().atTime(23,59);
 			break;
 		case QuinzeDias:
+			
 			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusWeeks(2).minusDays(1L);
 			dataFinalProcessada =LocalDateTime.now().toLocalDate().atTime(23,59);
 			break;

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.mapper.EstatisticaDiscadorRowMapper;
 import br.com.integra.api.model.EstatisticaDiscador;
+import br.com.integra.api.utils.FiltroEstatisticaUtils;
 
 @Repository
 public class EstatisticaCapsRepository {
@@ -49,16 +50,16 @@ public class EstatisticaCapsRepository {
 
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 		
+		String tipoEstatistica = "caps";
+		
 		//condição para a verificação de tabela existente
 		//caso não, ela retorna uma lista vazia
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
 			return new ArrayList<>();
 		}
-		//query feita apartir da data inicial(dataInicialFormatada) e data final(dataFinalFormatada) e dos tipos da estatistica(max_caps_sainte e/ou chamadas_discadas)
-		String sql = String.format("SELECT * FROM %s where modalidade = '%s' and clienteId = %d"
-				+ " and data between '%s' and '%s' and tipoEstatistica = 'max_caps_sainte' or "
-				+ "tipoEstatistica = 'chamadas_discadas'",
-				nomeDaTabelaData, filter.getModalidade(), clienteId,  dataInicialFormatada, dataFinalFormatada);
+		//aplicação dos filtros passados pelo front
+		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, null, null, dataInicialFormatada, dataFinalFormatada);
+		System.out.println(sql);
 
 		List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
 			(new EstatisticaDiscadorRowMapper()));
@@ -74,17 +75,17 @@ public class EstatisticaCapsRepository {
 
 		//montagem do nome da tabela a ser percorrida na query
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
+		
+		String tipoEstatistica = "caps";
 
 		//condição para a verificação de tabela existente
 		//caso não, ela retorna uma lista vazia
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
 			return new ArrayList<>();
 		}
-		//query feita apartir dos tipos da estatistica(max_caps_sainte e/ou chamadas_discadas)
-		String sql = String.format("SELECT * FROM %s where modalidade = '%s' and clienteId = %d"
-				+ " and tipoEstatistica = 'max_caps_sainte' or "
-				+ "tipoEstatistica = 'chamadas_discadas'",
-	    		nomeDaTabelaData, filter.getModalidade(), clienteId);
+		//aplicação dos filtros passados pelo front
+		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, null, null, null, null);
+		System.out.println(sql);
 		
 	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
 	    (new EstatisticaDiscadorRowMapper()));
@@ -97,6 +98,8 @@ public class EstatisticaCapsRepository {
 		String dataFormatada = formatarData(date);
 		LocalDateTime dataInicial =filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 		dataInicial = dataInicial.toLocalDate().atStartOfDay();
+		
+		String tipoEstatistica = "caps";
 		
 		//verifição de data do enum (de 8 às 18)
 				if(filter.getDataInicial() != null &&
@@ -115,11 +118,9 @@ public class EstatisticaCapsRepository {
 			return new ArrayList<>();
 		}
 		
-		//query feita apartir da data inicial(dataInicialFormatada) e data final(dataFinalFormatada) e dos tipos da estatistica(max_caps_sainte e/ou chamadas_discadas)
-		String sql = String.format("SELECT * FROM %s where modalidade = '%s' and clienteId = %d"
-				+ " and data between '%s' and '%s' and tipoEstatistica = 'max_caps_sainte' or "
-				+ "tipoEstatistica = 'chamadas_discadas'",
-	    		nomeDaTabelaData, filter.getModalidade(), clienteId,dataInicialFormatada, dataFinalFormatada);
+		//aplicação dos filtros passados pelo front
+		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, null, null, dataInicialFormatada, dataFinalFormatada);
+		System.out.println(sql);
 		
 	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
 	    (new EstatisticaDiscadorRowMapper()));

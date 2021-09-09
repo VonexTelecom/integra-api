@@ -89,6 +89,9 @@ public class EstatisticaCapsService {
 					filtro = EstatisticaFilter.builder()
 							.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
 							.modalidade(filter.getModalidade())
+							.discador(filter.getDiscador())
+							.operadora(filter.getOperadora())
+							.unidadeAtendimento(filter.getUnidadeAtendimento())
 							.build();
 					capsBruto.addAll(repository.findtipoEstatisticaTotalizadorInicial(dataAtual, filtro,clienteId));
 					
@@ -97,6 +100,9 @@ public class EstatisticaCapsService {
 					
 					filtro = EstatisticaFilter.builder()
 							.modalidade(filter.getModalidade())
+							.discador(filter.getDiscador())
+							.operadora(filter.getOperadora())
+							.unidadeAtendimento(filter.getUnidadeAtendimento())
 							.build();
 					
 					capsBruto.addAll(repository.findtipoEstatisticaTotalizador(dataAtual, filtro,clienteId));
@@ -106,6 +112,9 @@ public class EstatisticaCapsService {
 							.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
 							.dataFinal(Date.from(dataFinal.atZone(ZoneId.systemDefault()).toInstant()))
 							.modalidade(filter.getModalidade())
+							.discador(filter.getDiscador())
+							.operadora(filter.getOperadora())
+							.unidadeAtendimento(filter.getUnidadeAtendimento())
 							.build();
 		
 					

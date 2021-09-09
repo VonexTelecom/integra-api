@@ -24,7 +24,10 @@ public class EstatisticaDiscadorRowMapper implements RowMapper<EstatisticaDiscad
 				.numeroOrigem(rs.getString("numeroOrigem"))
 				.quantidade(rs.getBigDecimal("quantidade"))
 				.tipoEstatistica(rs.getString("tipoEstatistica"))
-				.tipoEstisticaValor(rs.getString("tipoEstatiscaValor"))
+				.tipoEstisticaValor(rs.getString("tipoEstatisticaValor"))
+				.operadora(rs.getString("operadora"))
+				.discador(rs.getString("discador"))
+				.unidadeAtendimento(rs.getString("unidadeAtendimento"))
 				.build();
 
 	}

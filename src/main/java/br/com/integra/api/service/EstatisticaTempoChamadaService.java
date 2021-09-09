@@ -90,6 +90,9 @@ public class EstatisticaTempoChamadaService {
 				EstatisticaFilter filtro = EstatisticaFilter.builder()
 						.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
 						.modalidade(filter.getModalidade())
+						.discador(filter.getDiscador())
+						.operadora(filter.getOperadora())
+						.unidadeAtendimento(filter.getUnidadeAtendimento())
 						.build();
 				
 				chamadasOrigemBruto.addAll(repository.findtipoEstatisticaTotalizadorInicial(dataAtual, tipoEstatisticaOrigem, filtro, clienteId,0,120));
@@ -102,6 +105,9 @@ public class EstatisticaTempoChamadaService {
 				
 				EstatisticaFilter filtro = EstatisticaFilter.builder()
 						.modalidade(filter.getModalidade())
+						.discador(filter.getDiscador())
+						.operadora(filter.getOperadora())
+						.unidadeAtendimento(filter.getUnidadeAtendimento())
 						.build();
 				chamadasOrigemBruto.addAll(repository.findtipoEstatisticaTotalizador(dataAtual, tipoEstatisticaOrigem, filtro, clienteId,0,120));
 					
@@ -114,6 +120,9 @@ public class EstatisticaTempoChamadaService {
 						.modalidade(filter.getModalidade())
 						.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
 						.dataFinal(Date.from(dataFinal.atZone(ZoneId.systemDefault()).toInstant()))
+						.discador(filter.getDiscador())
+						.operadora(filter.getOperadora())
+						.unidadeAtendimento(filter.getUnidadeAtendimento())
 						.build();
 				chamadasOrigemBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, tipoEstatisticaOrigem, filtro, clienteId,0,120));
 					

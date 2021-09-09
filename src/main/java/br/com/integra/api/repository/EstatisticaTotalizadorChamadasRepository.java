@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.mapper.EstatisticaDiscadorRowMapper;
 import br.com.integra.api.model.EstatisticaDiscador;
+import br.com.integra.api.utils.FiltroEstatisticaUtils;
 
 
 @Repository
@@ -58,8 +59,8 @@ public class EstatisticaTotalizadorChamadasRepository {
 			return new ArrayList<>();
 		}
 		
-		String sql = String.format("SELECT * FROM %s where tipoEstatistica = '%s' and modalidade = '%s' and clienteId = %d and data between '%s' and '%s'",
-	    		nomeDaTabelaData, tipoEstatistica, filter.getModalidade(), clienteId, dataInicialFormatada, dataFinalFormatada);
+		//aplicação dos filtros passados pelo front
+		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, null, null, dataInicialFormatada, dataFinalFormatada);
 
 		//conversor da lista dos resultados da query em lista de entidades do spring
 	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
@@ -94,10 +95,8 @@ public class EstatisticaTotalizadorChamadasRepository {
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
 			return new ArrayList<>();
 		}
-		//query feita apartir da data inicial(dataInicialFormatada) e data final(dataFinalFormatada), modalidade e tipo da estatistica
-		String sql = String.format("SELECT * FROM %s where tipoEstatistica = '%s' and modalidade = '%s' and clienteId = %d and data between '%s' and '%s'",
-	    		nomeDaTabelaData, tipoEstatistica, filter.getModalidade(), clienteId, dataInicialFormatada, dataFinalFormatada);
-		
+		//aplicação dos filtros passados pelo front
+		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, null, null, dataInicialFormatada, dataFinalFormatada);
 		//conversor da lista dos resultados da query em lista de entidades do spring
 	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
 	    (new EstatisticaDiscadorRowMapper()));
@@ -120,8 +119,7 @@ public class EstatisticaTotalizadorChamadasRepository {
 		}
 		
 		//query feita apartir da data inicial(dataInicialFormatada) e data final(dataFinalFormatada), modalidade e tipo da estatistica e do id do cliente
-		String sql = String.format("SELECT * FROM %s where tipoEstatistica = '%s' and modalidade = '%s' and clienteId = %d",
-	    		nomeDaTabelaData, tipoEstatistica, filter.getModalidade(), clienteId);
+		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, null, null, null, null);
 		
 		//conversor da lista dos resultados da query em lista de entidades do spring
 	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>

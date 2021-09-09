@@ -96,6 +96,9 @@ public class EstatisticaDiscadorDddService {
 				EstatisticaFilter filtro = EstatisticaFilter.builder()
 						.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
 						.modalidade(filter.getModalidade())
+						.discador(filter.getDiscador())
+						.operadora(filter.getOperadora())
+						.unidadeAtendimento(filter.getUnidadeAtendimento())
 						.build();
 
 				chamadasDddBruto.addAll(repository.findtipoEstatisticaTotalizadorInicial(dataAtual, tipoEstatistica, filtro,clienteId, 11,99));
@@ -103,6 +106,9 @@ public class EstatisticaDiscadorDddService {
 			}else if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) != 0) {
 				EstatisticaFilter filtro = EstatisticaFilter.builder()
 						.modalidade(filter.getModalidade())
+						.discador(filter.getDiscador())
+						.operadora(filter.getOperadora())
+						.unidadeAtendimento(filter.getUnidadeAtendimento())
 						.build();
 				
 				chamadasDddBruto.addAll(repository.findtipoEstatisticaTotalizador(dataAtual, tipoEstatistica, filtro,clienteId, 11,99));
@@ -112,6 +118,9 @@ public class EstatisticaDiscadorDddService {
 						.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
 						.dataFinal(Date.from(dataFinal.atZone(ZoneId.systemDefault()).toInstant()))
 						.modalidade(filter.getModalidade())
+						.discador(filter.getDiscador())
+						.operadora(filter.getOperadora())
+						.unidadeAtendimento(filter.getUnidadeAtendimento())
 						.build();
 	
 				chamadasDddBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, tipoEstatistica, filtro,clienteId, 11,99));
