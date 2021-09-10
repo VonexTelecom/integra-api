@@ -39,7 +39,6 @@ public class FiltroEstatisticaUtils {
 		if(filter.getUnidadeAtendimento() != null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == false){
 			sql.append((String)(" AND unidadeAtendimento LIKE '%"+filter.getUnidadeAtendimento()+"%'"));
 		}
-		
 		return sql.toString();
 	}
 }

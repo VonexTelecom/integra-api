@@ -152,7 +152,7 @@ public class EstatisticaTempoChamadaService {
 								.quantidade(BigDecimal.ZERO)
 								.tipoEstisticaValor(String.valueOf(a))
 								.build()).get());
-				
+				 
 					
 					//Instancia que armazena a soma dos dois tipos de estatistica
 					EstatisticaDiscador estatisticaTotal = EstatisticaDiscador.builder()

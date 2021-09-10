@@ -58,7 +58,7 @@ public class EstatisticaTotalizadorTempoRepository {
 		}
 		//query feita apartir da data inicial(dataInicialFormatada) e data final(dataFinalFormatada) e do segundo(1 até 120), modalidade e tipo da estatistica
 		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, valorInicial, valorFinal, dataInicialFormatada, dataFinalFormatada);
-		System.out.println(sql);
+
 		//conversor da lista dos resultados da query em lista de entidades do spring
 		List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql,
 				new RowMapperResultSetExtractor<EstatisticaDiscador>(new EstatisticaDiscadorRowMapper()));
@@ -93,7 +93,7 @@ public class EstatisticaTotalizadorTempoRepository {
 		
 		//query feita apartir da data inicial(dataInicialFormatada) e data final(dataFinalFormatada) e do segundo(1 até 120), modalidade e tipo da estatistica
 		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, valorInicial, valorFinal, dataInicialFormatada, dataFinalFormatada);
-		System.out.println(sql);
+
 		//conversor da lista dos resultados da query em lista de entidades do spring
 		List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql,
 				new RowMapperResultSetExtractor<EstatisticaDiscador>(new EstatisticaDiscadorRowMapper()));
@@ -116,7 +116,6 @@ public class EstatisticaTotalizadorTempoRepository {
 	
 		//query feita apartir do segundo(1 até 120), modalidade e tipo da estatistica
 		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, valorInicial, valorFinal, null, null);
-		System.out.println(sql);
 		//conversor da lista dos resultados da query em lista de entidades do spring
 		List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql,
 				new RowMapperResultSetExtractor<EstatisticaDiscador>(new EstatisticaDiscadorRowMapper()));

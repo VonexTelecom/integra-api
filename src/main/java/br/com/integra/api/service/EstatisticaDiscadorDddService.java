@@ -126,7 +126,6 @@ public class EstatisticaDiscadorDddService {
 				chamadasDddBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, tipoEstatistica, filtro,clienteId, 11,99));
 			
 			}
-			
 			//Loop que vai percorrer cada ddd da tabela e validá-lo como existente e não existente
 			for (int i = 11; i<=99; i++) {
 					int a = i;
@@ -136,16 +135,28 @@ public class EstatisticaDiscadorDddService {
 					
 			//Instancia que verifica o numero do ddd e certifica que o mesmo está presente na tabela
 			//caso não, ele o atribui com o valor da quantidade em zero
-			EstatisticaDiscador estatistica =  chamadasDddBruto.stream().filter(chamada ->
-				chamada.getTipoEstisticaValor().equals(String.valueOf(a)) && chamada.getTipoEstatistica().equals(tipoEstatistica) )
-				.findFirst().orElseGet(() -> Optional.of(
-						EstatisticaDiscador.builder()
-							.tipoEstatistica(tipoEstatistica)
-							.quantidade(BigDecimal.ZERO)
-							.tipoEstisticaValor(String.valueOf(a))
-							.build()).get());
-			chamadaBrutoTabela.add(mapper.modelToOutputDtoSegundoDDD(estatistica));
+			List<EstatisticaDiscador> estatisticaTabela =  chamadasDddBruto.stream().filter(chamada ->
+				chamada.getTipoEstisticaValor().equals(String.valueOf(a)) && chamada.getTipoEstatistica().equals(tipoEstatistica))
+					.collect(Collectors.toList());
 			
+			EstatisticaDiscador estatistica = EstatisticaDiscador.builder()
+					.quantidade(BigDecimal.ZERO)
+					.tipoEstisticaValor(String.valueOf(a))
+					.tipoEstatistica(tipoEstatistica)
+					.build();
+			
+			if(estatisticaTabela.size() > 0) {
+				List<EstatisticaDiscadorOutputDto> estatisticaTabelaSomar = estatisticaTabela.stream().map(e -> mapper.modelToOutputDto(e)).collect(Collectors.toList());
+				
+				estatistica = EstatisticaDiscador.builder()
+						.quantidade(quantidadeTotal(estatisticaTabelaSomar))
+						.tipoEstisticaValor(String.valueOf(a))
+						.tipoEstatistica(tipoEstatistica)
+						.build();
+			}
+			
+			chamadaBrutoTabela.add(mapper.modelToOutputDtoSegundoDDD(estatistica));
+			System.out.println(estatisticaTabela);
 			}
 			dataAtual = dataAtual.plusDays(1L);
 		}

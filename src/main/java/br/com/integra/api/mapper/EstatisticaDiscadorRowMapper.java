@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
 
 import br.com.integra.api.model.EstatisticaDiscador;
+import br.com.integra.api.model.EstatisticaSumarizada;
 
 public class EstatisticaDiscadorRowMapper implements RowMapper<EstatisticaDiscador>{
 
