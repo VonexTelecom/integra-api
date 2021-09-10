@@ -156,7 +156,6 @@ public class EstatisticaDiscadorDddService {
 			}
 			
 			chamadaBrutoTabela.add(mapper.modelToOutputDtoSegundoDDD(estatistica));
-			System.out.println(estatisticaTabela);
 			}
 			dataAtual = dataAtual.plusDays(1L);
 		}

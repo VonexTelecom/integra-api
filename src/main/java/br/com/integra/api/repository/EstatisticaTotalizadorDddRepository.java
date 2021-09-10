@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -53,6 +54,11 @@ public class EstatisticaTotalizadorDddRepository {
 
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 		
+		//validação de filtros para query na tabela
+		if(filter.getModalidade() == null && filter.getDiscador() == null 
+				&& filter.getOperadora() == null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == true) {
+			nomeDaTabelaData = String.format("EstatisticaDiscadorDiaSumarizado%s", dataFormatada);
+		}
 		//Condição para a verificação de tabela existente
 		//caso não, ela retorna uma lista vazia
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
@@ -88,6 +94,11 @@ public class EstatisticaTotalizadorDddRepository {
 
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 		
+		//validação de filtros para query na tabela
+		if(filter.getModalidade() == null && filter.getDiscador() == null 
+				&& filter.getOperadora() == null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == true) {
+			nomeDaTabelaData = String.format("EstatisticaDiscadorDiaSumarizado%s", dataFormatada);
+		}
 		//Condição para a verificação de tabela existente
 		//caso não, ela retorna uma lista vazia
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
@@ -96,9 +107,7 @@ public class EstatisticaTotalizadorDddRepository {
 		}
 		
 		//aplicação dos filtros passados pelo front
-		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, dddInicial, dddFinal, dataInicialFormatada, dataFinalFormatada);
-		System.out.println(sql);
-		
+		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, dddInicial, dddFinal, dataInicialFormatada, dataFinalFormatada);		
 		//conversor da lista dos resultados da query em lista de entidades do spring
 	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
 	    (new EstatisticaDiscadorRowMapper()));
@@ -115,6 +124,11 @@ public class EstatisticaTotalizadorDddRepository {
 		//montagem do nome da tabela a ser percorrida na query
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 		
+		//validação de filtros para query na tabela
+		if(filter.getModalidade() == null && filter.getDiscador() == null 
+				&& filter.getOperadora() == null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == true) {
+			nomeDaTabelaData = String.format("EstatisticaDiscadorDiaSumarizado%s", dataFormatada);
+		}
 		//Condição para a verificação de tabela existente
 		//caso não, ela retorna uma lista vazia
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {

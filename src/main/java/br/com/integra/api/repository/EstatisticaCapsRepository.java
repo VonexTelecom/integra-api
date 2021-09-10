@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -49,9 +50,11 @@ public class EstatisticaCapsRepository {
 		String dataFinalFormatada = formatarData(dataFinal.toLocalTime());
 
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
-		
+		if(filter.getModalidade() == null && filter.getDiscador() == null 
+				&& filter.getOperadora() == null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == true) {
+			nomeDaTabelaData = String.format("EstatisticaDiscadorDiaSumarizado%s", dataFormatada);
+		}
 		String tipoEstatistica = "caps";
-		
 		//condição para a verificação de tabela existente
 		//caso não, ela retorna uma lista vazia
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
@@ -59,7 +62,6 @@ public class EstatisticaCapsRepository {
 		}
 		//aplicação dos filtros passados pelo front
 		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, null, null, dataInicialFormatada, dataFinalFormatada);
-		System.out.println(sql);
 
 		List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
 			(new EstatisticaDiscadorRowMapper()));
@@ -76,6 +78,12 @@ public class EstatisticaCapsRepository {
 		//montagem do nome da tabela a ser percorrida na query
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 		
+		//validação de filtros para query na tabela
+		if(filter.getModalidade() == null && filter.getDiscador() == null 
+				&& filter.getOperadora() == null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == true) {
+			nomeDaTabelaData = String.format("EstatisticaDiscadorDiaSumarizado%s", dataFormatada);
+		}
+
 		String tipoEstatistica = "caps";
 
 		//condição para a verificação de tabela existente
@@ -85,7 +93,6 @@ public class EstatisticaCapsRepository {
 		}
 		//aplicação dos filtros passados pelo front
 		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, null, null, null, null);
-		System.out.println(sql);
 		
 	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
 	    (new EstatisticaDiscadorRowMapper()));
@@ -112,6 +119,12 @@ public class EstatisticaCapsRepository {
 		String dataFinalFormatada = formatarData(filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalTime());
 
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
+		
+		//validação de filtros para query na tabela
+		if(filter.getModalidade() == null && filter.getDiscador() == null 
+				&& filter.getOperadora() == null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == true) {
+			nomeDaTabelaData = String.format("EstatisticaDiscadorDiaSumarizado%s", dataFormatada);
+		}
 		//condição para a verificação de tabela existente
 		//caso não, ela retorna uma lista vazia
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
@@ -120,7 +133,6 @@ public class EstatisticaCapsRepository {
 		
 		//aplicação dos filtros passados pelo front
 		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, null, null, dataInicialFormatada, dataFinalFormatada);
-		System.out.println(sql);
 		
 	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
 	    (new EstatisticaDiscadorRowMapper()));
