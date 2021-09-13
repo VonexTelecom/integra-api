@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.hibernate.internal.build.AllowSysOut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -75,12 +76,13 @@ public class EstatisticaCapsService {
 			//lista de caps já processados e devidamente validados para o retorno ao front
 			List<EstatisticaCapsOutputDto> capsProcessado = new ArrayList<>();
 			
-			LocalDate dataAtual = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
+			LocalDate dataAtualPeriodo = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
 			LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
 			EstatisticaFilter filtro = new EstatisticaFilter();
+			List<LocalDate> dataIntervalo = DateUtils.IntervaloData(dataAtualPeriodo, dataFinalFormatada);
 			
 			//verificação da data que vai percorrer a tabela até a data final descrita no filtro
-			while(dataAtual.compareTo(dataFinalFormatada) <= 0) {
+			for(LocalDate dataAtual : dataIntervalo) {
 				
 				List<EstatisticaDiscador> capsBruto = new ArrayList<>();
 				
@@ -121,10 +123,8 @@ public class EstatisticaCapsService {
 					capsBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, filtro,clienteId));
 	
 				}
-				
-				
 				capsProcessado.addAll(separadorCaps(capsBruto, dataInicial, dataFinal));
-				dataAtual = dataAtual.plusDays(1L);
+				
 			}
 			
 			//Condição que certifica que exista algo na tabela, caso não, ele retorna uma lista vazia

@@ -82,12 +82,12 @@ public class EstatisticaDiscadorDddService {
 		List<EstatisticaDddOutputDto> chamadaProcessada = new ArrayList<>();
 		
 		
-		LocalDate dataAtual = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
+		LocalDate dataAtualPeriodo = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
 		LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
-		
+		List<LocalDate> dataIntervalo = DateUtils.IntervaloData(dataAtualPeriodo, dataFinalFormatada);
 	
 		//Verificação da data que vai percorrer a tabela à data final descrita no filtro
-		while(dataAtual.compareTo(dataFinalFormatada) <= 0) {
+		for(LocalDate dataAtual : dataIntervalo) {
 			String tipoEstatistica = String.format("chamadas_ddd");
 			List<EstatisticaDiscador> chamadasDddBruto = new ArrayList<>();
 			
@@ -157,7 +157,6 @@ public class EstatisticaDiscadorDddService {
 			
 			chamadaBrutoTabela.add(mapper.modelToOutputDtoSegundoDDD(estatistica));
 			}
-			dataAtual = dataAtual.plusDays(1L);
 		}
 		
 		chamadaProcessada.addAll(somaTabela(chamadaBrutoTabela));

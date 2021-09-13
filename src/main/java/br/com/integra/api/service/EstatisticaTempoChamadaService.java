@@ -70,11 +70,11 @@ public class EstatisticaTempoChamadaService {
 			
 				
 			
-		LocalDate dataAtual = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
+		LocalDate dataAtualPeriodo = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
 		LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
-		
+		List<LocalDate> dataIntervalo = DateUtils.IntervaloData(dataAtualPeriodo, dataFinalFormatada);
 		//Verificação da data que vai percorrer a tabela à data final descrita no filtro
-		while(dataAtual.compareTo(dataFinalFormatada) <= 0) {
+		for(LocalDate dataAtual : dataIntervalo) {
 			
 			//lista de resultados direto da tabela não validados
 			List<EstatisticaDiscador> chamadasOrigemBruto = new ArrayList<>();
@@ -172,7 +172,6 @@ public class EstatisticaTempoChamadaService {
 			
 			chamadaBrutoTabela.clear();
 			
-			dataAtual = dataAtual.plusDays(1L);	
 		}
 		
 		chamadaProcessada.addAll(somaTabela(chamadaTabelaProcessada));

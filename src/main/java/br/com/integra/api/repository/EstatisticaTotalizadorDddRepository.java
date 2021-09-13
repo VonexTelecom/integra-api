@@ -55,8 +55,8 @@ public class EstatisticaTotalizadorDddRepository {
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 		
 		//validação de filtros para query na tabela
-		if(filter.getModalidade() == null && filter.getDiscador() == null 
-				&& filter.getOperadora() == null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == true) {
+		if(filter.getModalidade().size() == 0 && filter.getDiscador().size() == 0 
+				&& filter.getOperadora().size() == 0 && filter.getUnidadeAtendimento().size() == 0) {
 			nomeDaTabelaData = String.format("EstatisticaDiscadorDiaSumarizado%s", dataFormatada);
 		}
 		//Condição para a verificação de tabela existente
@@ -95,8 +95,8 @@ public class EstatisticaTotalizadorDddRepository {
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 		
 		//validação de filtros para query na tabela
-		if(filter.getModalidade() == null && filter.getDiscador() == null 
-				&& filter.getOperadora() == null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == true) {
+		if(filter.getModalidade().size() == 0 && filter.getDiscador().size() == 0 
+				&& filter.getOperadora().size() == 0 && filter.getUnidadeAtendimento().size() == 0) {
 			nomeDaTabelaData = String.format("EstatisticaDiscadorDiaSumarizado%s", dataFormatada);
 		}
 		//Condição para a verificação de tabela existente
@@ -125,8 +125,8 @@ public class EstatisticaTotalizadorDddRepository {
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 		
 		//validação de filtros para query na tabela
-		if(filter.getModalidade() == null && filter.getDiscador() == null 
-				&& filter.getOperadora() == null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == true) {
+		if(filter.getModalidade().size() == 0 && filter.getDiscador().size() == 0 
+				&& filter.getOperadora().size() == 0 && filter.getUnidadeAtendimento().size() == 0) {
 			nomeDaTabelaData = String.format("EstatisticaDiscadorDiaSumarizado%s", dataFormatada);
 		}
 		//Condição para a verificação de tabela existente

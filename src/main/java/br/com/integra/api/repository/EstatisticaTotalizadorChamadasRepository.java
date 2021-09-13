@@ -41,7 +41,7 @@ public class EstatisticaTotalizadorChamadasRepository {
 	
 	//Caso o tempo inicial seja customizado(diferente de 00:00:00) e o tempo final seja não seja informado (esse método recolhe o todos
 	// os dados a partir da data inicial passada pelo front até a 23:59
-	public List<EstatisticaDiscador> findtipoEstatisticaTotalizadorInicial(LocalDate date, String tipoEstatistica, EstatisticaFilter filter, Long clienteId) {
+	public List<EstatisticaDiscador> findtipoEstatisticaTotalizadorInicial(LocalDate date, EstatisticaFilter filter, Long clienteId) {
 
 		String dataFormatada = formatarData(date);
 		LocalDateTime dataFinal = filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
@@ -55,8 +55,8 @@ public class EstatisticaTotalizadorChamadasRepository {
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 		
 		//validação de filtros para query na tabela
-		if(filter.getModalidade() == null && filter.getDiscador() == null 
-				&& filter.getOperadora() == null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == true) {
+		if(filter.getModalidade().size() == 0 && filter.getDiscador().size() == 0 
+				&& filter.getOperadora().size() == 0 && filter.getUnidadeAtendimento().size() == 0) {
 			nomeDaTabelaData = String.format("EstatisticaDiscadorDiaSumarizado%s", dataFormatada);
 		}
 		//Condição para a verificação de tabela existente
@@ -66,7 +66,7 @@ public class EstatisticaTotalizadorChamadasRepository {
 		}
 		
 		//aplicação dos filtros passados pelo front
-		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, null, null, dataInicialFormatada, dataFinalFormatada);
+		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, null, filter, clienteId, null, null, dataInicialFormatada, dataFinalFormatada);
 
 		//conversor da lista dos resultados da query em lista de entidades do spring
 	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
@@ -76,13 +76,13 @@ public class EstatisticaTotalizadorChamadasRepository {
 
 	    }
 	//query feita apartir das 00:00:00 até a data final passada pelo front
-	public List<EstatisticaDiscador> findtipoEstatisticaTotalizadorFinal(LocalDate date, String tipoEstatistica, EstatisticaFilter filter, Long clienteId) {
+	public List<EstatisticaDiscador> findtipoEstatisticaTotalizadorFinal(LocalDate date, EstatisticaFilter filter, Long clienteId) {
 		
 		
 		String dataFormatada = formatarData(date);
 		LocalDateTime dataInicial =filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 		dataInicial = dataInicial.toLocalDate().atStartOfDay();
-		
+	
 		//verifição de data do enum (de 8 às 18)
 		if(filter.getDataInicial() != null &&
 			filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalTime().compareTo(LocalTime.of(8, 00)) == 0){
@@ -97,8 +97,8 @@ public class EstatisticaTotalizadorChamadasRepository {
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 
 		//validação de filtros para query na tabela
-		if(filter.getModalidade() == null && filter.getDiscador() == null 
-				&& filter.getOperadora() == null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == true) {
+		if(filter.getModalidade().size() == 0 && filter.getDiscador().size() == 0 
+				&& filter.getOperadora().size() == 0 && filter.getUnidadeAtendimento().size() == 0) {
 			nomeDaTabelaData = String.format("EstatisticaDiscadorDiaSumarizado%s", dataFormatada);
 		}
 		//Condição para a verificação de tabela existente
@@ -107,7 +107,7 @@ public class EstatisticaTotalizadorChamadasRepository {
 			return new ArrayList<>();
 		}
 		//aplicação dos filtros passados pelo front
-		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, null, null, dataInicialFormatada, dataFinalFormatada);
+		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, null, filter, clienteId, null, null, dataInicialFormatada, dataFinalFormatada);
 		//conversor da lista dos resultados da query em lista de entidades do spring
 	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>
 	    (new EstatisticaDiscadorRowMapper()));
@@ -115,16 +115,17 @@ public class EstatisticaTotalizadorChamadasRepository {
 
 	    }
 	//Método para query sem data inicial e data final (busca os dados da tabela inteira)
-	public List<EstatisticaDiscador> findtipoEstatisticaTotalizador(LocalDate date, String tipoEstatistica, EstatisticaFilter filter, Long clienteId) {
+	public List<EstatisticaDiscador> findtipoEstatisticaTotalizador(LocalDate date, EstatisticaFilter filter, Long clienteId) {
 
 		
 		String dataFormatada = formatarData(date);
 		
 		//montagem do nome da tabela a ser percorrida na query
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
+		
 		//validação de filtros para query na tabela
-		if(filter.getModalidade() == null && filter.getDiscador() == null 
-				&& filter.getOperadora() == null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == true) {
+		if(filter.getModalidade().size() == 0 && filter.getDiscador().size() == 0 
+				&& filter.getOperadora().size() == 0 && filter.getUnidadeAtendimento().size() == 0) {
 			nomeDaTabelaData = String.format("EstatisticaDiscadorDiaSumarizado%s", dataFormatada);
 		}
 		//condição para a verificação de tabela existente
@@ -134,7 +135,7 @@ public class EstatisticaTotalizadorChamadasRepository {
 		}
 		
 		//query feita apartir da data inicial(dataInicialFormatada) e data final(dataFinalFormatada), modalidade e tipo da estatistica e do id do cliente
-		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, tipoEstatistica, filter, clienteId, null, null, null, null);
+		String sql = FiltroEstatisticaUtils.criarQuery(nomeDaTabelaData, null, filter, clienteId, null, null, null, null);
 		
 		//conversor da lista dos resultados da query em lista de entidades do spring
 	    List<EstatisticaDiscador> estatisticaBruta = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<EstatisticaDiscador>

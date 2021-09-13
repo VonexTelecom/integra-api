@@ -58,13 +58,13 @@ public class EstatisticaSumarizadaService {
 			}			
 		}
 		
-		LocalDate dataAtual = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
+		LocalDate dataAtualPeriodo = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
 		LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
 		List<EstatisticaSumarizadaOutputDto> estatisticaSumarizadaTabela = new ArrayList<>();
-		
+		List<LocalDate> dataIntervalo = DateUtils.IntervaloData(dataAtualPeriodo, dataFinalFormatada);
 		
 		//Verificação da data que vai percorrer a tabela à data final descrita no filtro
-				while(dataAtual.compareTo(dataFinalFormatada) <= 0) {
+				for(LocalDate dataAtual : dataIntervalo) {
 					List<EstatisticaSumarizada> chamadasSumarizadaBruto = new ArrayList<>();
 					
 					//condição que verifica se a dataAtual(ano, mês e dia) é igual a data inicial(ano, mês e dia) caso não ele passa pro repositório apenas a data inicial(data e hora)
@@ -120,7 +120,6 @@ public class EstatisticaSumarizadaService {
 						.chamadasCompletadasMais30Segundos(quantidadeTotal(separador.stream().filter(e -> e.getTipoEstatistica().equals("chamadas_completadas_com_mais_de_30_segundos")).collect(Collectors.toList())))
 						.build();
 					estatisticaSumarizadaTabela.add(estatisticaTotalTabela);
-			dataAtual = dataAtual.plusDays(1);
 			} 
 		return somarTabelas(estatisticaSumarizadaTabela, clienteId);
 		

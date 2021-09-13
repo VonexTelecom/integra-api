@@ -8,7 +8,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -51,8 +50,8 @@ public class EstatisticasSumarizadaRepository {
 		String dataFinalFormatada = formatarData(dataFinal.toLocalTime());
 
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
-		if(filter.getModalidade() == null && filter.getDiscador() == null 
-				&& filter.getOperadora() == null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == true) {
+		if(filter.getModalidade().size() == 0 && filter.getDiscador().size() == 0 
+				&& filter.getOperadora().size() == 0 && filter.getUnidadeAtendimento().size() == 0) {
 			nomeDaTabelaData = String.format("EstatisticaDiscadorDiaSumarizado%s", dataFormatada);
 		}
 		
@@ -91,8 +90,8 @@ public class EstatisticasSumarizadaRepository {
 		String dataFinalFormatada = formatarData(filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalTime());
 
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
-		if(filter.getModalidade() == null && filter.getDiscador() == null 
-				&& filter.getOperadora() == null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == true) {
+		if(filter.getModalidade().size() == 0 && filter.getDiscador().size() == 0 
+				&& filter.getOperadora().size() == 0 && filter.getUnidadeAtendimento().size() == 0) {
 			nomeDaTabelaData = String.format("EstatisticaDiscadorDiaSumarizado%s", dataFormatada);
 		}
 		
@@ -112,7 +111,7 @@ public class EstatisticasSumarizadaRepository {
 	    return estatisticaBruta;
 	    }
 	
-	//Método para query sem data inicial e data final (busca todos os ddds da tabela inteira)
+	//Método para query sem data inicial e data final (busca todos os dados da tabela inteira)
 	public List<EstatisticaSumarizada> findtipoEstatisticaSumarizada(LocalDate date
 			, EstatisticaFilter filter, Long clienteId) {
 		
@@ -122,8 +121,8 @@ public class EstatisticasSumarizadaRepository {
 		//montagem do nome da tabela a ser percorrida na query
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 		//validação de filtros para query na tabela
-		if(filter.getModalidade() == null && filter.getDiscador() == null 
-				&& filter.getOperadora() == null && StringUtils.isBlank(filter.getUnidadeAtendimento()) == true) {
+		if(filter.getModalidade().size() == 0 && filter.getDiscador().size() == 0 
+				&& filter.getOperadora().size() == 0 && filter.getUnidadeAtendimento().size() == 0) {
 			nomeDaTabelaData = String.format("EstatisticaDiscadorDiaSumarizado%s", dataFormatada);
 		}
 		//Condição para a verificação de tabela existente
