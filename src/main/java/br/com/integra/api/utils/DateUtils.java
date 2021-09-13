@@ -32,7 +32,7 @@ public class DateUtils {
 			break;
 		case QuinzeDias:
 			
-			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusWeeks(2).minusDays(1L);
+			dataProcessada = dataAtual.toLocalDate().atStartOfDay().minusWeeks(2);
 			dataFinalProcessada =LocalDateTime.now().toLocalDate().atTime(23,59);
 			break;
 		case TrintaDias:
@@ -54,7 +54,6 @@ public class DateUtils {
 	
 	public static List<LocalDate> IntervaloData(
 			LocalDate startDate, LocalDate endDate) { 
-		
 		long dias  = ChronoUnit.DAYS.between(startDate, endDate)+1; 
 		
 		return IntStream.iterate(0, i -> i + 1)

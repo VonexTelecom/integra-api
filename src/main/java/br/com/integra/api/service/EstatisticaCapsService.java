@@ -7,6 +7,9 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.hibernate.internal.build.AllowSysOut;
@@ -75,20 +78,19 @@ public class EstatisticaCapsService {
 			
 			//lista de caps já processados e devidamente validados para o retorno ao front
 			List<EstatisticaCapsOutputDto> capsProcessado = new ArrayList<>();
-			
 			LocalDate dataAtualPeriodo = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
 			LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
-			EstatisticaFilter filtro = new EstatisticaFilter();
-			List<LocalDate> dataIntervalo = DateUtils.IntervaloData(dataAtualPeriodo, dataFinalFormatada);
 			
+			List<LocalDate> dataIntervalo = DateUtils.IntervaloData(dataAtualPeriodo, dataFinalFormatada);
+			ExecutorService executorService = Executors.newFixedThreadPool(8);
+			List<EstatisticaDiscador> capsBruto = new ArrayList<>();
+
 			//verificação da data que vai percorrer a tabela até a data final descrita no filtro
-			for(LocalDate dataAtual : dataIntervalo) {
-				
-				List<EstatisticaDiscador> capsBruto = new ArrayList<>();
-				
+			dataIntervalo.stream().parallel().forEachOrdered(dataAtual -> executorService.execute(()-> {
+				try {
 				//condição que verifica se a dataAtual(ano, mês e dia) é igual a data inicial(ano, mês e dia), caso sim ele passa pro repositório apenas a data inicial(data e hora)
 				if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) == 0) {
-					filtro = EstatisticaFilter.builder()
+					EstatisticaFilter filtro = EstatisticaFilter.builder()
 							.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
 							.modalidade(filter.getModalidade())
 							.discador(filter.getDiscador())
@@ -96,11 +98,11 @@ public class EstatisticaCapsService {
 							.unidadeAtendimento(filter.getUnidadeAtendimento())
 							.build();
 					capsBruto.addAll(repository.findtipoEstatisticaTotalizadorInicial(dataAtual, filtro,clienteId));
-					
+					  
 				//caso a data atual for diferente da data inicial(ano, mês e dia) e data final(ano, mês e dia) o filtro é passado sem as datas
 				}else  if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) != 0) {
-					
-					filtro = EstatisticaFilter.builder()
+					 
+					EstatisticaFilter filtro = EstatisticaFilter.builder()
 							.modalidade(filter.getModalidade())
 							.discador(filter.getDiscador())
 							.operadora(filter.getOperadora())
@@ -110,7 +112,7 @@ public class EstatisticaCapsService {
 					capsBruto.addAll(repository.findtipoEstatisticaTotalizador(dataAtual, filtro,clienteId));
 				//caso a data atual(ano, mês e dia) for igual a data final(ano, mês e dia) o filtro é passado com as datas(data e hora)
 				}else {
-					filtro = EstatisticaFilter.builder()
+					EstatisticaFilter filtro = EstatisticaFilter.builder()
 							.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
 							.dataFinal(Date.from(dataFinal.atZone(ZoneId.systemDefault()).toInstant()))
 							.modalidade(filter.getModalidade())
@@ -124,9 +126,18 @@ public class EstatisticaCapsService {
 	
 				}
 				capsProcessado.addAll(separadorCaps(capsBruto, dataInicial, dataFinal));
-				
-			}
+				capsBruto.clear();
+				}catch(Exception e){
+					System.out.println(e.getStackTrace());
+				}		
+			}));
 			
+			try {
+				executorService.shutdown();
+				executorService.awaitTermination(3000, TimeUnit.MINUTES);
+			} catch (Exception e) {
+				Thread.currentThread().interrupt();
+			}
 			//Condição que certifica que exista algo na tabela, caso não, ele retorna uma lista vazia
 			if(!capsProcessado.stream().filter(t -> t.getValores().stream().filter(v -> v.getQuantidade().longValue() > 0).findAny().isPresent()).findAny().isPresent()) {
 				return new ArrayList<>();

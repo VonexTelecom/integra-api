@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +20,6 @@ import br.com.integra.api.dto.output.EstatisticaSumarizadaOutputDto;
 import br.com.integra.api.enums.EstatisticaSumarizadaEnum;
 import br.com.integra.api.exception.EntidadeNaoEncontradaException;
 import br.com.integra.api.filter.EstatisticaFilter;
-import br.com.integra.api.mapper.EstatisticaSumarizadaMapper;
 import br.com.integra.api.model.EstatisticaSumarizada;
 import br.com.integra.api.repository.EstatisticasSumarizadaRepository;
 import br.com.integra.api.utils.DateUtils;
@@ -35,8 +37,8 @@ public class EstatisticaSumarizadaService {
 	
 	public EstatisticaSumarizadaOutputDto findPorPeriodo(EstatisticaFilter filter, Long clienteId){
 		
-		LocalDateTime dataInicial = LocalDateTime.now();
-		LocalDateTime dataFinal = LocalDateTime.now();
+		LocalDateTime dataInicial;
+		LocalDateTime dataFinal ;
 		
 		//condição para conversão
 		if(filter.getPeriodoEnum() != null) {
@@ -62,10 +64,11 @@ public class EstatisticaSumarizadaService {
 		LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
 		List<EstatisticaSumarizadaOutputDto> estatisticaSumarizadaTabela = new ArrayList<>();
 		List<LocalDate> dataIntervalo = DateUtils.IntervaloData(dataAtualPeriodo, dataFinalFormatada);
-		
+		ExecutorService executorService = Executors.newFixedThreadPool(8);
 		//Verificação da data que vai percorrer a tabela à data final descrita no filtro
-				for(LocalDate dataAtual : dataIntervalo) {
-					List<EstatisticaSumarizada> chamadasSumarizadaBruto = new ArrayList<>();
+		dataIntervalo.stream().parallel().forEachOrdered(dataAtual -> executorService.execute(()-> {
+			try {		
+				List<EstatisticaSumarizada> chamadasSumarizadaBruto = new ArrayList<>();
 					
 					//condição que verifica se a dataAtual(ano, mês e dia) é igual a data inicial(ano, mês e dia) caso não ele passa pro repositório apenas a data inicial(data e hora)
 					if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) == 0) {
@@ -120,7 +123,17 @@ public class EstatisticaSumarizadaService {
 						.chamadasCompletadasMais30Segundos(quantidadeTotal(separador.stream().filter(e -> e.getTipoEstatistica().equals("chamadas_completadas_com_mais_de_30_segundos")).collect(Collectors.toList())))
 						.build();
 					estatisticaSumarizadaTabela.add(estatisticaTotalTabela);
-			} 
+			}catch(Exception e) {
+				System.out.println(e.getStackTrace());
+			}
+		})); 
+		try {
+			executorService.shutdown();
+			executorService.awaitTermination(30, TimeUnit.MINUTES);
+		} catch (Exception e) {
+			System.out.println(e.getStackTrace());
+		}
+		
 		return somarTabelas(estatisticaSumarizadaTabela, clienteId);
 		
 	}

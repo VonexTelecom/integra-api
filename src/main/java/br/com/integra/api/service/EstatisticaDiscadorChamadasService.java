@@ -8,9 +8,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import br.com.integra.api.dto.output.EstatisticaDiscadorOutputDto;
@@ -70,14 +74,13 @@ public class EstatisticaDiscadorChamadasService {
 			LocalDate dataAtualPeriodo = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
 			LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
 			List<LocalDate> dataIntervalo = DateUtils.IntervaloData(dataAtualPeriodo, dataFinalFormatada);
-			
+
 			//lista de estatistica vindas direto do banco
 			List<EstatisticaDiscadorOutputDto> totalizadorBruto = new ArrayList<>();
 
 			//Verificação da data que vai percorrer a tabela à data final descrita no filtro
-			for(LocalDate dataAtual : dataIntervalo){
-				
-				//condição que verifica se a dataAtual(ano, mês e dia) é igual a data inicial(ano, mês e dia) caso não ele passa pro repositório apenas a data inicial(data e hora)
+			for (LocalDate dataAtual : dataIntervalo) {
+				///condição que verifica se a dataAtual(ano, mês e dia) é igual a data inicial(ano, mês e dia) caso não ele passa pro repositório apenas a data inicial(data e hora)
 				if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) == 0) {
 					
 					EstatisticaFilter filtro = EstatisticaFilter.builder()
@@ -119,32 +122,47 @@ public class EstatisticaDiscadorChamadasService {
 							findtipoEstatisticaTotalizadorFinal(dataAtual, filtro, clienteId)));
 					
 				}
+			
 				//instancia para a sumarização de um tipo de estistica por tabela
-			
 				totalizadorSumarizadoTabela.addAll(estatisticaProcessada(totalizadorBruto));
-			
+				
 				totalizadorBruto.clear();
-			
 		}
+			
 		//sumarização dos resultados das tabelas
 		totalizadorSumarizadoTotal.addAll(estatisticaProcessada(totalizadorSumarizadoTabela));
 		Long endTime = System.currentTimeMillis();
 		System.out.printf("\nduração: %f",(float)(endTime-startTime)/1000);
 		
 		return totalizadorSumarizadoTotal;
-	}
-	
+		}
+
+
 	//método para a sumarização da quantidade de uma lista de estatistica já sumarizadas
 	public List<EstatisticaDiscadorOutputDto> estatisticaProcessada(List<EstatisticaDiscadorOutputDto> listaBruta){
-		List<TipoEstatisticaEnum> list = Arrays.asList(TipoEstatisticaEnum.values());
-		List<EstatisticaDiscadorOutputDto> listaSumarizada = new ArrayList<>();
-		for (TipoEstatisticaEnum tipoEstatisticaEnum : list) {
-			EstatisticaDiscadorOutputDto totalizadorBrutoSumarizado = EstatisticaDiscadorOutputDto.builder()
-					.tipoEstatistica(tipoEstatisticaEnum.getValor())
-					.quantidade(quantidadeTotal(listaBruta.stream().filter(e ->
-					e.getTipoEstatistica().equals(tipoEstatisticaEnum.getValor())).collect(Collectors.toList()))).build();
-			listaSumarizada.add(totalizadorBrutoSumarizado);
-		}
+		List<TipoEstatisticaEnum> listaEnum = Arrays.asList(TipoEstatisticaEnum.values());
+		ExecutorService executorService = Executors.newFixedThreadPool(8);
+		List<EstatisticaDiscadorOutputDto> listaSumarizada = new ArrayList<>(); 
+			listaEnum.stream().parallel().forEachOrdered(tipoEstatisticaEnum -> executorService.execute(() ->{
+				try {
+					EstatisticaDiscadorOutputDto totalizadorBrutoSumarizado = EstatisticaDiscadorOutputDto.builder()
+							.tipoEstatistica(tipoEstatisticaEnum.getValor())
+							.quantidade(quantidadeTotal(listaBruta.stream().filter(e ->
+							e.getTipoEstatistica().equals(tipoEstatisticaEnum.getValor())).collect(Collectors.toList()))).build();
+					listaSumarizada.add(totalizadorBrutoSumarizado);
+					
+				}catch(Exception e){
+					System.out.println(e.getStackTrace());
+				}
+			}));
+			
+			try{
+				executorService.shutdown();
+				executorService.awaitTermination(30, TimeUnit.MINUTES);
+			}catch(Exception e) {
+				System.out.println(e.getStackTrace());
+			}
+			
 		return listaSumarizada;
 	}
 	

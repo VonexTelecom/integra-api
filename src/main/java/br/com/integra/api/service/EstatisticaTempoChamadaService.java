@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,8 +76,11 @@ public class EstatisticaTempoChamadaService {
 		LocalDate dataAtualPeriodo = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
 		LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
 		List<LocalDate> dataIntervalo = DateUtils.IntervaloData(dataAtualPeriodo, dataFinalFormatada);
-		//Verificação da data que vai percorrer a tabela à data final descrita no filtro
-		for(LocalDate dataAtual : dataIntervalo) {
+		ExecutorService executorService = Executors.newFixedThreadPool(8);
+		
+		
+		dataIntervalo.stream().parallel().forEachOrdered(dataAtual -> executorService.execute(() -> {
+			try {
 			
 			//lista de resultados direto da tabela não validados
 			List<EstatisticaDiscador> chamadasOrigemBruto = new ArrayList<>();
@@ -129,6 +135,7 @@ public class EstatisticaTempoChamadaService {
 				
 				chamadasDestinoBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, tipoEstatisticaDestino, filtro, clienteId,0,120));
 			}
+			System.out.println(chamadaBrutoTabela);
 
 			//loop para validação de resultados inexistentes na tabela
 			for (int i = 0; i<=120; i++) {
@@ -166,12 +173,19 @@ public class EstatisticaTempoChamadaService {
 					 
 			
 			}
-			
 			//processamento de cada item da tabela
 			chamadaTabelaProcessada.addAll(somaTabela(chamadaBrutoTabela));
 			
 			chamadaBrutoTabela.clear();
-			
+			}catch(Exception e) {
+				System.out.println(e.getStackTrace());
+			}
+		}));
+		try {
+			executorService.shutdown();
+			executorService.awaitTermination(30, TimeUnit.MINUTES);
+		} catch (Exception e) {
+			System.out.println(e.getStackTrace());
 		}
 		
 		chamadaProcessada.addAll(somaTabela(chamadaTabelaProcessada));
