@@ -5,5 +5,6 @@ public enum OperadoraEnum {
 	vivo,
 	claro,
 	ctbc,
+	nextel,
 	tim;
 }
