@@ -2,6 +2,7 @@ package br.com.integra.api.mapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import br.com.integra.api.dto.output.EstatisticaCapsOutputDto;
 import br.com.integra.api.dto.output.EstatisticaDiscadorOutputDto;
+import br.com.integra.api.utils.DateUtils;
+
 
 /**
  * @author Rafael Lopes
@@ -40,11 +43,10 @@ public class EstatisticaCapsMapper {
 		List<EstatisticaDiscadorOutputDto> valores = new ArrayList<>();
 		valores.add(chamadaDiscada);
 		valores.add(capsSainte);
-		
-		
-		return EstatisticaCapsOutputDto.builder()
-				.data(dataAtual)
+		EstatisticaCapsOutputDto estatisticaCaps = EstatisticaCapsOutputDto.builder()
+				.data(DateUtils.formatarData(dataAtual.atZone(ZoneId.systemDefault())))
 				.valores(valores)
 				.build();
+		return estatisticaCaps;
 	}
 }

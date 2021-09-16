@@ -135,7 +135,6 @@ public class EstatisticaTempoChamadaService {
 				
 				chamadasDestinoBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, tipoEstatisticaDestino, filtro, clienteId,0,120));
 			}
-			System.out.println(chamadaBrutoTabela);
 
 			//loop para validação de resultados inexistentes na tabela
 			for (int i = 0; i<=120; i++) {

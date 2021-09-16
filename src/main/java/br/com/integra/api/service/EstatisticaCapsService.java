@@ -151,7 +151,6 @@ public class EstatisticaCapsService {
 	 * @return valores do caps devidamente processados
 	 */
 	public List<EstatisticaCapsOutputDto> separadorCaps(List<EstatisticaDiscador> lista, LocalDateTime dataInicial, LocalDateTime dataFinal){
-		
 		List<EstatisticaCapsOutputDto> capsProcessado = new ArrayList<>();
 		while (dataInicial.compareTo(dataFinal) <= 0) {
 			LocalDateTime dataFim = dataInicial.plusMinutes(1L);

@@ -1,6 +1,7 @@
 package br.com.integra.api.dto.output;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class EstatisticaCapsOutputDto {
-	private LocalDateTime data;
+	private String data;
 	
 	private List<EstatisticaDiscadorOutputDto> valores;
 }
