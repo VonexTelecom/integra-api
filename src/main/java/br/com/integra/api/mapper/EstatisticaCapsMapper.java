@@ -3,6 +3,7 @@ package br.com.integra.api.mapper;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class EstatisticaCapsMapper {
 		valores.add(chamadaDiscada);
 		valores.add(capsSainte);
 		EstatisticaCapsOutputDto estatisticaCaps = EstatisticaCapsOutputDto.builder()
-				.data(DateUtils.formatarData(dataAtual.atZone(ZoneId.systemDefault())))
+				.data(dataAtual.format(DateTimeFormatter.ISO_DATE_TIME).toString())
 				.valores(valores)
 				.build();
 		return estatisticaCaps;
