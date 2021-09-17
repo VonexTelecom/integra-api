@@ -197,9 +197,9 @@ public class EstatisticaDiscadorDddService {
 			}
 			String nome = String.format("chamadas_ddd_%d", i);
 			if(lista != null ) {
+				System.out.println(lista.size());
 				List<EstatisticaDiscadorOutputDto> estatisticaDdd =  lista.stream().filter(chamada ->
 				chamada.getTipoEstatistica().equals(nome)).collect(Collectors.toList());
-				System.out.println(estatisticaDdd);
 				EstatisticaDddOutputDto estatistica = EstatisticaDddOutputDto.builder()
 						.ddd(i)
 						.local(coordenadas.get(i).getLocal())
