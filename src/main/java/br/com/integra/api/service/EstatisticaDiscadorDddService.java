@@ -190,7 +190,7 @@ public class EstatisticaDiscadorDddService {
 	public List<EstatisticaDddOutputDto> somaTabela(List<EstatisticaDiscadorOutputDto> lista){
 		List<EstatisticaDddOutputDto> estatisticasProcessadas = new ArrayList<>();
 		HashMap<Integer, EstatisticaDddOutputDto> coordenadas = new HashMap<Integer, EstatisticaDddOutputDto>();
-		
+		coordenadaService.getCoordenada(coordenadas);
 		for (int i = 11; i<=99; i++) {
 			if(dddInexistente(i) == true) {
 				continue;
