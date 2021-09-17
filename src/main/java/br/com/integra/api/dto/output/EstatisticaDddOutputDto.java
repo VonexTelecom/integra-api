@@ -2,7 +2,6 @@ package br.com.integra.api.dto.output;
 
 import java.math.BigDecimal;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;

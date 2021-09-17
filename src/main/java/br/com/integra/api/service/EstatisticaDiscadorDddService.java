@@ -197,7 +197,7 @@ public class EstatisticaDiscadorDddService {
 			}
 			String nome = String.format("chamadas_ddd_%d", i);
 			if(lista != null ) {
-				System.out.println(lista.size());
+				
 				List<EstatisticaDiscadorOutputDto> estatisticaDdd =  lista.stream().filter(chamada ->
 				chamada.getTipoEstatistica().equals(nome)).collect(Collectors.toList());
 				EstatisticaDddOutputDto estatistica = EstatisticaDddOutputDto.builder()
@@ -207,7 +207,6 @@ public class EstatisticaDiscadorDddService {
 						.Longitude(coordenadas.get(i).getLongitude())
 						.quantidade(quantidadeTotal(estatisticaDdd))
 						.build();
-				System.out.println(estatistica);
 				estatisticasProcessadas.add(estatistica);
 			}else {
 				System.out.println("\n\n\n\n Lista Vazia");
