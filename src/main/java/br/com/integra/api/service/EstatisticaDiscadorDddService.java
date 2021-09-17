@@ -190,29 +190,30 @@ public class EstatisticaDiscadorDddService {
 	public List<EstatisticaDddOutputDto> somaTabela(List<EstatisticaDiscadorOutputDto> lista){
 		List<EstatisticaDddOutputDto> estatisticasProcessadas = new ArrayList<>();
 		HashMap<Integer, EstatisticaDddOutputDto> coordenadas = new HashMap<Integer, EstatisticaDddOutputDto>();
-		coordenadaService.getCoordenada(coordenadas);
 		
 		for (int i = 11; i<=99; i++) {
 			if(dddInexistente(i) == true) {
 				continue;
 			}
-			System.out.println(coordenadas);
 			String nome = String.format("chamadas_ddd_%d", i);
+			if(lista != null ) {
+				List<EstatisticaDiscadorOutputDto> estatisticaDdd =  lista.stream().filter(chamada ->
+				chamada.getTipoEstatistica().equals(nome)).collect(Collectors.toList());
+				System.out.println(estatisticaDdd);
+				EstatisticaDddOutputDto estatistica = EstatisticaDddOutputDto.builder()
+						.ddd(i)
+						.local(coordenadas.get(i).getLocal())
+						.Latitude(coordenadas.get(i).getLatitude())
+						.Longitude(coordenadas.get(i).getLongitude())
+						.quantidade(quantidadeTotal(estatisticaDdd))
+						.build();
+				System.out.println(estatistica);
+				estatisticasProcessadas.add(estatistica);
+			}else {
+				System.out.println("\n\n\n\n Lista Vazia");
+			}
 			
-			System.out.println(nome);
-			List<EstatisticaDiscadorOutputDto> estatisticaDdd =  lista.stream().filter(chamada ->
-			chamada.getTipoEstatistica().equals(nome)).collect(Collectors.toList());
-			System.out.println(estatisticaDdd);
-			
-			EstatisticaDddOutputDto estatistica = EstatisticaDddOutputDto.builder()
-					.ddd(i)
-					.local(coordenadas.get(i).getLocal())
-					.Latitude(coordenadas.get(i).getLatitude())
-					.Longitude(coordenadas.get(i).getLongitude())
-					.quantidade(quantidadeTotal(estatisticaDdd))
-					.build();
-			System.out.println(estatistica);
-			estatisticasProcessadas.add(estatistica);
+		
 		}
 		return estatisticasProcessadas;
 		

@@ -33,7 +33,7 @@ public class EstatisticaDiscadorMapper {
 	
 	public EstatisticaDiscadorOutputDto modelToOutputDtoSegundoDDD(EstatisticaDiscador estatistica) {
 		EstatisticaDiscadorOutputDto dto = mapper.map(estatistica, EstatisticaDiscadorOutputDto.class);
-		dto.setTipoEstatistica(formatarSegundoTabelaDDD(estatistica.getTipoEstatistica(), Integer.valueOf(estatistica.getTipoEstisticaValor())));
+		dto.setTipoEstatistica(formatarTabelaDDD(estatistica.getTipoEstatistica(), Integer.valueOf(estatistica.getTipoEstisticaValor())));
 		return dto;
 	}
 	
@@ -46,9 +46,9 @@ public class EstatisticaDiscadorMapper {
 		return slice2+segundo+"_"+slice1;
 	}	
 	
-	public String formatarSegundoTabelaDDD(String nomeTipoEstatica, Integer segundo) {
+	public String formatarTabelaDDD(String nomeTipoEstatica, Integer ddd) {
 		String slice1 = nomeTipoEstatica.substring("chamada_com_".length(),nomeTipoEstatica.length());
 		String slice2 = nomeTipoEstatica.substring(0,"chamada_com_".length());
-		return slice2+"_"+segundo+slice1;
+		return slice2+"_"+ddd+slice1;
 	}	
 }
