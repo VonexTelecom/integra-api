@@ -196,11 +196,13 @@ public class EstatisticaDiscadorDddService {
 			if(dddInexistente(i) == true) {
 				continue;
 			}
+			System.out.println(coordenadas);
 			String nome = String.format("chamadas_ddd_%d", i);
 			
-			
+			System.out.println(nome);
 			List<EstatisticaDiscadorOutputDto> estatisticaDdd =  lista.stream().filter(chamada ->
 			chamada.getTipoEstatistica().equals(nome)).collect(Collectors.toList());
+			System.out.println(estatisticaDdd);
 			
 			EstatisticaDddOutputDto estatistica = EstatisticaDddOutputDto.builder()
 					.ddd(i)
@@ -209,7 +211,7 @@ public class EstatisticaDiscadorDddService {
 					.Longitude(coordenadas.get(i).getLongitude())
 					.quantidade(quantidadeTotal(estatisticaDdd))
 					.build();
-			
+			System.out.println(estatistica);
 			estatisticasProcessadas.add(estatistica);
 		}
 		return estatisticasProcessadas;

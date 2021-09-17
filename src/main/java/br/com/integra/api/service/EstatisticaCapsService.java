@@ -167,12 +167,4 @@ public class EstatisticaCapsService {
 		}
 		return capsProcessado;
 	}
-	
-	//método para sumarizar a quantidade de cada estatistica
-	private BigDecimal quantidadeTotal(List<EstatisticaDiscadorOutputDto> estatisticas) {
-		return estatisticas
-				.stream()
-				.map(estatistica -> estatistica.getQuantidade())
-				.reduce(BigDecimal.ZERO, BigDecimal::add);
-	}
 }
