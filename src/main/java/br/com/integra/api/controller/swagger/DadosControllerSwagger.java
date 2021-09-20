@@ -1,9 +1,14 @@
 package br.com.integra.api.controller.swagger;
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import br.com.integra.api.dto.output.EstatisticaCapsOutputDto;
 import br.com.integra.api.dto.output.EstatisticaDiscadorOutputDto;
+import br.com.integra.api.dto.output.OutrosErrosOutputDto;
 import br.com.integra.api.exception.handler.Problem;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.model.EstatisticaSumarizada;
@@ -51,6 +56,13 @@ public interface DadosControllerSwagger {
 		@ApiResponse(code = 204, response = Problem.class, message = "O recurso não foi encontrado")
 	})
 	ResponseEntity<?>discadorTotalizadorCaps(EstatisticaFilter filter);
+
+	@ApiOperation(value = "Busca os Outros Erros por periodo", httpMethod = "GET")
+	@ApiResponses({
+		@ApiResponse(code = 200, response = EstatisticaSumarizada.class, message = "Requisição com sucesso"),
+		@ApiResponse(code = 404, response = Problem.class, message = "O recurso não foi encontrado")
+	})
+	ResponseEntity<Page<OutrosErrosOutputDto>> findAllOutrosErros(Pageable pageable, EstatisticaFilter filter);
 	
 } 
 
