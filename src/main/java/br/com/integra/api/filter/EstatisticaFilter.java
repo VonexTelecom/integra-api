@@ -1,20 +1,16 @@
 package br.com.integra.api.filter;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import br.com.integra.api.enums.DiscadorEnum;
 import br.com.integra.api.enums.ModalidadeEnum;
 import br.com.integra.api.enums.OperadoraEnum;
 import br.com.integra.api.enums.PeriodoEstatisticaEnum;
 import io.swagger.annotations.ApiModelProperty;
-import javassist.expr.NewArray;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

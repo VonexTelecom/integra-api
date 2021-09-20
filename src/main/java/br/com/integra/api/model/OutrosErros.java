@@ -9,16 +9,15 @@ import lombok.Data;
 
 @Data
 @Builder
-public class EstatisticaDiscador {
+public class OutrosErros {
 	private LocalTime data;
-	private String tipoEstatistica;
 	private BigDecimal quantidade;
-	private String numeroOrigem;
+	private String numeroOrigem;	
+	private String status_chamada;
 	private String equipamento;
 	private String conta;
-	private Integer clienteId;
+	private Long clienteId;
 	private String modalidade;
-	private String tipoEstisticaValor;
 	private String operadora;
 	private String unidadeAtendimento;
 	private String discador;
