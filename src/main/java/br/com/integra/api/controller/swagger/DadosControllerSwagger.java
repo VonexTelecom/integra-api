@@ -57,7 +57,7 @@ public interface DadosControllerSwagger {
 	})
 	ResponseEntity<?>discadorTotalizadorCaps(EstatisticaFilter filter);
 
-	@ApiOperation(value = "Busca os Outros Erros por periodo", httpMethod = "GET")
+	@ApiOperation(value = "Busca os Dados de Erros por periodo", httpMethod = "GET")
 	@ApiResponses({
 		@ApiResponse(code = 200, response = EstatisticaSumarizada.class, message = "Requisição com sucesso"),
 		@ApiResponse(code = 404, response = Problem.class, message = "O recurso não foi encontrado")
