@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.hibernate.internal.build.AllowSysOut;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.integra.api.dto.output.EstatisticaCapsOutputDto;
 import br.com.integra.api.dto.output.EstatisticaDiscadorOutputDto;
+import br.com.integra.api.dto.output.ValoresCapsOutputDto;
 import br.com.integra.api.exception.BusinessException;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.mapper.EstatisticaCapsMapper;
@@ -51,7 +53,7 @@ public class EstatisticaCapsService {
 	 * 
 	 * O método recebe o filtro contendo uma data inicial, data final(pode ser por enum ou não) e o id do cliente
 	 */
-	public List<EstatisticaCapsOutputDto> discadorTotalizadorCaps(EstatisticaFilter filter, Long clienteId) {
+	public EstatisticaCapsOutputDto discadorTotalizadorCaps(EstatisticaFilter filter, Long clienteId) {
 		
 		Long startTime = System.currentTimeMillis();
 		
@@ -86,7 +88,7 @@ public class EstatisticaCapsService {
 			List<EstatisticaDiscador> capsBruto = new ArrayList<>();
 
 			//verificação da data que vai percorrer a tabela até a data final descrita no filtro
-			dataIntervalo.stream().parallel().forEachOrdered(dataAtual -> executorService.execute(()-> {
+			dataIntervalo.stream().forEachOrdered(dataAtual -> {
 				try {
 				//condição que verifica se a dataAtual(ano, mês e dia) é igual a data inicial(ano, mês e dia), caso sim ele passa pro repositório apenas a data inicial(data e hora)
 				if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) == 0) {
@@ -123,26 +125,41 @@ public class EstatisticaCapsService {
 		
 					
 					capsBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, filtro,clienteId));
-	
 				}
-				capsProcessado.addAll(separadorCaps(capsBruto, dataInicial, dataFinal));
+				LocalDateTime dataAtualFormatada = dataAtual.atStartOfDay();
+				capsProcessado.add(separadorCaps(capsBruto, dataAtualFormatada));
 				capsBruto.clear();
 				}catch(Exception e){
 					System.out.println(e.getStackTrace());
 				}		
-			}));
-			
+			});
 			try {
 				executorService.shutdown();
 				executorService.awaitTermination(3000, TimeUnit.MINUTES);
 			} catch (Exception e) {
 				Thread.currentThread().interrupt();
 			}
+			
+			List<ValoresCapsOutputDto> chamadasDiscadas = new ArrayList<>(); 
+			List<ValoresCapsOutputDto> maxCapsSainte = new ArrayList<>(); 
+			capsProcessado.stream().forEach(e -> chamadasDiscadas.addAll(e.getChamadasDiscadas()));
+			capsProcessado.stream().forEach(e -> maxCapsSainte.addAll(e.getMaxCapsSainte()));
+			
+			EstatisticaCapsOutputDto capsRetorno = EstatisticaCapsOutputDto.builder()
+					.chamadasDiscadas(chamadasDiscadas)
+					.maxCapsSainte(maxCapsSainte).build();
+					
+
+			
 			//Condição que certifica que exista algo na tabela, caso não, ele retorna uma lista vazia
-			if(!capsProcessado.stream().filter(t -> t.getValores().stream().filter(v -> v.getQuantidade().longValue() > 0).findAny().isPresent()).findAny().isPresent()) {
-				return new ArrayList<>();
+			if(!capsProcessado.stream().filter(t -> t.getChamadasDiscadas().stream().filter(v -> v.getQuantidade().longValue() > 0).findAny().isPresent()).findAny().isPresent()) {
+				if(!capsProcessado.stream().filter(t -> t.getMaxCapsSainte().stream().filter(v -> v.getQuantidade().longValue() > 0).findAny().isPresent()).findAny().isPresent()) {
+					capsRetorno = EstatisticaCapsOutputDto.builder()
+							.chamadasDiscadas(new ArrayList<>())
+							.maxCapsSainte(new ArrayList<>()).build();
+				}
 			}
-		return capsProcessado;
+		return capsRetorno;
 	}
 	/**
 	 * @param lista
@@ -150,21 +167,29 @@ public class EstatisticaCapsService {
 	 * @param dataFinal
 	 * @return valores do caps devidamente processados
 	 */
-	public List<EstatisticaCapsOutputDto> separadorCaps(List<EstatisticaDiscador> lista, LocalDateTime dataInicial, LocalDateTime dataFinal){
-		List<EstatisticaCapsOutputDto> capsProcessado = new ArrayList<>();
+	public EstatisticaCapsOutputDto separadorCaps(List<EstatisticaDiscador> lista, LocalDateTime dataInicial){
+		List<ValoresCapsOutputDto> maxCapsSainte = new ArrayList<>();
+		List<ValoresCapsOutputDto> chamadasDiscadas = new ArrayList<>();
+		List<ValoresCapsOutputDto> listaValores = new ArrayList<>();
+		LocalDateTime dataFinal = dataInicial.withHour(23).withMinute(59);
 		while (dataInicial.compareTo(dataFinal) <= 0) {
 			LocalDateTime dataFim = dataInicial.plusMinutes(1L);
 			LocalDateTime dataIni = dataInicial;
-			
 			List<EstatisticaDiscadorOutputDto> caps = estatisticaMapper.modelToCollectionOutputDto(lista.stream().filter
 					(c -> c.getData().compareTo (dataIni.toLocalTime()) == 0 &&
 					c.getData().compareTo(dataFim.toLocalTime()) <= 0).collect(Collectors.toList()));
-			
-
-
-			capsProcessado.add(mapper.modelToOutputDto(caps,dataInicial));
+			listaValores.addAll(mapper.modelToOutputDto(caps,dataInicial));
+			if(listaValores.size() != 0) {
+				chamadasDiscadas.add(listaValores.get(1));
+				maxCapsSainte.add(listaValores.get(0));
+			}
+			listaValores.clear();
 			dataInicial = dataInicial.plusMinutes(1L);
 		}
-		return capsProcessado;
+		EstatisticaCapsOutputDto capsRetorno = EstatisticaCapsOutputDto.builder()
+				.chamadasDiscadas(chamadasDiscadas)
+				.maxCapsSainte(maxCapsSainte).build();
+		
+		return capsRetorno;
 	}
 }

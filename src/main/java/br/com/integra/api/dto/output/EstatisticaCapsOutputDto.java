@@ -1,5 +1,6 @@
 package br.com.integra.api.dto.output;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -12,7 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class EstatisticaCapsOutputDto {
-	private String data;
 	
-	private List<EstatisticaDiscadorOutputDto> valores;
+	private List<ValoresCapsOutputDto> chamadasDiscadas = new ArrayList<>();
+	
+	private List<ValoresCapsOutputDto> maxCapsSainte = new ArrayList<>();
 }

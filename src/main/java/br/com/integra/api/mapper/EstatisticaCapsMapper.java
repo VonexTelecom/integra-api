@@ -6,11 +6,13 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
 import br.com.integra.api.dto.output.EstatisticaCapsOutputDto;
 import br.com.integra.api.dto.output.EstatisticaDiscadorOutputDto;
+import br.com.integra.api.dto.output.ValoresCapsOutputDto;
 import br.com.integra.api.utils.DateUtils;
 
 
@@ -27,7 +29,7 @@ public class EstatisticaCapsMapper {
 	 * @param dataAtual (data do caps)
 	 * @return estatisticaCapsOutputDto
 	 */
-	public EstatisticaCapsOutputDto modelToOutputDto(List<EstatisticaDiscadorOutputDto> caps, LocalDateTime dataAtual) {
+	public List<ValoresCapsOutputDto> modelToOutputDto(List<EstatisticaDiscadorOutputDto> caps, LocalDateTime dataAtual) {
 
 		//instancia que percorre a lista(caps) e verifica se em algum deles falta um valor
 		//caso sim, ele o acrescenta setado como zero 
@@ -35,19 +37,25 @@ public class EstatisticaCapsMapper {
 				() -> EstatisticaDiscadorOutputDto.builder()
 				.quantidade(BigDecimal.ZERO)
 				.tipoEstatistica("max_caps_sainte").build());
-
+		
 		EstatisticaDiscadorOutputDto chamadaDiscada = caps.stream().filter(c -> c.getTipoEstatistica().equals("chamadas_discadas")).findFirst().orElseGet( 
 				() -> EstatisticaDiscadorOutputDto.builder()
 				.quantidade(BigDecimal.ZERO)
 				.tipoEstatistica("chamadas_discadas").build());
 		
-		List<EstatisticaDiscadorOutputDto> valores = new ArrayList<>();
-		valores.add(chamadaDiscada);
-		valores.add(capsSainte);
-		EstatisticaCapsOutputDto estatisticaCaps = EstatisticaCapsOutputDto.builder()
-				.data(dataAtual.format(DateTimeFormatter.ISO_DATE_TIME).toString())
-				.valores(valores)
-				.build();
-		return estatisticaCaps;
+		List<ValoresCapsOutputDto> valores = new ArrayList<>();
+		if(capsSainte.getQuantidade().intValue() != 0 || chamadaDiscada.getQuantidade().intValue() != 0) {
+			ValoresCapsOutputDto capsSainteRetorno = ValoresCapsOutputDto.builder()
+				.data(dataAtual.toString())
+				.quantidade(capsSainte.getQuantidade()).build();
+		ValoresCapsOutputDto chamadaDiscadaRetorno = ValoresCapsOutputDto.builder()
+				.data(dataAtual.toString())
+				.quantidade(chamadaDiscada.getQuantidade()).build();
+		
+		
+		valores.add(capsSainteRetorno);
+		valores.add(chamadaDiscadaRetorno);
+		}
+		return valores;
 	}
 }
