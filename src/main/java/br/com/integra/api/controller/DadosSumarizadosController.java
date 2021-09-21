@@ -1,6 +1,8 @@
 package br.com.integra.api.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.integra.api.config.security.CheckSecurity;
 import br.com.integra.api.config.security.IntegraSecurity;
 import br.com.integra.api.controller.swagger.DadosControllerSwagger;
+import br.com.integra.api.dto.output.OutrosErrosOutputDto;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.service.EstatisticaCapsService;
 import br.com.integra.api.service.EstatisticaDiscadorChamadasService;
@@ -37,6 +40,13 @@ public class DadosSumarizadosController implements DadosControllerSwagger {
 
 	@Autowired
 	private EstatisticaDiscadorDddService dddService;
+
+	@Override
+	@CheckSecurity.DadosSumarizados.PodeAcessar
+	@GetMapping("/erros")
+	public ResponseEntity<Page<OutrosErrosOutputDto>> findAllOutrosErros(Pageable pageable, EstatisticaFilter filter) {
+		return ResponseEntity.ok(service.findOutrosErros(filter, integraSecurity.getClienteId(), pageable));
+	}
 	
 	@Override
 	@CheckSecurity.DadosSumarizados.PodeAcessar
