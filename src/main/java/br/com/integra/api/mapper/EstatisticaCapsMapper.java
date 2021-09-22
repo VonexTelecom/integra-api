@@ -1,8 +1,11 @@
 package br.com.integra.api.mapper;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,12 +47,15 @@ public class EstatisticaCapsMapper {
 				.tipoEstatistica("chamadas_discadas").build());
 		
 		List<ValoresCapsOutputDto> valores = new ArrayList<>();
+		
+		ZonedDateTime dataConvertida = dataAtual.atZone( ZoneId.systemDefault() );
+		
 		if(capsSainte.getQuantidade().intValue() != 0 || chamadaDiscada.getQuantidade().intValue() != 0) {
 			ValoresCapsOutputDto capsSainteRetorno = ValoresCapsOutputDto.builder()
-				.data(dataAtual.toString())
+				.data(dataConvertida.format(DateTimeFormatter.ISO_INSTANT).toString())
 				.quantidade(capsSainte.getQuantidade()).build();
 		ValoresCapsOutputDto chamadaDiscadaRetorno = ValoresCapsOutputDto.builder()
-				.data(dataAtual.toString())
+				.data(dataConvertida.format(DateTimeFormatter.ISO_INSTANT).toString())
 				.quantidade(chamadaDiscada.getQuantidade()).build();
 		
 		

@@ -14,5 +14,4 @@ public class ApplicationContext {
 		SpringApplication.run(ApplicationContext.class, args);
 		 TimeZone.setDefault(TimeZone.getTimeZone("GMT-3"));
 	}
-	
 }
