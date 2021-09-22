@@ -85,4 +85,14 @@ public class DateUtils {
 		dataFormatada = dataSeparada.get(0)+" "+dataSeparada.get(2)+" "+dataSeparada.get(1)+" "+dataSeparada.get(3)+" "+dataSeparada.get(4)+" "+date.getZone();
 		return dataFormatada;
 	} 
+	
+	//método para conversão de LocalDate(yyyy-MM-dd) para string(yyyyMMdd)
+		public static String formatarData(LocalDate date) {
+
+			return date.format(DateTimeFormatter.BASIC_ISO_DATE).toString();
+		}
+		//método para conversão de LocalTime para String
+		public static String formatarData(LocalDateTime date) {	
+			return date.format(DateTimeFormatter.ISO_DATE_TIME).toString();
+		}
 }

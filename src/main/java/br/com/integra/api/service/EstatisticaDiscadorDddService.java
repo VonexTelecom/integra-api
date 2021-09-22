@@ -220,8 +220,11 @@ public class EstatisticaDiscadorDddService {
 	
 	//método para reservar todos os ddds inválidos e verifica-los quando chamados pelo loop
 	public boolean dddInexistente(int ddd) {
+		
+		
 		List<Integer> dddInvalidos = Arrays.asList(20, 23, 25, 26, 29, 30, 36, 39
 				, 40, 50, 52, 56, 57, 58, 59, 60, 70, 72, 76, 78, 80, 90);
+		
 		boolean dddInvalido = dddInvalidos.stream().anyMatch(valor -> valor == ddd);
 		return dddInvalido;
 		

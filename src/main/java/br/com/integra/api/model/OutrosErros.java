@@ -1,7 +1,7 @@
 package br.com.integra.api.model;
 
 import java.math.BigDecimal;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 @Builder
 public class OutrosErros {
-	private LocalTime data;
+	private LocalDateTime data;
 	private BigDecimal quantidade;
 	private String numeroOrigem;	
 	private String status_chamada;

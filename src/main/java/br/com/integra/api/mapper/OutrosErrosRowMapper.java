@@ -17,7 +17,7 @@ public class OutrosErrosRowMapper implements RowMapper<OutrosErros>{
 
 			return OutrosErros.builder()
 				.clienteId(rs.getLong("clienteId"))
-				.data(rs.getTime("data").toLocalTime())
+				.data(rs.getTimestamp("data").toLocalDateTime())
 				.quantidade(rs.getBigDecimal("quantidade"))
 				.status_chamada(rs.getString("status_chamada"))
 				.numeroOrigem(rs.getString("numeroOrigem"))

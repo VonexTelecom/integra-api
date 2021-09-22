@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.mapper.OutrosErrosRowMapper;
 import br.com.integra.api.model.OutrosErros;
+import br.com.integra.api.utils.DateUtils;
 import br.com.integra.api.utils.FiltroEstatisticaUtils;
 
 @Repository
@@ -41,13 +41,13 @@ public class OutrosErrosRepository {
 	public List<OutrosErros> findtipoOutrosErrosInicial(LocalDate date
 			, EstatisticaFilter filter, Long clienteId) {
 
-		String dataFormatada = formatarData(date);
+		String dataFormatada = DateUtils.formatarData(date);
 		LocalDateTime dataFinal = filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 		dataFinal = dataFinal.toLocalDate().atTime(23, 59);
 			
-		String dataInicialFormatada = formatarData(filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalTime());
+		String dataInicialFormatada = DateUtils.formatarData(filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
 		
-		String dataFinalFormatada = formatarData(dataFinal.toLocalTime());
+		String dataFinalFormatada = DateUtils.formatarData(dataFinal);
 
 		String nomeDaTabelaData = String.format("OutrosErros%s", dataFormatada);
 				
@@ -71,7 +71,7 @@ public class OutrosErrosRepository {
 			, EstatisticaFilter filter, Long clienteId) {
 		LocalDateTime dataInicial =filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 		dataInicial = dataInicial.toLocalDate().atStartOfDay();
-		String dataFormatada = formatarData(date);
+		String dataFormatada = DateUtils.formatarData(date);
 		
 		//verifição de data do enum (de 8 às 18)
 		if(filter.getDataInicial() != null &&
@@ -80,9 +80,9 @@ public class OutrosErrosRepository {
 		}
 		
 		
-		String dataInicialFormatada = formatarData(dataInicial.toLocalTime());
+		String dataInicialFormatada = DateUtils.formatarData(dataInicial);
 		
-		String dataFinalFormatada = formatarData(filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalTime());
+		String dataFinalFormatada = DateUtils.formatarData(filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
 
 		String nomeDaTabelaData = String.format("OutrosErros%s", dataFormatada);
 		
@@ -106,7 +106,7 @@ public class OutrosErrosRepository {
 	public List<OutrosErros> findtipoOutrosErros(LocalDate date
 			, EstatisticaFilter filter, Long clienteId) {
 		
-		String dataFormatada = formatarData(date);
+		String dataFormatada = DateUtils.formatarData(date);
 		
 		//montagem do nome da tabela a ser percorrida na query
 		String nomeDaTabelaData = String.format("OutrosErros%s", dataFormatada);
@@ -125,15 +125,4 @@ public class OutrosErrosRepository {
 	    (new OutrosErrosRowMapper()));
 	    return listaOutrosErros;
 	    }
-	
-	
-	//método para conversão de LocalDate(yyyy-MM-dd) para string(yyyyMMdd)
-	public String formatarData(LocalDate date) {
-
-		return date.format(DateTimeFormatter.BASIC_ISO_DATE).toString();
-	}
-	//método para conversão de LocalTime para String
-	public String formatarData(LocalTime date) {	
-		return date.format(DateTimeFormatter.ISO_TIME).toString();
-	}
 }

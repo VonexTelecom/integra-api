@@ -19,7 +19,7 @@ public class EstatisticaDiscadorRowMapper implements RowMapper<EstatisticaDiscad
 			return EstatisticaDiscador.builder()
 				.clienteId(rs.getInt("clienteId"))
 				.conta(rs.getString("conta"))
-				.data(rs.getTime("data").toLocalTime())
+				.data(rs.getTimestamp("data").toLocalDateTime())
 				.equipamento(rs.getString("equipamento"))
 				.modalidade(rs.getString("modalidade"))
 				.numeroOrigem(rs.getString("numeroOrigem"))

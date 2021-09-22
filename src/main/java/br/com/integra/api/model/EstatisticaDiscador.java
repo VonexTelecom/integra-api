@@ -1,6 +1,7 @@
 package br.com.integra.api.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import lombok.Builder;
@@ -10,7 +11,7 @@ import lombok.Data;
 @Data
 @Builder
 public class EstatisticaDiscador {
-	private LocalTime data;
+	private LocalDateTime data;
 	private String tipoEstatistica;
 	private BigDecimal quantidade;
 	private String numeroOrigem;

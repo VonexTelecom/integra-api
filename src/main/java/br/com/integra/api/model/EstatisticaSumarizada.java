@@ -1,6 +1,8 @@
 package br.com.integra.api.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import lombok.AllArgsConstructor;
@@ -13,7 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EstatisticaSumarizada {
-	private LocalTime data;
+	private LocalDateTime data;
 	private Long clienteId;
 	
 	private BigDecimal quantidade;

@@ -4,11 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -17,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.mapper.EstatisticaDiscadorRowMapper;
 import br.com.integra.api.model.EstatisticaDiscador;
+import br.com.integra.api.utils.DateUtils;
 import br.com.integra.api.utils.FiltroEstatisticaUtils;
 
 
@@ -43,14 +42,14 @@ public class EstatisticaTotalizadorChamadasRepository {
 	// os dados a partir da data inicial passada pelo front até a 23:59
 	public List<EstatisticaDiscador> findtipoEstatisticaTotalizadorInicial(LocalDate date, EstatisticaFilter filter, Long clienteId) {
 
-		String dataFormatada = formatarData(date);
+		String dataFormatada = DateUtils.formatarData(date);
 		LocalDateTime dataFinal = filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 		dataFinal = dataFinal.toLocalDate().atTime(23, 59);
 		
 			
-		String dataInicialFormatada = formatarData(filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalTime());
+		String dataInicialFormatada = DateUtils.formatarData(filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
 		
-		String dataFinalFormatada = formatarData(dataFinal.toLocalTime());
+		String dataFinalFormatada = DateUtils.formatarData(dataFinal);
 		
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
 		
@@ -79,7 +78,7 @@ public class EstatisticaTotalizadorChamadasRepository {
 	public List<EstatisticaDiscador> findtipoEstatisticaTotalizadorFinal(LocalDate date, EstatisticaFilter filter, Long clienteId) {
 		
 		
-		String dataFormatada = formatarData(date);
+		String dataFormatada = DateUtils.formatarData(date);
 		LocalDateTime dataInicial =filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 		dataInicial = dataInicial.toLocalDate().atStartOfDay();
 	
@@ -89,9 +88,9 @@ public class EstatisticaTotalizadorChamadasRepository {
 				dataInicial = LocalDateTime.of(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), 8, 00);
 		}
 		
-		String dataInicialFormatada = formatarData(dataInicial.toLocalTime());
+		String dataInicialFormatada = DateUtils.formatarData(dataInicial);
 		
-		String dataFinalFormatada = formatarData(filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalTime());
+		String dataFinalFormatada = DateUtils.formatarData(filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
 			
 		//montagem do nome da tabela a ser percorrida na query
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
@@ -118,7 +117,7 @@ public class EstatisticaTotalizadorChamadasRepository {
 	public List<EstatisticaDiscador> findtipoEstatisticaTotalizador(LocalDate date, EstatisticaFilter filter, Long clienteId) {
 
 		
-		String dataFormatada = formatarData(date);
+		String dataFormatada = DateUtils.formatarData(date);
 		
 		//montagem do nome da tabela a ser percorrida na query
 		String nomeDaTabelaData = String.format("EstatisticaDiscadorDia%s", dataFormatada);
@@ -144,15 +143,4 @@ public class EstatisticaTotalizadorChamadasRepository {
 	    return estatisticaBruta;
 
 	    }	
-	//método para conversão de LocalDate(yyyy-MM-dd) para string(yyyyMMdd)
-	public String formatarData(LocalDate date) {
-	
-		return date.format(DateTimeFormatter.BASIC_ISO_DATE).toString();
-	}
-	//método para conversão de LocalTime para String
-	public String formatarData(LocalTime date) {	
-		return date.format(DateTimeFormatter.ISO_TIME).toString();
-	}
-
-
 }
