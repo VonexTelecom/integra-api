@@ -85,7 +85,7 @@ public class OutrosErrosRepository {
 		String dataFinalFormatada = DateUtils.formatarData(filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
 
 		String nomeDaTabelaData = String.format("OutrosErros%s", dataFormatada);
-		
+				
 		//Condição para a verificação de tabela existente
 		//caso não, ela retorna uma lista vazia
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
@@ -95,7 +95,7 @@ public class OutrosErrosRepository {
 		
 		//aplicação dos filtros passados pelo front
 		String sql = FiltroEstatisticaUtils.criarQueryOutrosErros(nomeDaTabelaData, "", filter, clienteId, null, null, dataInicialFormatada, dataFinalFormatada);
-		
+				
 		//conversor da lista dos resultados da query em lista de entidades do spring
 	    List<OutrosErros> listaOutrosErros = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<OutrosErros>
 	    (new OutrosErrosRowMapper()));
