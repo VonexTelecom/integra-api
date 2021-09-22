@@ -140,8 +140,12 @@ public class EstatisticaSumarizadaService {
 		}
 		
 		//Converte uma lista em uma page
-		Page<OutrosErrosOutputDto> page = new PageImpl<>(listOutrosErrosOutputDto.subList((int) pageable.getOffset(),(int) (pageable.getOffset()+pageable.getPageSize())), pageable, listOutrosErrosOutputDto.size());
-		
+		Page<OutrosErrosOutputDto> page;
+		if(listOutrosErrosOutputDto.size()>0) {
+			page = new PageImpl<>(listOutrosErrosOutputDto.subList((int) pageable.getOffset(),(int) (pageable.getOffset()+pageable.getPageSize())), pageable, listOutrosErrosOutputDto.size());
+		}else {
+			page = null;
+		}
 		return page;
 		
 	}
