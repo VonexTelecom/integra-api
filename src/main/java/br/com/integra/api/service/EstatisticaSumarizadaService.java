@@ -49,8 +49,8 @@ public class EstatisticaSumarizadaService {
 				
 		LocalDateTime dataInicial;
 		LocalDateTime dataFinal ;
-		//Lista de retono
 		
+		//Lista de retono
 		List<OutrosErrosOutputDto>  listOutrosErrosOutputDto = new ArrayList<>();
 		
 		//condição para conversão
@@ -130,7 +130,7 @@ public class EstatisticaSumarizadaService {
 		} catch (Exception e) {
 			System.out.println(e.getStackTrace());
 		}
-				
+						
 		OutrosErrosOutputDto outrosErrosOutputDto;			
 		
 		for(int i=0; i < listaOutrosErros.size(); i++) {
@@ -140,11 +140,25 @@ public class EstatisticaSumarizadaService {
 			outrosErrosOutputDto.setDescricao("Descricão do Status : "+listaOutrosErros.get(i).getStatus_chamada());
 			listOutrosErrosOutputDto.add(outrosErrosOutputDto);
 		}
-		
+
 		//Converte uma lista em uma page
 		Page<OutrosErrosOutputDto> page;
-		if(listaOutrosErros.size() > 0 && ((int) pageable.getOffset()+pageable.getPageSize()) <= listaOutrosErros.size()) {
-			page = new PageImpl<>(listOutrosErrosOutputDto.subList((int) pageable.getOffset(), (int) pageable.getOffset()+pageable.getPageSize()), pageable, listOutrosErrosOutputDto.size());
+		if(listaOutrosErros.size() > 0 ) {
+			int offSet   = (int) pageable.getOffset();
+			int pageSize = pageable.getPageSize();
+			int total    = offSet+pageSize;
+			
+			if(listaOutrosErros.size() < total) {
+				offSet = pageSize*pageable.getPageNumber(); 
+				total  = listaOutrosErros.size();
+				if(offSet > listaOutrosErros.size()) {
+					offSet = listaOutrosErros.size()-((int) pageable.getOffset()-listaOutrosErros.size());
+				}
+			}
+			System.out.println("*** Offset   : "+offSet);
+			System.out.println("*** PageSize : "+pageSize);
+			
+			page = new PageImpl<>(listOutrosErrosOutputDto.subList(offSet, total), pageable, listOutrosErrosOutputDto.size());
 		}else {
 			page = new PageImpl<>(listOutrosErrosOutputDto.subList(0, 0), pageable, listOutrosErrosOutputDto.size());			
 		}
