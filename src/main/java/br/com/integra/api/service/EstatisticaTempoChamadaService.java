@@ -7,7 +7,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -62,8 +61,6 @@ public class EstatisticaTempoChamadaService {
 			throw new BusinessException("Selecione um periodo ou uma data incial e final.");
 		}
 		
-		//lista de resultados direto da tabela ja válidados
-		List<EstatisticaDiscadorOutputDto> chamadaBrutoTabela = new ArrayList<>();
 		
 		//lista de resultados de todas as tabelas ja processados
 		List<EstatisticaDiscadorOutputDto> chamadaProcessada = new ArrayList<>();
@@ -77,15 +74,15 @@ public class EstatisticaTempoChamadaService {
 		LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
 		List<LocalDate> dataIntervalo = DateUtils.IntervaloData(dataAtualPeriodo, dataFinalFormatada);
 		ExecutorService executorService = Executors.newFixedThreadPool(8);
+		//lista de resultados direto da tabela não validados
+		List<EstatisticaDiscador> chamadasOrigemBruto = new ArrayList<>();
+		//lista de resultados direto da tabela não validados
+		List<EstatisticaDiscador> chamadasDestinoBruto = new ArrayList<>();
 		
 		
 		dataIntervalo.stream().parallel().forEachOrdered(dataAtual -> executorService.execute(() -> {
 			try {
 			
-			//lista de resultados direto da tabela não validados
-			List<EstatisticaDiscador> chamadasOrigemBruto = new ArrayList<>();
-			//lista de resultados direto da tabela não validados
-			List<EstatisticaDiscador> chamadasDestinoBruto = new ArrayList<>();
 			String tipoEstatisticaOrigem = String.format("chamada_com_segundo_desc_origem");
 			String tipoEstatisticaDestino = String.format("chamada_com_segundo_desc_destino");
 			String tipoEstatisticaTotal = String.format("chamada_com_segundo_desc_total");
@@ -135,51 +132,11 @@ public class EstatisticaTempoChamadaService {
 				
 				chamadasDestinoBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, tipoEstatisticaDestino, filtro, clienteId,0,120));
 			}
-
-			//loop para validação de resultados inexistentes na tabela
-			for (int i = 0; i<=120; i++) {
-				int a = i;
-					//a instancia verifica se o valor esxiste, caso não, ela o atribui com o valor de quantidade em zero
-					EstatisticaDiscador estatisticaOrigem =  chamadasOrigemBruto.stream().filter(chamada ->
-						chamada.getTipoEstisticaValor().equals(String.valueOf(a)) && chamada.getTipoEstatistica().equals(tipoEstatisticaOrigem) )
-						.findFirst().orElseGet(() -> Optional.of(
-								EstatisticaDiscador.builder()
-									.tipoEstatistica(tipoEstatisticaOrigem)
-									.quantidade(BigDecimal.ZERO)
-									.tipoEstisticaValor(String.valueOf(a))
-									.build()).get());
-						
-					//a instancia verifica se o valor existe, caso não, ela o atribui com o valor de quantidade em zero
-					EstatisticaDiscador estatisticaDestino =  chamadasDestinoBruto.stream().filter(chamada ->
-					chamada.getTipoEstisticaValor().equals(String.valueOf(a))  &&  chamada.getTipoEstatistica().equals(tipoEstatisticaDestino))
-					.findFirst().orElseGet(() -> Optional.of(
-							EstatisticaDiscador.builder()
-								.tipoEstatistica(tipoEstatisticaDestino)
-								.quantidade(BigDecimal.ZERO)
-								.tipoEstisticaValor(String.valueOf(a))
-								.build()).get());
-				 
-					
-					//Instancia que armazena a soma dos dois tipos de estatistica
-					EstatisticaDiscador estatisticaTotal = EstatisticaDiscador.builder()
-							.quantidade(estatisticaDestino.getQuantidade().add(estatisticaOrigem.getQuantidade()))
-							.tipoEstatistica(tipoEstatisticaTotal)
-							.tipoEstisticaValor(String.valueOf(a)).build();
-					
-					chamadaBrutoTabela.add(mapper.modelToOutputDtoSegundo(estatisticaOrigem));
-					chamadaBrutoTabela.add(mapper.modelToOutputDtoSegundo(estatisticaDestino));
-					chamadaBrutoTabela.add(mapper.modelToOutputDtoSegundo(estatisticaTotal));
-					 
-			
-			}
-			//processamento de cada item da tabela
-			chamadaTabelaProcessada.addAll(somaTabela(chamadaBrutoTabela));
-			
-			chamadaBrutoTabela.clear();
 			}catch(Exception e) {
 				System.out.println(e.getStackTrace());
 			}
 		}));
+		
 		try {
 			executorService.shutdown();
 			executorService.awaitTermination(30, TimeUnit.MINUTES);
@@ -187,7 +144,39 @@ public class EstatisticaTempoChamadaService {
 			System.out.println(e.getStackTrace());
 		}
 		
-		chamadaProcessada.addAll(somaTabela(chamadaTabelaProcessada));
+		List<EstatisticaDiscadorOutputDto> estatisticasProcessadas = new ArrayList<>();
+		//loop para validação de resultados inexistentes na tabela
+			for (int i = 0; i<=120; i++) {
+				int a = i;
+					//a instancia verifica se o valor esxiste, caso não, ela o atribui com o valor de quantidade em zero
+					BigDecimal quantidadeOrigem =  chamadasOrigemBruto.stream().filter(chamada ->
+						chamada.getTipoEstisticaValor().equals(String.valueOf(a)) && chamada.getTipoEstatistica().equals("chamada_com_segundo_desc_origem"))
+							.map(e -> e.getQuantidade()).reduce(BigDecimal.ZERO, BigDecimal::add);
+						
+					//a instancia verifica se o valor existe, caso não, ela o atribui com o valor de quantidade em zero
+					BigDecimal quantidadeDestino =  chamadasDestinoBruto.stream().filter(chamada ->
+					chamada.getTipoEstisticaValor().equals(String.valueOf(a)) && chamada.getTipoEstatistica().equals("chamada_com_segundo_desc_destino"))
+						.map(e -> e.getQuantidade()).reduce(BigDecimal.ZERO, BigDecimal::add);
+					
+					//Instancia que armazena a soma dos dois tipos de estatistica
+					EstatisticaDiscadorOutputDto estatisticaTotal = EstatisticaDiscadorOutputDto.builder()
+							.quantidade(quantidadeDestino.add(quantidadeOrigem))
+							.tipoEstatistica("chamada_com_"+a+"_segundo_desc_total").build();
+					
+					EstatisticaDiscadorOutputDto estatisticaOrigem = EstatisticaDiscadorOutputDto.builder()
+							.quantidade(quantidadeOrigem)
+							.tipoEstatistica("chamada_com_"+a+"_segundo_desc_origem").build();
+					EstatisticaDiscadorOutputDto estatisticaDestino = EstatisticaDiscadorOutputDto.builder()
+							.quantidade(quantidadeDestino)
+							.tipoEstatistica("chamada_com_"+a+"_segundo_desc_destino").build();
+						
+					estatisticasProcessadas.add(estatisticaDestino);
+					estatisticasProcessadas.add(estatisticaOrigem);
+					estatisticasProcessadas.add(estatisticaTotal);
+				
+			}
+		
+		chamadaProcessada.addAll(somaTabela(estatisticasProcessadas));
 		//Condição que certifica que exista algo na tabela, caso não, ele retorna uma lista vazia
 		if(!chamadaProcessada.stream().anyMatch(c -> c.getQuantidade().longValue() > 0)) {
 			return new ArrayList<>();

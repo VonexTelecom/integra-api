@@ -124,6 +124,7 @@ public class FiltroEstatisticaUtils {
 				}
 			}	 
 		} 
+		System.out.println(sql);
 		return sql.toString();
 	}
 	
