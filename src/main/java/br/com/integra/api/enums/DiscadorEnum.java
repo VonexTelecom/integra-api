@@ -1,5 +1,7 @@
 package br.com.integra.api.enums;
 
 public enum DiscadorEnum {
-	atto
+	atto,
+	vonex_mera,
+	vonex_sr
 }
