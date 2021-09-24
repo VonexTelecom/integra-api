@@ -29,7 +29,6 @@ public class EstatisticaFilter {
 	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
 	private Date dataInicial;
 	
-	
 	@ApiModelProperty(name = "dataFinal", value = "Data Final", required = false, position = 3, dataType = "DateTime", example = "2021-01-31T23:59")
 	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
 	private Date dataFinal;

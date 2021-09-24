@@ -43,13 +43,14 @@ public class EstatisticaSumarizadaService {
 	@Autowired
 	private SumarizacaoEstatisticaSumarizada sumarizacao;
 	
+	private List<OutrosErros> listaOutrosErros;
 	
 	public Page<OutrosErrosOutputDto> findOutrosErros(EstatisticaFilter filter, Long clienteId, Pageable pageable){
-		
+				
 		LocalDateTime dataInicial;
 		LocalDateTime dataFinal ;
-		//Lista de retono
 		
+		//Lista de retono
 		List<OutrosErrosOutputDto>  listOutrosErrosOutputDto = new ArrayList<>();
 		
 		//condição para conversão
@@ -81,7 +82,7 @@ public class EstatisticaSumarizadaService {
 		//Verificação da data que vai percorrer a tabela à data final descrita no filtro
 		dataIntervalo.stream().parallel().forEachOrdered(dataAtual -> executorService.execute(()-> {
 			try {		
-				List<OutrosErros> listaOutrosErros = new ArrayList<>();
+				listaOutrosErros = new ArrayList<>();
 					
 					//condição que verifica se a dataAtual(ano, mês e dia) é igual a data inicial(ano, mês e dia) caso não ele passa pro repositório apenas a data inicial(data e hora)
 					if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) == 0) {
@@ -119,15 +120,6 @@ public class EstatisticaSumarizadaService {
 					
 					}
 					
-					OutrosErrosOutputDto outrosErrosOutputDto;					
-					
-					for(int i=0; i < listaOutrosErros.size(); i++) {
-						outrosErrosOutputDto = new OutrosErrosOutputDto();
-						outrosErrosOutputDto.setStatusChamada(listaOutrosErros.get(i).getStatus_chamada());
-						outrosErrosOutputDto.setQuantidade(listaOutrosErros.get(i).getQuantidade());
-						outrosErrosOutputDto.setDescricao("Descricão do Status : "+listaOutrosErros.get(i).getStatus_chamada());
-						listOutrosErrosOutputDto.add(outrosErrosOutputDto);
-					}
 			}catch(Exception e) {
 				System.out.println(e.getStackTrace());
 			}
@@ -138,16 +130,40 @@ public class EstatisticaSumarizadaService {
 		} catch (Exception e) {
 			System.out.println(e.getStackTrace());
 		}
+						
+		OutrosErrosOutputDto outrosErrosOutputDto;			
 		
+		for(int i=0; i < listaOutrosErros.size(); i++) {
+			outrosErrosOutputDto = new OutrosErrosOutputDto();
+			outrosErrosOutputDto.setStatusChamada(listaOutrosErros.get(i).getStatus_chamada());
+			outrosErrosOutputDto.setQuantidade(listaOutrosErros.get(i).getQuantidade());
+			outrosErrosOutputDto.setDescricao("Descricão do Status : "+listaOutrosErros.get(i).getStatus_chamada());
+			listOutrosErrosOutputDto.add(outrosErrosOutputDto);
+		}
+
 		//Converte uma lista em uma page
 		Page<OutrosErrosOutputDto> page;
-		if(listOutrosErrosOutputDto.size()>0) {
-			page = new PageImpl<>(listOutrosErrosOutputDto.subList((int) pageable.getOffset(),(int) (pageable.getOffset()+pageable.getPageSize())), pageable, listOutrosErrosOutputDto.size());
+		if(listaOutrosErros.size() > 0 ) {
+			int offSet   = (int) pageable.getOffset();
+			int pageSize = pageable.getPageSize();
+			int total    = offSet+pageSize;
+			
+			if(listaOutrosErros.size() < total) {
+				offSet = pageSize*pageable.getPageNumber(); 
+				total  = listaOutrosErros.size();
+				if(offSet > listaOutrosErros.size()) {
+					offSet = listaOutrosErros.size()-((int) pageable.getOffset()-listaOutrosErros.size());
+				}
+			}
+			System.out.println("*** Offset   : "+offSet);
+			System.out.println("*** PageSize : "+pageSize);
+			
+			page = new PageImpl<>(listOutrosErrosOutputDto.subList(offSet, total), pageable, listOutrosErrosOutputDto.size());
 		}else {
-			page = null;
+			page = new PageImpl<>(listOutrosErrosOutputDto.subList(0, 0), pageable, listOutrosErrosOutputDto.size());			
 		}
-		return page;
 		
+		return page;
 	}
 	
 	
