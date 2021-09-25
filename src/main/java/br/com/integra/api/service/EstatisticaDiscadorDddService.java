@@ -197,8 +197,6 @@ public class EstatisticaDiscadorDddService {
 				continue;
 			}
 			String nome = String.format("chamadas_ddd_%d", i);
-			if(lista != null ) {
-				
 				Optional<EstatisticaDiscadorOutputDto> estatisticaDddFilter =  lista.stream().filter(chamada ->
 					chamada.getTipoEstatistica().equals(nome)).findAny();
 				List<EstatisticaDiscadorOutputDto> estatisticasDdd = new ArrayList<>();
@@ -225,9 +223,6 @@ public class EstatisticaDiscadorDddService {
 				estatisticasProcessadas.add(estatistica);
 				
 			}
-			
-		
-		}
 		return estatisticasProcessadas;
 		
 	}
