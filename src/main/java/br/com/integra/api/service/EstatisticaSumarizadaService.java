@@ -256,14 +256,14 @@ public class EstatisticaSumarizadaService {
 						.build();
 					estatisticaSumarizadaTabela.add(estatisticaTotalTabela);
 			}catch(Exception e) {
-				System.out.println("erro");
+				System.out.println(e.getStackTrace());
 			}
 		})); 
 		try {
 			executorService.shutdown();
 			executorService.awaitTermination(30, TimeUnit.MINUTES);
 		} catch (Exception e) {
-			System.out.println("Erro aki");
+			System.out.println(e.getStackTrace());
 		}
 		
 		return somarTabelas(estatisticaSumarizadaTabela, clienteId);
