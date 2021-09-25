@@ -14,6 +14,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -198,18 +199,31 @@ public class EstatisticaDiscadorDddService {
 			String nome = String.format("chamadas_ddd_%d", i);
 			if(lista != null ) {
 				
-				List<EstatisticaDiscadorOutputDto> estatisticaDdd =  lista.stream().filter(chamada ->
-				chamada.getTipoEstatistica().equals(nome)).collect(Collectors.toList());
-				EstatisticaDddOutputDto estatistica = EstatisticaDddOutputDto.builder()
+				Optional<EstatisticaDiscadorOutputDto> estatisticaDddFilter =  lista.stream().filter(chamada ->
+					chamada.getTipoEstatistica().equals(nome)).findAny();
+				List<EstatisticaDiscadorOutputDto> estatisticasDdd = new ArrayList<>();
+						estatisticaDddFilter.ifPresent(estatisticasDdd :: add);
+				EstatisticaDddOutputDto estatistica = new EstatisticaDddOutputDto();
+						
+				if(estatisticasDdd.size() >0) {
+					estatistica = EstatisticaDddOutputDto.builder()
 						.ddd(i)
 						.local(coordenadas.get(i).getLocal())
 						.Latitude(coordenadas.get(i).getLatitude())
 						.Longitude(coordenadas.get(i).getLongitude())
-						.quantidade(quantidadeTotal(estatisticaDdd))
+						.quantidade(quantidadeTotal(estatisticasDdd))
 						.build();
+				} else {
+					estatistica = EstatisticaDddOutputDto.builder()
+							.ddd(i)
+							.local(coordenadas.get(i).getLocal())
+							.Latitude(coordenadas.get(i).getLatitude())
+							.Longitude(coordenadas.get(i).getLongitude())
+							.quantidade(BigDecimal.ZERO)
+							.build();
+				}
 				estatisticasProcessadas.add(estatistica);
-			}else {
-				System.out.println("\n\n\n\n Lista Vazia");
+				
 			}
 			
 		

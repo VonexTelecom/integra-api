@@ -59,7 +59,6 @@ public class EstatisticasSumarizadaRepository {
 		//caso não, ela retorna uma lista vazia
 		if (countRepository.VerificaTabelaExistente(nomeDaTabelaData) == false) {
 			return new ArrayList<>();
-
 		}
 		
 		//aplicação dos filtros passados pelo front
