@@ -1,5 +1,10 @@
 package br.com.integra.api.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+
 import br.com.integra.api.filter.EstatisticaFilter;
 
 public class FiltroEstatisticaUtils {
@@ -17,16 +22,12 @@ public class FiltroEstatisticaUtils {
 		}
 		
 		if(filter.getModalidade().size() != 0) {
-			for(int i = 0; i < filter.getModalidade().size();i++) {
-				if(i == 0) {
-					sql.append((String)(" AND modalidade = '"+filter.getModalidade().get(i)+"'"));
-				} else {
-					sql.append((String)(" OR modalidade = '"+filter.getModalidade().get(i)+"'"));
-				}
-			}	
-		}
-		if(clienteId != null) {
-			sql.append(String.format(" AND clienteId = %d", clienteId));
+			List<String> dados = new ArrayList<>();
+			filter.getModalidade().forEach(filtro -> {
+				dados.add("'"+filtro.name()+"'");
+			});
+			String filtro = StringUtils.join(dados, ", ");
+			sql.append((String)(" AND modalidade in ("+filtro+")"));
 		}
 		
 		if(digitoInicial != null  && digitoFinal != null) {
@@ -34,24 +35,21 @@ public class FiltroEstatisticaUtils {
 		}
 		
 		if(filter.getOperadora().size() != 0) {
-			
-			for(int i = 0; i < filter.getOperadora().size() ;i++) {
-				if(i == 0) {
-					sql.append((String)(" AND operadora = '"+filter.getOperadora().get(i)+"'"));
-				} else {
-					sql.append((String)(" OR operadora = '"+filter.getOperadora().get(i)+"'"));
-				}
-			}	
+			List<String> dados = new ArrayList<>();
+			filter.getOperadora().forEach(filtro -> {
+				dados.add("'"+filtro.name()+"'");
+			});
+			String filtro = StringUtils.join(dados, ", ");
+			sql.append((String)(" AND operadora in ("+filtro+")"));
 		}
 		
 		if(filter.getDiscador().size() != 0) {
-			for(int i = 0; i < filter.getDiscador().size() ;i++) {
-				if(i == 0) {
-					sql.append((String)(" AND discador = '"+filter.getDiscador().get(i)+"'"));
-				} else {
-					sql.append((String)(" OR discador = '"+filter.getDiscador().get(i)+"'"));
-				}
-			}
+			List<String> dados = new ArrayList<>();
+			filter.getDiscador().forEach(filtro -> {
+				dados.add("'"+filtro.name()+"'");
+			});
+			String filtro = StringUtils.join(dados, ", ");
+			sql.append((String)(" AND discador in ("+filtro+")"));
 		}
 		
 		if(dataInicial != null && dataFinal != null) {
@@ -59,14 +57,16 @@ public class FiltroEstatisticaUtils {
 		}
 		
 		if(filter.getUnidadeAtendimento().size() > 0){
-			for(int i = 0; i <filter.getUnidadeAtendimento().size();i++) {
-				if(i == 0) {
-					sql.append((String)(" AND unidadeAtendimento LIKE '%"+filter.getUnidadeAtendimento().get(i)+"%'"));
-				} else {
-					sql.append((String)(" OR unidadeAtendimento LIKE '%"+filter.getUnidadeAtendimento().get(i)+"%'"));
-				}
-			}	 
+			List<String> dados = new ArrayList<>();
+			filter.getUnidadeAtendimento().forEach(filtro -> {
+				dados.add("'"+filtro+"'");
+			});
+			String filtro = StringUtils.join(dados, ", ");
+			sql.append((String)(" AND unidadeAtendimento in ("+filtro+")"));
 		} 
+		if(clienteId != null) {
+			sql.append(String.format(" AND clienteId = %d", clienteId));
+		}
 		System.out.println(sql);
 		return sql.toString();
 	}
