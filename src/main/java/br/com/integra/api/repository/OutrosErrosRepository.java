@@ -93,12 +93,12 @@ public class OutrosErrosRepository {
 		
 		//aplicação dos filtros passados pelo front
 		String sql = FiltroEstatisticaUtils.criarQueryOutrosErros(nomeDaTabelaData, "", filter, clienteId, null, null, dataInicialFormatada, dataFinalFormatada);
-		System.out.println("**** SQL: "+sql);
+
 		//conversor da lista dos resultados da query em lista de entidades do spring
 	    List<OutrosErros> listaOutrosErros = namedJdbcTemplate.query(sql, new RowMapperResultSetExtractor<OutrosErros>(new OutrosErrosRowMapper()));
-	    
+		
 	    return listaOutrosErros;
-	    }
+	}
 	
 	//Método para query sem data inicial e data final (busca todos os dados da tabela inteira)
 	public List<OutrosErros> findtipoOutrosErros(LocalDate date

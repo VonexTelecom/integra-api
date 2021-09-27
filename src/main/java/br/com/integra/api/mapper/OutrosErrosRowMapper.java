@@ -27,6 +27,7 @@ public class OutrosErrosRowMapper implements RowMapper<OutrosErros>{
 				.operadora(rs.getString("operadora"))
 				.unidadeAtendimento(rs.getString("unidadeAtendimento"))
 				.modalidade(rs.getString("modalidade"))
+				.descricao(rs.getString("descricao"))
 				.build();
 	}
 

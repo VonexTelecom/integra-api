@@ -21,5 +21,6 @@ public class OutrosErros {
 	private String operadora;
 	private String unidadeAtendimento;
 	private String discador;
+	private String descricao;
 }
 	
