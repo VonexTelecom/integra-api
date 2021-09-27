@@ -126,13 +126,8 @@ public class FiltroEstatisticaUtils {
 					sql.append((String)(" OR unidadeAtendimento LIKE '%"+filter.getUnidadeAtendimento().get(i)+"%'"));
 				}
 			}	 
-<<<<<<< HEAD
 		}
 		
-=======
-		} 
-		System.out.println(sql);
->>>>>>> refs/remotes/origin/main
 		return sql.toString();
 	}
 	
