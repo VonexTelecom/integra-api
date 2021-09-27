@@ -137,7 +137,7 @@ public class EstatisticaSumarizadaService {
 			outrosErrosOutputDto = new OutrosErrosOutputDto();
 			outrosErrosOutputDto.setStatusChamada(listaOutrosErros.get(i).getStatus_chamada());
 			outrosErrosOutputDto.setQuantidade(listaOutrosErros.get(i).getQuantidade());
-			outrosErrosOutputDto.setDescricao("Descricão do Status : "+listaOutrosErros.get(i).getStatus_chamada());
+			outrosErrosOutputDto.setDescricao(listaOutrosErros.get(i).getDescricao());
 			listOutrosErrosOutputDto.add(outrosErrosOutputDto);
 		}
 
@@ -155,13 +155,11 @@ public class EstatisticaSumarizadaService {
 					offSet = listaOutrosErros.size()-((int) pageable.getOffset()-listaOutrosErros.size());
 				}
 			}
-			System.out.println("*** Offset   : "+offSet);
-			System.out.println("*** PageSize : "+pageSize);
-			
 			page = new PageImpl<>(listOutrosErrosOutputDto.subList(offSet, total), pageable, listOutrosErrosOutputDto.size());
 		}else {
 			page = new PageImpl<>(listOutrosErrosOutputDto.subList(0, 0), pageable, listOutrosErrosOutputDto.size());			
 		}
+		//Fim da convercao
 		
 		return page;
 	}
