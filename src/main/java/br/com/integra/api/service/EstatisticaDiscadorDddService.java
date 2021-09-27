@@ -208,8 +208,6 @@ public class EstatisticaDiscadorDddService {
 						.quantidade(quantidadeTotal(estatisticaDdd))
 						.build();
 				estatisticasProcessadas.add(estatistica);
-			}else {
-				System.out.println("\n\n\n\n Lista Vazia");
 			}
 			
 		

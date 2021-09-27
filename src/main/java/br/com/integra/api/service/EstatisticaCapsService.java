@@ -1,11 +1,13 @@
 package br.com.integra.api.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -14,16 +16,16 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Lists;
+
 import br.com.integra.api.dto.output.EstatisticaCapsOutputDto;
-import br.com.integra.api.dto.output.EstatisticaDiscadorOutputDto;
-import br.com.integra.api.dto.output.ValoresCapsOutputDto;
 import br.com.integra.api.exception.BusinessException;
 import br.com.integra.api.filter.EstatisticaFilter;
-import br.com.integra.api.mapper.EstatisticaCapsMapper;
 import br.com.integra.api.mapper.EstatisticaDiscadorMapper;
 import br.com.integra.api.model.EstatisticaDiscador;
 import br.com.integra.api.repository.EstatisticaCapsRepository;
 import br.com.integra.api.utils.DateUtils;
+import javassist.expr.NewArray;
 
 /**
  * @author Rafael Lopes
@@ -37,8 +39,6 @@ public class EstatisticaCapsService {
 	@Autowired
 	private EstatisticaCapsRepository repository;
 	
-	@Autowired
-	private EstatisticaCapsMapper mapper;
 	
 	@Autowired
 	private EstatisticaDiscadorMapper estatisticaMapper;
@@ -75,8 +75,6 @@ public class EstatisticaCapsService {
 			throw new BusinessException("Selecione um periodo ou uma data incial e final.");
 		}
 			
-			//lista de caps já processados e devidamente validados para o retorno ao front
-			List<EstatisticaCapsOutputDto> capsProcessado = new ArrayList<>();
 			LocalDate dataAtualPeriodo = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
 			LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
 			
@@ -133,57 +131,43 @@ public class EstatisticaCapsService {
 			} catch (Exception e) {
 				Thread.currentThread().interrupt();
 			}
-			capsProcessado.add(separadorCaps(capsBruto, dataInicial, dataFinal));
 			
-			List<ValoresCapsOutputDto> chamadasDiscadas = new ArrayList<>(); 
-			List<ValoresCapsOutputDto> maxCapsSainte = new ArrayList<>(); 
-			capsProcessado.stream().forEach(e -> chamadasDiscadas.addAll(e.getChamadasDiscadas()));
-			capsProcessado.stream().forEach(e -> maxCapsSainte.addAll(e.getMaxCapsSainte()));
-			
-			EstatisticaCapsOutputDto capsRetorno = EstatisticaCapsOutputDto.builder()
-					.chamadasDiscadas(chamadasDiscadas)
-					.maxCapsSainte(maxCapsSainte).build();
-					
-
-			
-			//Condição que certifica que exista algo na tabela, caso não, ele retorna uma lista vazia
-			if(!capsProcessado.stream().filter(t -> t.getChamadasDiscadas().stream().filter(v -> v.getQuantidade().longValue() > 0).findAny().isPresent()).findAny().isPresent()) {
-				if(!capsProcessado.stream().filter(t -> t.getMaxCapsSainte().stream().filter(v -> v.getQuantidade().longValue() > 0).findAny().isPresent()).findAny().isPresent()) {
-					capsRetorno = EstatisticaCapsOutputDto.builder()
-							.chamadasDiscadas(new ArrayList<>())
-							.maxCapsSainte(new ArrayList<>()).build();
-				}
-			}
-		return capsRetorno;
+			Long endTime = System.currentTimeMillis();
+			EstatisticaCapsOutputDto caps = sumarizarCaps(capsBruto);
+			System.out.println("tempo de execução: "+(float)(endTime-startTime)/1000);
+		return caps;
 	}
-	/**
-	 * @param lista
-	 * @param dataInicial
-	 * @param dataFinal
-	 * @return valores do caps devidamente processados
-	 */
-	public EstatisticaCapsOutputDto separadorCaps(List<EstatisticaDiscador> lista, LocalDateTime dataInicial, LocalDateTime dataFinal){
-		List<ValoresCapsOutputDto> maxCapsSainte = new ArrayList<>();
-		List<ValoresCapsOutputDto> chamadasDiscadas = new ArrayList<>();
-		List<ValoresCapsOutputDto> listaValores = new ArrayList<>();
-		while (dataInicial.compareTo(dataFinal) <= 0) {
-			LocalDateTime dataFim = dataInicial.plusMinutes(1L);
-			LocalDateTime dataIni = dataInicial;
-			List<EstatisticaDiscadorOutputDto> caps = estatisticaMapper.modelToCollectionOutputDto(lista.stream().filter
-					(c -> c.getData().compareTo (dataIni) == 0 &&
-					c.getData().compareTo(dataFim) <= 0).collect(Collectors.toList()));
-			listaValores.addAll(mapper.modelToOutputDto(caps,dataInicial));
-			if(listaValores.size() != 0) {
-				chamadasDiscadas.add(listaValores.get(1));
-				maxCapsSainte.add(listaValores.get(0));
-			}
-			listaValores.clear();
-			dataInicial = dataInicial.plusMinutes(1L);
-		}
-		EstatisticaCapsOutputDto capsRetorno = EstatisticaCapsOutputDto.builder()
-				.chamadasDiscadas(chamadasDiscadas)
-				.maxCapsSainte(maxCapsSainte).build();
+	
+	public EstatisticaCapsOutputDto sumarizarCaps (List<EstatisticaDiscador> lista) {
+		Set<LocalDateTime> datas = lista.stream().map(e -> e.getData()).collect(Collectors.toSet());
+		List<LocalDateTime> datasOrdenadas = Lists.newArrayList(datas).stream().sorted().collect(Collectors.toList());
+		List<EstatisticaDiscador> caps = new ArrayList<>();
 		
-		return capsRetorno;
+		for (LocalDateTime dataAtual : datasOrdenadas) {
+			EstatisticaDiscador chamadasDiscadas = EstatisticaDiscador.builder()
+					.data(dataAtual)
+					.tipoEstatistica("chamadas_discadas")
+					.quantidade(lista.stream()
+							.filter(e -> e.getData().compareTo(dataAtual) == 0 && e.getTipoEstatistica()
+							.equals("chamadas_discadas")).map(q -> q.getQuantidade()).reduce(BigDecimal.ZERO, BigDecimal :: add))
+					.build();
+			
+			EstatisticaDiscador maxCapsSainte = EstatisticaDiscador.builder()
+					.data(dataAtual)
+					.tipoEstatistica("max_caps_sainte")
+					.quantidade(lista.stream()
+							.filter(e -> e.getData().compareTo(dataAtual) == 0 && e.getTipoEstatistica()
+							.equals("max_caps_sainte")).map(q -> q.getQuantidade()).reduce(BigDecimal.ZERO, BigDecimal::add))
+					.build();
+			
+		caps.add(chamadasDiscadas);
+		caps.add(maxCapsSainte);
+		}
+		
+		return EstatisticaCapsOutputDto.builder()
+				.chamadasDiscadas(caps)
+				.maxCpasSainte(caps).build();
 	}
+	
+	
 }
