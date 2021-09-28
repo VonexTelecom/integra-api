@@ -49,7 +49,11 @@ public class OutrosErrosRepository {
 		
 		String dataFinalFormatada = DateUtils.formatarData(dataFinal);
 
-		String nomeDaTabelaData = String.format("OutrosErros%s", dataFormatada);
+		String nomeDaTabelaData = String.format("OutrosErrosDia%s", dataFormatada);
+		if(filter.getModalidade().size() == 0 && filter.getDiscador().size() == 0 
+				&& filter.getOperadora().size() == 0 && filter.getUnidadeAtendimento().size() == 0) {
+			nomeDaTabelaData = String.format("OutrosErrosDiaSumarizado%s", dataFormatada);
+		}
 				
 		//Condição para a verificação de tabela existente
 		//caso não, ela retorna uma lista vazia
