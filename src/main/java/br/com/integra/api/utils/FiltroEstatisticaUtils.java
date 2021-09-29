@@ -76,7 +76,7 @@ public class FiltroEstatisticaUtils {
 			, String dataInicial, String dataFinal) {
 		StringBuilder sql = new StringBuilder();
 		sql.append(String.format(
-				"SELECT sum(quantidade) as quantidade, status_chamada FROM IntegraBI.%s INNER JOIN Integra.StatusDiscagemErro on status_chamada = statusDiscagem WHERE 0 = 0", nomeDaTabelaData));
+				"SELECT sum(quantidade) as quantidade, status_chamada FROM IntegraBI.%s INNER JOIN IntegraBI.StatusDiscagemErro on status_chamada = statusDiscagem WHERE 0 = 0", nomeDaTabelaData));
 		
 		if(filter.getModalidade().size() != 0) {
 			List<String> dados = new ArrayList<>();
