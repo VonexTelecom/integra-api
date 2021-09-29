@@ -49,10 +49,10 @@ public class OutrosErrosRepository {
 		
 		String dataFinalFormatada = DateUtils.formatarData(dataFinal);
 
-		String nomeDaTabelaData = String.format("OutrosErrosDia%s", dataFormatada);
+		String nomeDaTabelaData = String.format("OutrosErros%s", dataFormatada);
 		if(filter.getModalidade().size() == 0 && filter.getDiscador().size() == 0 
 				&& filter.getOperadora().size() == 0 && filter.getUnidadeAtendimento().size() == 0) {
-			nomeDaTabelaData = String.format("OutrosErrosDiaSumarizado%s", dataFormatada);
+			nomeDaTabelaData = String.format("OutrosErrosSumarizado%s", dataFormatada);
 		}
 				
 		//Condição para a verificação de tabela existente
@@ -88,6 +88,10 @@ public class OutrosErrosRepository {
 		String dataFinalFormatada = DateUtils.formatarData(filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
 
 		String nomeDaTabelaData = String.format("OutrosErros%s", dataFormatada);
+		if(filter.getModalidade().size() == 0 && filter.getDiscador().size() == 0 
+				&& filter.getOperadora().size() == 0 && filter.getUnidadeAtendimento().size() == 0) {
+			nomeDaTabelaData = String.format("OutrosErrosSumarizado%s", dataFormatada);
+		}
 				
 		//Condição para a verificação de tabela existente
 		//caso não, ela retorna uma lista vazia
@@ -112,6 +116,10 @@ public class OutrosErrosRepository {
 		
 		//montagem do nome da tabela a ser percorrida na query
 		String nomeDaTabelaData = String.format("OutrosErros%s", dataFormatada);
+		if(filter.getModalidade().size() == 0 && filter.getDiscador().size() == 0 
+				&& filter.getOperadora().size() == 0 && filter.getUnidadeAtendimento().size() == 0) {
+			nomeDaTabelaData = String.format("OutrosErrosSumarizado%s", dataFormatada);
+		}
 
 		//Condição para a verificação de tabela existente
 		//caso não, ela retorna uma lista vazia
