@@ -8,7 +8,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import br.com.integra.api.enums.DiscadorEnum;
 import br.com.integra.api.enums.ModalidadeEnum;
-import br.com.integra.api.enums.OperadoraEnum;
 import br.com.integra.api.enums.PeriodoEstatisticaEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -36,11 +35,11 @@ public class EstatisticaFilter {
 	@ApiModelProperty(name = "modalidade", value = "Modalidade", dataType = "Enum", example = "fixo")
 	private List<ModalidadeEnum> modalidade = new ArrayList<>();
 	
-	@ApiModelProperty(name = "operadora", value = "Operadora", dataType = "Enum", example = "oi")
-	private List<OperadoraEnum> operadora = new ArrayList<>();
+	@ApiModelProperty(name = "operadora", value = "Operadora", dataType = "String", example = "oi")
+	private List<String> operadora = new ArrayList<>();
 	
-	@ApiModelProperty(name = "discador", value = "Discador", dataType = "Enum", example = "atto")
-	private List<DiscadorEnum> discador = new ArrayList<>();
+	@ApiModelProperty(name = "discador", value = "Discador", dataType = "String", example = "atto")
+	private List<String> discador = new ArrayList<>();
 	
 	@ApiModelProperty(name = "unidadeAtendimento", value = "Unidade de Atendimento", dataType = "String")
 	private List<String> unidadeAtendimento = new ArrayList<>();
