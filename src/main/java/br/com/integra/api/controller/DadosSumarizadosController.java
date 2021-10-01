@@ -14,6 +14,7 @@ import br.com.integra.api.controller.swagger.DadosControllerSwagger;
 import br.com.integra.api.dto.output.OutrosErrosOutputDto;
 import br.com.integra.api.filter.EstatisticaFilter;
 import br.com.integra.api.service.EstatisticaCapsService;
+import br.com.integra.api.service.EstatisticaChamadaMinutoService;
 import br.com.integra.api.service.EstatisticaDiscadorChamadasService;
 import br.com.integra.api.service.EstatisticaDiscadorDddService;
 import br.com.integra.api.service.EstatisticaSumarizadaService;
@@ -34,6 +35,9 @@ public class DadosSumarizadosController implements DadosControllerSwagger {
 	
 	@Autowired
 	private EstatisticaCapsService capsService;
+	
+	@Autowired
+	private EstatisticaChamadaMinutoService chamadasMinutoService;
 	
 	@Autowired
 	private IntegraSecurity integraSecurity;
@@ -81,6 +85,13 @@ public class DadosSumarizadosController implements DadosControllerSwagger {
 	@CheckSecurity.DadosSumarizados.PodeAcessar
 	public ResponseEntity<?> discadorTotalizadorCaps(EstatisticaFilter filter) {
 		return ResponseEntity.ok(capsService.discadorTotalizadorCaps(filter, integraSecurity.getClienteId()));
+	}
+
+	@Override
+	@GetMapping("discador-chamadas-minuto")
+	@CheckSecurity.DadosSumarizados.PodeAcessar
+	public ResponseEntity<?> totalizadorChamadasMinuto(EstatisticaFilter filter) {
+		return ResponseEntity.ok(chamadasMinutoService.discadorTotalizadorMinuto(filter, integraSecurity.getClienteId()));
 	}
 	
 	

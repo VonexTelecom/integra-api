@@ -79,6 +79,7 @@ public class EstatisticaDiscadorChamadasService {
 
 			//Verificação da data que vai percorrer a tabela à data final descrita no filtro
 			for (LocalDate dataAtual : dataIntervalo) {
+				System.out.println(dataAtual);
 				///condição que verifica se a dataAtual(ano, mês e dia) é igual a data inicial(ano, mês e dia) caso não ele passa pro repositório apenas a data inicial(data e hora)
 				if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) == 0) {
 					

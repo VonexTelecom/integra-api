@@ -15,11 +15,13 @@ public class FiltroEstatisticaUtils {
 		StringBuilder sql = new StringBuilder();
 		sql.append(String.format("SELECT * FROM %s WHERE 0 = 0", nomeDaTabelaData));
 		
-		if(tipoEstatistica != null && tipoEstatistica.isEmpty() == false && !tipoEstatistica.equals("caps")) {
-			sql.append(String.format(" AND tipoEstatistica = '%s'",tipoEstatistica));
-		}else if(tipoEstatistica != null && tipoEstatistica.isEmpty() == false && tipoEstatistica.equals("caps")) {
+			
+		if(tipoEstatistica != null && tipoEstatistica.isEmpty() == false && tipoEstatistica.equals("caps")) {
 			sql.append(" AND tipoEstatistica = 'max_caps_sainte' OR tipoEstatistica = 'chamadas_discadas'");
-		}
+		}else if(tipoEstatistica != null && tipoEstatistica.isEmpty() == false && tipoEstatistica.equals("chamadas_minutos")) {
+			sql.append(" AND tipoEstatistica = 'chamadas_completadas' OR tipoEstatistica = 'chamadas_discadas'");
+		}else if(tipoEstatistica != null && tipoEstatistica.isEmpty() == false) {
+			sql.append(String.format(" AND tipoEstatistica = '%s'",tipoEstatistica));}
 		
 		if(filter.getModalidade().size() != 0) {
 			List<String> dados = new ArrayList<>();
@@ -67,7 +69,6 @@ public class FiltroEstatisticaUtils {
 		if(clienteId != null) {
 			sql.append(String.format(" AND clienteId = %d", clienteId));
 		}
-		System.out.println(sql);
 		return sql.toString();
 	}
 	
@@ -127,7 +128,7 @@ public class FiltroEstatisticaUtils {
 				}
 			}	 
 		}
-		
+		System.out.println(sql);
 		return sql.toString();
 	}
 	

@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -16,38 +16,23 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.Lists;
-
-import br.com.integra.api.dto.output.EstatisticaCapsOutputDto;
+import br.com.integra.api.dto.output.EstatisticaChamadaMinutoOutputDto;
 import br.com.integra.api.exception.BusinessException;
 import br.com.integra.api.filter.EstatisticaFilter;
-import br.com.integra.api.mapper.EstatisticaDiscadorMapper;
 import br.com.integra.api.model.EstatisticaDiscador;
-import br.com.integra.api.repository.EstatisticaCapsRepository;
+import br.com.integra.api.repository.EstatisticaChamadaMinutoRepository;
 import br.com.integra.api.utils.DateUtils;
-import javassist.expr.NewArray;
 
-/**
- * @author Rafael Lopes
- * 
- * Service para o processamento do caps
- *
- */
 @Service
-public class EstatisticaCapsService {
+public class EstatisticaChamadaMinutoService {
 	
 	@Autowired
-	private EstatisticaCapsRepository repository;
+	private EstatisticaChamadaMinutoRepository repository;
 	
-	/**
-	 * @param filter
-	 * @param clienteId
-	 * @return EstatisticaCapsOutputDto
-	 * 
-	 * O método recebe o filtro contendo uma data inicial, data final(pode ser por enum ou não) e o id do cliente
-	 */
-	public EstatisticaCapsOutputDto discadorTotalizadorCaps(EstatisticaFilter filter, Long clienteId) {
+	
+	public EstatisticaChamadaMinutoOutputDto discadorTotalizadorMinuto(EstatisticaFilter filter, Long clienteId) {
 		
+
 		Long startTime = System.currentTimeMillis();
 		
 		LocalDateTime dataInicial;
@@ -76,11 +61,12 @@ public class EstatisticaCapsService {
 			
 			List<LocalDate> dataIntervalo = DateUtils.IntervaloData(dataAtualPeriodo, dataFinalFormatada);
 			ExecutorService executorService = Executors.newFixedThreadPool(8);
-			List<EstatisticaDiscador> capsBruto = new ArrayList<>();
+			List<EstatisticaDiscador> chamadasBruto = new ArrayList<>();
 
 			//verificação da data que vai percorrer a tabela até a data final descrita no filtro
 			dataIntervalo.stream().parallel().forEachOrdered(dataAtual -> executorService.execute(() ->{
 				try {
+					
 				//condição que verifica se a dataAtual(ano, mês e dia) é igual a data inicial(ano, mês e dia), caso sim ele passa pro repositório apenas a data inicial(data e hora)
 				if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) == 0) {
 					EstatisticaFilter filtro = EstatisticaFilter.builder()
@@ -90,7 +76,7 @@ public class EstatisticaCapsService {
 							.operadora(filter.getOperadora())
 							.unidadeAtendimento(filter.getUnidadeAtendimento())
 							.build();
-					capsBruto.addAll(repository.findtipoEstatisticaTotalizadorInicial(dataAtual, filtro,clienteId));
+					chamadasBruto.addAll(repository.findtipoEstatisticaTotalizadorInicial(dataAtual, filtro,clienteId));
 					  
 				//caso a data atual for diferente da data inicial(ano, mês e dia) e data final(ano, mês e dia) o filtro é passado sem as datas
 				}else  if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) != 0) {
@@ -102,7 +88,7 @@ public class EstatisticaCapsService {
 							.unidadeAtendimento(filter.getUnidadeAtendimento())
 							.build();
 					
-					capsBruto.addAll(repository.findtipoEstatisticaTotalizador(dataAtual, filtro,clienteId));
+					chamadasBruto.addAll(repository.findtipoEstatisticaTotalizador(dataAtual, filtro,clienteId));
 				//caso a data atual(ano, mês e dia) for igual a data final(ano, mês e dia) o filtro é passado com as datas(data e hora)
 				}else {
 					EstatisticaFilter filtro = EstatisticaFilter.builder()
@@ -115,7 +101,7 @@ public class EstatisticaCapsService {
 							.build();
 		
 					
-					capsBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, filtro,clienteId));
+					chamadasBruto.addAll(repository.findtipoEstatisticaTotalizadorFinal(dataAtual, filtro,clienteId));
 				}
 				}catch(Exception e){
 					System.out.println(e.getStackTrace());
@@ -127,43 +113,69 @@ public class EstatisticaCapsService {
 			} catch (Exception e) {
 				Thread.currentThread().interrupt();
 			}
-			
 			Long endTime = System.currentTimeMillis();
-			EstatisticaCapsOutputDto caps = sumarizarCaps(capsBruto);
+			EstatisticaChamadaMinutoOutputDto chamadasMinuto = sumarizarChamadasMinuto(chamadasBruto);
 			System.out.println("tempo de execução: "+(float)(endTime-startTime)/1000);
-		return caps;
+		return chamadasMinuto;
 	}
 	
-	public EstatisticaCapsOutputDto sumarizarCaps (List<EstatisticaDiscador> lista) {
-		Set<LocalDateTime> datas = lista.stream().map(e -> e.getData()).collect(Collectors.toSet());
-		List<LocalDateTime> datasOrdenadas = Lists.newArrayList(datas).stream().sorted().collect(Collectors.toList());
-		List<EstatisticaDiscador> caps = new ArrayList<>();
+	public EstatisticaChamadaMinutoOutputDto sumarizarChamadasMinuto (List<EstatisticaDiscador> lista) {
 		
-		for (LocalDateTime dataAtual : datasOrdenadas) {
-			EstatisticaDiscador chamadasDiscadas = EstatisticaDiscador.builder()
-					.data(dataAtual)
-					.tipoEstatistica("chamadas_discadas")
-					.quantidade(lista.stream()
-							.filter(e -> e.getData().compareTo(dataAtual) == 0 && e.getTipoEstatistica()
-							.equals("chamadas_discadas")).map(q -> q.getQuantidade()).reduce(BigDecimal.ZERO, BigDecimal :: add))
-					.build();
-			
-			EstatisticaDiscador maxCapsSainte = EstatisticaDiscador.builder()
-					.data(dataAtual)
-					.tipoEstatistica("max_caps_sainte")
-					.quantidade(lista.stream()
-							.filter(e -> e.getData().compareTo(dataAtual) == 0 && e.getTipoEstatistica()
-							.equals("max_caps_sainte")).map(q -> q.getQuantidade()).reduce(BigDecimal.ZERO, BigDecimal::add))
-					.build();
-			
-		caps.add(chamadasDiscadas);
-		caps.add(maxCapsSainte);
+		HashMap<LocalDateTime, BigDecimal> chamadasCompletadas = new HashMap<LocalDateTime, BigDecimal>();
+		HashMap<LocalDateTime, BigDecimal> chamadasDiscadas = new HashMap<LocalDateTime, BigDecimal>();
+		
+		List<EstatisticaDiscador> chamadasMinuto = new ArrayList<>();
+		List<EstatisticaDiscador> chamadasCompletadasBruto = new ArrayList<>();
+		chamadasCompletadasBruto.addAll(lista.stream()
+				.filter(e -> e.getTipoEstatistica().equals("chamadas_completadas")).collect(Collectors.toList()));
+		
+		List<EstatisticaDiscador> chamadasDiscadasBruto = lista.stream()
+				.filter(e -> e.getTipoEstatistica().equals("chamadas_discadas")).collect(Collectors.toList());
+		
+		for (EstatisticaDiscador estatisticaDiscador : chamadasCompletadasBruto) {
+			Long tempoValor = Long.valueOf(estatisticaDiscador.getTipoEstisticaValor());
+			LocalDateTime dataFinal = estatisticaDiscador.getData().plusMinutes(tempoValor);
+			for(LocalDateTime a = estatisticaDiscador.getData(); a.compareTo(dataFinal) <= 0; a = a.plusMinutes(1)) {
+				LocalDateTime dataMovel = a;
+				if(!chamadasCompletadas.containsKey(dataMovel)) {
+					chamadasCompletadas.put(dataMovel, estatisticaDiscador.getQuantidade());
+				}else {
+						chamadasCompletadas.put(a, chamadasCompletadas.get(dataMovel).add(estatisticaDiscador.getQuantidade()));
+				}
+				if(!chamadasDiscadasBruto.stream().filter(e->e.getData().compareTo(dataMovel) == 0).findFirst().isPresent()) {
+					chamadasDiscadas.put(a, BigDecimal.ZERO);
+				}
+			}
+		}
+		for (EstatisticaDiscador estatisticaDiscador : chamadasDiscadasBruto) {
+			LocalDateTime dataMovel = estatisticaDiscador.getData();
+			if(!chamadasDiscadas.containsKey(dataMovel)) {
+					chamadasDiscadas.put(dataMovel, estatisticaDiscador.getQuantidade());
+			} else {
+					chamadasDiscadas.put(dataMovel, chamadasDiscadas.get(dataMovel).add(estatisticaDiscador.getQuantidade()));
+			}
+			if(!chamadasCompletadasBruto.stream().filter(e->e.getData().plusMinutes(Long.valueOf(e.getTipoEstisticaValor())).compareTo(dataMovel) >= 0).findFirst().isPresent()) {
+					chamadasCompletadas.put(dataMovel, BigDecimal.ZERO);
+			}
 		}
 		
-		return EstatisticaCapsOutputDto.builder()
-				.chamadasDiscadas(caps)
-				.maxCpasSainte(caps).build();
+		List<EstatisticaDiscador> chamadasDiscadasRetorno = chamadasDiscadas.entrySet().stream().map(
+				e -> new EstatisticaDiscador().builder().data(e.getKey()).quantidade(e.getValue()).tipoEstatistica("chamadas_discadas").build())
+				.collect(Collectors.toList());
+		
+		List<EstatisticaDiscador> chamadasCompletadasRetorno = chamadasCompletadas.entrySet().stream().map(
+				e -> new EstatisticaDiscador().builder().data(e.getKey()).quantidade(e.getValue()).tipoEstatistica("chamadas_completadas").build())
+				.collect(Collectors.toList());
+			
+		chamadasDiscadasRetorno.sort((d1, d2) -> d1.getData().compareTo(d2.getData()));
+		
+		chamadasCompletadasRetorno.sort((d1, d2) -> d1.getData().compareTo(d2.getData()));
+		
+		System.out.println("\n\n chamadasCompletadas"+chamadasCompletadas+"\n\n chamadasDiscadas:"+chamadasDiscadas);
+		
+		return EstatisticaChamadaMinutoOutputDto.builder()
+				.chamadasDiscadas(chamadasDiscadasRetorno)
+				.chamadasCompletadas(chamadasCompletadasRetorno).build();
+		
 	}
-	
-	
 }
