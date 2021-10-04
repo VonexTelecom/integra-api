@@ -19,7 +19,7 @@ public class FiltroEstatisticaUtils {
 		if(tipoEstatistica != null && tipoEstatistica.isEmpty() == false && tipoEstatistica.equals("caps")) {
 			sql.append(" AND tipoEstatistica = 'max_caps_sainte' OR tipoEstatistica = 'chamadas_discadas'");
 		}else if(tipoEstatistica != null && tipoEstatistica.isEmpty() == false && tipoEstatistica.equals("chamadas_minutos")) {
-			sql.append(" AND tipoEstatistica = 'chamadas_completadas' OR tipoEstatistica = 'chamadas_discadas'");
+			sql.append(" AND tipoEstatistica = 'chamadas_completadas_minuto' OR tipoEstatistica = 'chamadas_discadas'");
 		}else if(tipoEstatistica != null && tipoEstatistica.isEmpty() == false) {
 			sql.append(String.format(" AND tipoEstatistica = '%s'",tipoEstatistica));}
 		

@@ -127,7 +127,7 @@ public class EstatisticaChamadaMinutoService {
 		List<EstatisticaDiscador> chamadasMinuto = new ArrayList<>();
 		List<EstatisticaDiscador> chamadasCompletadasBruto = new ArrayList<>();
 		chamadasCompletadasBruto.addAll(lista.stream()
-				.filter(e -> e.getTipoEstatistica().equals("chamadas_completadas")).collect(Collectors.toList()));
+				.filter(e -> e.getTipoEstatistica().equals("chamadas_completadas_minuto")).collect(Collectors.toList()));
 		
 		List<EstatisticaDiscador> chamadasDiscadasBruto = lista.stream()
 				.filter(e -> e.getTipoEstatistica().equals("chamadas_discadas")).collect(Collectors.toList());
