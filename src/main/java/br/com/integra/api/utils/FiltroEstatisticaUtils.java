@@ -33,7 +33,7 @@ public class FiltroEstatisticaUtils {
 		}
 		
 		if(digitoInicial != null  && digitoFinal != null) {
-			sql.append(String.format(" AND tipoEstatisticaValor between '%d' and '%d'",digitoInicial, digitoFinal));
+			sql.append(String.format(" AND tipoEstatisticaValor between %d and %d ",digitoInicial, digitoFinal));
 		}
 		
 		if(filter.getOperadora().size() != 0) {
