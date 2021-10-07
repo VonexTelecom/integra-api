@@ -8,10 +8,10 @@ pipeline {
         			 
             stage ('Build') {
                 steps {   
-                    withCredentials([sshUserPrivateKey(credentialsId: 'sms', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'centos')]) {	
+                   // withCredentials([sshUserPrivateKey(credentialsId: 'sms', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'centos')]) {	
                         sh ' mvn clean install -DskipTests'
                     }
-                }
+                //}
             }
             /*stage ('Test') {
                 steps {    
