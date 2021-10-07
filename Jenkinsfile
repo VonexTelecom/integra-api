@@ -5,10 +5,12 @@ pipeline {
         jdk 'jdk8'
     }
     stages {
-        withCredentials([sshUserPrivateKey(credentialsId: 'sms', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'centos')]) {				 
+        			 
             stage ('Build') {
-                steps {    
-                    sh ' mvn clean install -DskipTests'
+                steps {   
+                    withCredentials([sshUserPrivateKey(credentialsId: 'sms', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'centos')]) {	
+                        sh ' mvn clean install -DskipTests'
+                    }
                 }
             }
             /*stage ('Test') {
@@ -28,8 +30,7 @@ pipeline {
                     sh ' docker container run --network intranet -h integra-api -d --name integra-api -p 8086:8086 vonex/api_integra-api:${BUILD_NUMBER}'
                 }
             } 
-        }
-    }
+       }
 }
 
 
